@@ -14,6 +14,9 @@ public:
     virtual Ply find_best_move(Board &board, int color, int search_depth);
     int evaluation(Board &board);
     int negamax_alpha_beta_failsoft(Board &board, const int color, int alpha, int beta, int depth);
+
+private:
+    int max(int a, int b);
 };
 
 

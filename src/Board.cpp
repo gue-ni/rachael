@@ -13,8 +13,21 @@ Board::Board(bool draw_color) : draw_color(draw_color) {
 
 std::vector<Ply> Board::generate_valid_moves(int color) {
 
+    std::vector<Ply> valid_moves;
 
-    // TODO
+    for (uint8_t y = 0; y < 8; y++){
+        for (uint8_t x = 0; x < 8; x++){
+            uint8_t sq = (7 - y) * 8 + x;
+            int piece = x88[sq + (sq & ~(uint8_t)7)];
+
+            if (get_color(piece) == color){
+                std::vector<Ply> moves = generate_valid_moves_piece(Algebraic(sq));
+                valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
+            }
+        }
+    }
+
+    return valid_moves;
 }
 
 int Board::get_piece(Algebraic alg) {

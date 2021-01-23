@@ -3,7 +3,6 @@
 //
 
 #include <vector>
-#include <f2c.h>
 #include "AI.h"
 
 Ply AI::find_best_move(Board &board, const int color, const int search_depth) {
@@ -56,4 +55,8 @@ int AI::evaluation(Board &board) {
 
     int mobility =  (wn - bn);
     return mobility + (board.material(WHITE) - board.material(BLACK));
+}
+
+int AI::max(int a, int b) {
+    return a > b ? a : b;
 }
