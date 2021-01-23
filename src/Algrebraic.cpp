@@ -25,7 +25,6 @@ Algebraic::Algebraic(std::string str) : file(str[0]), rank(str[1]-48){
 
 Algebraic::Algebraic(int x, int y) : rank(y + 1), file(x + 97) {
     assert(isValid());
-
 }
 
 uint8_t Algebraic::x88_value() {

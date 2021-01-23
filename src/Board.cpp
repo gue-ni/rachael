@@ -20,6 +20,8 @@ std::vector<Ply> Board::generate_valid_moves(int color) {
             uint8_t sq = (7 - y) * 8 + x;
             int piece = x88[sq + (sq & ~(uint8_t)7)];
 
+            if (piece == EMPTY) continue;
+
             if (get_color(piece) == color){
                 std::vector<Ply> moves = generate_valid_moves_piece(Algebraic(sq));
                 valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
@@ -130,7 +132,7 @@ uint8_t Board::x88_conv(uint8_t x, uint8_t y) {
 
 std::vector<Ply> Board::generate_valid_moves_piece(Algebraic pos) {
 
-    std::cout << "Generate valid moves for position " << pos << std::endl;
+    //std::cout << "Generate valid moves for position " << pos << std::endl;
 
     int piece = get_piece(pos);
     int square = pos.x88_value();

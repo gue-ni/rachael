@@ -7,7 +7,7 @@
 
 Ply AI::find_best_move(Board &board, const int color, const int search_depth) {
 
-    Ply best_move("0000");
+    Ply best_move("e1e2");
     int score = 0;
     int best_score = INT32_MIN;
 
