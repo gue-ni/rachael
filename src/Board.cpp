@@ -12,23 +12,17 @@ Board::Board(bool draw_color) : draw_color(draw_color) {
 }
 
 std::vector<Ply> Board::generate_valid_moves(int color) {
-
     std::vector<Ply> valid_moves;
+    std::vector<Ply> moves;
 
-    for (uint8_t y = 0; y < 8; y++){
-        for (uint8_t x = 0; x < 8; x++){
-            uint8_t sq = (7 - y) * 8 + x;
-            int piece = x88[sq + (sq & ~(uint8_t)7)];
+    for (int sq = 0; sq < 128; sq++){
+        if (off_the_board(sq) || is_empty(sq)) continue;
 
-            if (piece == EMPTY) continue;
-
-            if (get_color(piece) == color){
-                std::vector<Ply> moves = generate_valid_moves_piece(Algebraic(sq));
-                valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
-            }
+        if (get_color(x88[sq]) == color){
+            moves = generate_valid_moves_piece(Algebraic(sq));
+            valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
         }
     }
-
     return valid_moves;
 }
 
@@ -60,8 +54,18 @@ int Board::execute_move(Ply ply) {
 }
 
 void Board::reverse_move(Ply ply, int killed_piece) {
+    if (killed_piece != 0){
+        if (killed_piece > 0){
+            w_material += material_value[abs(killed_piece)];
+        } else {
+            b_material += material_value[abs(killed_piece)];
+        }
+    }
+
     set_piece(ply.from, get_piece(ply.to));
     set_piece(ply.to, killed_piece);
+
+
 }
 
 void Board::draw() {

@@ -5,7 +5,6 @@
 #ifndef CHESS_ENGINE_CPP_ALGREBRAIC_H
 #define CHESS_ENGINE_CPP_ALGREBRAIC_H
 
-
 #include <ostream>
 
 class Algebraic {
