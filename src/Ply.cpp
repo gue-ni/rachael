@@ -6,15 +6,14 @@
 #include "Ply.h"
 
 
-Ply::Ply(Algebraic from, Algebraic to)  : from(from), to(to) {
-    //std::cout << "Create ply " << from << " " << to << std::endl;
-}
+Ply::Ply(Square from, Square to)  : from(from), to(to) {}
 
-Ply::Ply(std::string move) : from(move[0], move[1]-48), to(move[2], move[3]-48){
-}
+Ply::Ply(std::string move) : from(move[0], move[1]-48), to(move[2], move[3]-48){}
+
+Ply::Ply(int f, int t) : from(Square(f)), to(Square(t)) {}
 
 std::ostream& operator<<(std::ostream &strm, const Ply &p) {
     return strm << p.from.file << p.from.rank << p.to.file << p.to.rank;
 }
 
-Ply::Ply(int f, int t) : from(Algebraic(f)), to(Algebraic(t)) {}
+

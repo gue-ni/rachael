@@ -58,32 +58,32 @@
  -5, -4, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 };
 
 #include <vector>
-#include "Algrebraic.h"
+#include "Square.h"
 #include "Ply.h"
 
 class Board {
 public:
     explicit Board(bool draw_color);
 
-    inline int  get_piece(Algebraic alg);
-    inline void set_piece(Algebraic alg, int piece);
+    inline int  get_piece(Square alg);
+    inline void set_piece(Square alg, int piece);
 
     std::vector<Ply> generate_valid_moves(int color);
     std::vector<Ply> generate_valid_moves_piece(int square);
-    std::vector<Ply> omp_generate_valid_moves(int color);
     std::vector<Ply> check_directions(int from, const std::vector<int>& dirs, int max_steps);
 
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
     int material(int color);
 
-    void draw();
+    friend std::ostream& operator<<(std::ostream&, const Board&);
+
 
 private:
     bool draw_color = false;
     char pieces[7] = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     int material_value[7] = { 0, 200, 9, 5, 3, 3, 1 };
-    int w_material, b_material;
+    int w_material{}, b_material{};
     int x88[128] = RUY_LOPEZ;
 
     int valid_squares[64] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

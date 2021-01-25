@@ -7,14 +7,14 @@
 
 
 #include <string>
-#include "Algrebraic.h"
+#include "Square.h"
 
 class Ply {
 public:
-    Algebraic from;
-    Algebraic to;
+    Square from;
+    Square to;
 
-    Ply(Algebraic from, Algebraic to);
+    Ply(Square from, Square to);
     Ply(int f, int t);
     explicit Ply(std::string move);
     friend std::ostream& operator<<(std::ostream&, const Ply&);

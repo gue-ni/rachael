@@ -9,7 +9,6 @@
 #include "AI.h"
 
 Ply AI::find_best_move(Board &board, const int color, const int search_depth) {
-
     Ply best_move("e1e2");
     int score = 0;
     int best_score = INT_MIN;
@@ -18,9 +17,9 @@ Ply AI::find_best_move(Board &board, const int color, const int search_depth) {
     assert(!moves.empty());
 
     for (Ply move : moves) {
-
         int killed = board.execute_move(move);
         score = -negamax_alphabeta_failsoft(board, -color, INT_MIN, INT_MAX, search_depth);
+        //score = -negamax(board, -color, search_depth);
         board.reverse_move(move, killed);
 
         if (score > best_score) {
@@ -32,8 +31,6 @@ Ply AI::find_best_move(Board &board, const int color, const int search_depth) {
 }
 
 int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int beta, int depth) {
-    // negamax alpha beta failsoft
-
     if (depth == 0) return color * evaluation(board);
 
     std::vector<Ply> moves = board.generate_valid_moves(color);
@@ -48,18 +45,17 @@ int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int
     int score = INT_MIN;
 
     for (Ply move : moves){
+
         int killed = board.execute_move(move);
-
         score = max(score, -negamax_alphabeta_failsoft(board, -color, -beta, -alpha, depth-1));
-
         board.reverse_move(move, killed);
 
         alpha = max(score, alpha);
 
-        if (alpha >= beta)
+        if (alpha >= beta){
             break;
+        }
     }
-
     return score;
 }
 
@@ -73,4 +69,21 @@ int AI::evaluation(Board &board) {
 
 int AI::max(int a, int b) {
     return a > b ? a : b;
+}
+
+int AI::negamax(Board &board, int color, int depth) {
+    if (depth == 0) return color * evaluation(board);
+    std::vector<Ply> moves = board.generate_valid_moves(color);
+    assert(!moves.empty());
+
+    int best = INT_MIN;
+    for (Ply move : moves){
+        int killed = board.execute_move(move);
+        int score = -negamax(board, -color, depth-1);
+        board.reverse_move(move, killed);
+
+        if (score > best)
+            best = score;
+    }
+    return best;
 }

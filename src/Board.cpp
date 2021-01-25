@@ -8,11 +8,12 @@
 #include "Board.h"
 
 Board::Board(bool draw_color) : draw_color(draw_color) {
+    w_material = 0;
+    b_material = 0;
     calculate_material();
-    //std::cout << material(WHITE) << " " << material(BLACK) << std::endl;
 }
 
-int Board::get_piece(Algebraic alg) {
+int Board::get_piece(Square alg) {
     return x88[alg.x88_value()];
 }
 
@@ -40,6 +41,9 @@ int Board::execute_move(Ply ply) {
 }
 
 void Board::reverse_move(Ply ply, int killed_piece) {
+    set_piece(ply.from, get_piece(ply.to));
+    set_piece(ply.to, killed_piece);
+
     if (killed_piece != 0){
         if (killed_piece > 0){
             w_material += material_value[abs(killed_piece)];
@@ -47,38 +51,6 @@ void Board::reverse_move(Ply ply, int killed_piece) {
             b_material += material_value[abs(killed_piece)];
         }
     }
-    set_piece(ply.from, get_piece(ply.to));
-    set_piece(ply.to, killed_piece);
-}
-
-void Board::draw() {
-    std::string padding = " ";
-
-    std::cout << padding << "   a  b  c  d  e  f  g  h" << std::endl;
-    for (uint8_t y = 0; y < 8; y++){
-        for (uint8_t x = 0; x < 8; x++){
-
-            if (x == 0) std::cout << padding << 8 - y << " ";
-
-            uint8_t sq = (7 - y) * 8 + x;
-            int piece = x88[sq + (sq & ~(uint8_t)7)];
-            int piece_symbol = pieces[abs(piece)];
-
-            if (draw_color && piece_symbol != '.'){
-                if (get_color(piece) == WHITE){
-                    printf(WHITE_TTY);
-                } else {
-                    printf(BLACK_TTY);
-                }
-            }
-            std::cout << " " << (char)piece_symbol << " ";
-            if (draw_color && piece_symbol != '.') printf(CLEAR_TTY);
-
-            if (x == 7) std::cout <<" " << 8 - y;
-        }
-        printf("\n");
-    }
-    std::cout << padding << "   a  b  c  d  e  f  g  h\n" << std::endl;
 }
 
 void Board::calculate_material() {
@@ -97,7 +69,7 @@ void Board::calculate_material() {
     }
 }
 
-void Board::set_piece(Algebraic alg, int piece) {
+void Board::set_piece(Square alg, int piece) {
     x88[alg.x88_value()] = piece;
 }
 
@@ -111,20 +83,22 @@ std::vector<Ply> Board::generate_valid_moves_piece(int square) {
 
     switch (abs(piece)){
         case PAWN:{ // pawn
-            if (is_empty(square + N * color)){
+            if (is_empty(square + N * color) && !off_the_board(square + N * color)){
 
                 legal_moves.emplace_back(square, square + N * color);
 
-                if (Algebraic(square).rank == (color == WHITE ? 2 : 7) && is_empty(square + (2 * N) * color)){
+                if (Square(square).rank == (color == WHITE ? 2 : 7)
+                    && is_empty(square + (2 * N) * color)
+                    && !off_the_board(square + (2 * N) * color)){
                     legal_moves.emplace_back(square, square + (2 * N) * color);
                 }
             }
 
-            if (is_enemy(square + NE * color, piece)){
+            if (is_enemy(square + NE * color, piece) && !off_the_board(square + NE * color)){
                 legal_moves.emplace_back(square, square + NE * color);
             }
 
-            if (is_enemy(square + NW * color, piece)){
+            if (is_enemy(square + NW * color, piece) && !off_the_board(square + NW * color)){
                 legal_moves.emplace_back(square, square + NW * color);
             }
             break;
@@ -153,18 +127,18 @@ std::vector<Ply> Board::generate_valid_moves_piece(int square) {
     return legal_moves;
 }
 
-int Board::get_color(int piece) {
+int  Board::get_color(int piece) {
     assert(piece != EMPTY);
     return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
 }
 
 bool Board::is_enemy(int square, int piece) {
     if (x88[square] == EMPTY) return false;
-    return !off_the_board(square) && (get_color(x88[square]) != get_color(piece));
+    return get_color(x88[square]) != get_color(piece);
 }
 
 bool Board::is_empty(int square) {
-    return !off_the_board(square) && x88[square] == EMPTY;
+    return x88[square] == EMPTY;
 }
 
 bool Board::is_friendly(int square, int piece) {
@@ -173,11 +147,9 @@ bool Board::is_friendly(int square, int piece) {
 }
 
 std::vector<Ply> Board::check_directions(int from, const std::vector<int>& dirs, int max_steps) {
-    int piece = x88[from];
-    assert(piece != 0);
-
     std::vector<Ply> moves;
-    int steps, to;
+    int steps, to, piece = x88[from];
+    assert(piece != 0);
 
     for (int dir : dirs){
         steps = 0;
@@ -186,7 +158,9 @@ std::vector<Ply> Board::check_directions(int from, const std::vector<int>& dirs,
         while(steps < max_steps) {
             to += dir;
 
-            if (off_the_board(to) || is_friendly(to, piece)) break;
+            if (off_the_board(to) || is_friendly(to, piece)) {
+                break;
+            }
 
             if (is_enemy(to, piece)) {
                 moves.emplace_back(from, to);
@@ -202,22 +176,6 @@ std::vector<Ply> Board::check_directions(int from, const std::vector<int>& dirs,
     return moves;
 }
 
-std::vector<Ply> Board::omp_generate_valid_moves(int color) {
-    std::vector<Ply> valid_moves;
-
-    #pragma omp parallel
-    {
-        #pragma omp for
-        for (int sq : valid_squares){
-            if (!is_empty(sq) && get_color(x88[sq]) == color){
-                std::vector<Ply> moves = generate_valid_moves_piece(sq);
-                valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
-            }
-        }
-    }
-    return valid_moves;
-}
-
 std::vector<Ply> Board::generate_valid_moves(int color) {
     std::vector<Ply> valid_moves, moves;
 
@@ -228,5 +186,36 @@ std::vector<Ply> Board::generate_valid_moves(int color) {
         }
     }
     return valid_moves;
+}
+
+std::ostream& operator<<(std::ostream &strm, const Board &board) {
+    std::string padding = " ";
+
+    strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
+    for (uint8_t y = 0; y < 8; y++){
+        for (uint8_t x = 0; x < 8; x++){
+
+            if (x == 0) strm << padding << 8 - y << " ";
+
+            uint8_t sq = (7 - y) * 8 + x;
+            int piece = board.x88[sq + (sq & ~(uint8_t)7)];
+            int piece_symbol = board.pieces[abs(piece)];
+
+            if (board.draw_color && piece_symbol != '.'){
+                if (board.get_color(piece) == WHITE){
+                    strm << WHITE_TTY;
+                } else {
+                    strm << BLACK_TTY;
+                }
+            }
+            strm << " " << (char)piece_symbol << " ";
+            if (board.draw_color && piece_symbol != '.') strm << CLEAR_TTY;
+
+            if (x == 7) strm <<" " << 8 - y;
+        }
+        printf("\n");
+    }
+    strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
+    return strm;
 }
 
