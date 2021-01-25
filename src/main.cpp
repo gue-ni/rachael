@@ -3,14 +3,13 @@
 #include "Square.h"
 #include "AI.h"
 
-int search_depth = 3;
 
-void take_turn(Board& board, int color, int ply){
+void take_turn(Board &board, int color, int ply, int search_depth) {
     clock_t tic, toc;
     double dt;
 
     tic = clock();
-    Ply best_move = AI::find_best_move(board, color, search_depth);
+    Ply best_move = AI::negamax_alphabeta_failsoft(board, color, search_depth);
     toc = clock();
     dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 
@@ -26,31 +25,45 @@ double timer(clock_t tic, clock_t toc){
     return (double)(toc - tic) / CLOCKS_PER_SEC;
 }
 
-int main() {
-    Board board(true);
-    std::cout << board;
+int main(int argc, char **argv) {
+    int plies = 1, search_depth, turns;
 
-    /*
-    clock_t tic, toc;
+    if (argc == 3){
+        search_depth    = atoi(argv[1]);
+        turns           = atoi(argv[2]);
+    } else {
+        search_depth = 3;
+        turns = 5;
+    }
+    std::vector<int> brd = { 1,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0,  0, -5, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0, -5,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                             0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 };
 
-    tic = clock();
-    std::vector<Ply> moves = board.generate_valid_moves(WHITE);
-    toc = clock();
-    printf("%zu moves %f\n", moves.size(), timer(tic, toc));
+    Board board(brd,true);
 
-    tic = clock();
-    Ply best_move = AI::find_best_move(board, WHITE, 3);
-    toc = clock();
-    std::cout << best_move << " " << timer(tic, toc) << std::endl;
-     */
+    std::cout
+    << "search_depth=" << search_depth
+    << ", turns=" << turns
+    << ", white_material=" << board.material(WHITE)
+    << ", black_material=" << board.material(BLACK)
+    << std::endl;
 
-    int turns = 10, plies = 0;
+    std::cout << "\n" << board << std::endl;
 
     while (turns > 0){
-        take_turn(board, WHITE, plies++);
-        take_turn(board, BLACK, plies++);
-        turns--;
-    }
+         take_turn(board, WHITE, plies++, search_depth);
+         take_turn(board, BLACK, plies++, search_depth);
+         turns--;
+     }
 
+     std::cout
+     << "white_material="   << board.material(WHITE)
+     << ", black_material=" << board.material(BLACK)
+     << std::endl;
     return 0;
 }

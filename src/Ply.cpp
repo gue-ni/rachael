@@ -16,4 +16,6 @@ std::ostream& operator<<(std::ostream &strm, const Ply &p) {
     return strm << p.from.file << p.from.rank << p.to.file << p.to.rank;
 }
 
+Ply::Ply() : from(0), to(0){}
+
 

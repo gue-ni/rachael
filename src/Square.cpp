@@ -27,7 +27,7 @@ Square::Square(int x, int y) : rank(y + 1), file(x + 97) {
     //assert(isValid());
 }
 
-uint8_t Square::x88_value() {
+uint8_t Square::index() {
     //assert(isValid());
     int8_t f = file - 97;
     int8_t r = rank - 1;

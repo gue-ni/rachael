@@ -12,7 +12,7 @@
 
 class AI {
 public:
-    static Ply find_best_move(Board &board, int color, int search_depth);
+    static Ply negamax_alphabeta_failsoft(Board &board, const int color, const int search_depth);
     static int evaluation(Board &board);
     static int negamax_alphabeta_failsoft(Board &board, int color, int alpha, int beta, int depth);
     static int negamax(Board& board, int color, int depth);

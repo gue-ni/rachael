@@ -16,6 +16,7 @@ public:
 
     Ply(Square from, Square to);
     Ply(int f, int t);
+    Ply();
     explicit Ply(std::string move);
     friend std::ostream& operator<<(std::ostream&, const Ply&);
 };

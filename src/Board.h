@@ -45,7 +45,7 @@
    0,  3,  0,  0, -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
    0,  0, -4,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   -6, -6, -6, -6,  0, -6, -6, -6, 99, 99, 99, 99, 99, 99, 99, 99, \
-  -5,  0, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 };
+  -5,  0, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 }
 
 #define DEFAULT_BOARD \
 { 5,  4,  3,  2,  1,  3,  4,  5, 99, 99, 99, 99, 99, 99, 99, 99, \
@@ -55,7 +55,17 @@
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
  -6, -6, -6, -6, -6, -6, -6, -6, 99, 99, 99, 99, 99, 99, 99, 99, \
- -5, -4, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 };
+ -5, -4, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 }
+
+#define EMPTY_BOARD \
+{ 0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  6,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  6, -5,  0, -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0, -6,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 } \
 
 #include <vector>
 #include "Square.h"
@@ -64,13 +74,16 @@
 class Board {
 public:
     explicit Board(bool draw_color);
+    Board(const std::vector<int> &brd, bool draw_color);
 
-    inline int  get_piece(Square alg);
-    inline void set_piece(Square alg, int piece);
+
+    int  get_piece(Square alg);
+    void set_piece(Square alg, int piece);
 
     std::vector<Ply> generate_valid_moves(int color);
     std::vector<Ply> generate_valid_moves_piece(int square);
-    std::vector<Ply> check_directions(int from, const std::vector<int>& dirs, int max_steps);
+    std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
+    bool is_threatened(int square, int color);
 
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
@@ -78,13 +91,13 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
-
 private:
-    bool draw_color = false;
-    char pieces[7] = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
-    int material_value[7] = { 0, 200, 9, 5, 3, 3, 1 };
-    int w_material{}, b_material{};
-    int x88[128] = RUY_LOPEZ;
+    bool draw_color         = false;
+    char pieces[7]          = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
+    int material_value[7]   = { 0, 200, 9, 5, 3, 3, 1 };
+    int x88[128]            = RUY_LOPEZ;
+    int w_material          = 0;
+    int b_material          = 0;
 
     int valid_squares[64] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                              0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -94,17 +107,6 @@ private:
                              0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
                              0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
                              0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
-
-    /*
-    int x88[128] = {   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  6,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  6, -5,  0,  -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0, -6,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 };
-    */
 
     void calculate_material();
     inline bool is_empty(int square);

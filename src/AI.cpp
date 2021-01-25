@@ -8,43 +8,18 @@
 #include <climits>
 #include "AI.h"
 
-Ply AI::find_best_move(Board &board, const int color, const int search_depth) {
-    Ply best_move("e1e2");
-    int score = 0;
-    int best_score = INT_MIN;
-
-    std::vector<Ply> moves = board.generate_valid_moves(color);
-    assert(!moves.empty());
-
-    for (Ply move : moves) {
-        int killed = board.execute_move(move);
-        score = -negamax_alphabeta_failsoft(board, -color, INT_MIN, INT_MAX, search_depth);
-        //score = -negamax(board, -color, search_depth);
-        board.reverse_move(move, killed);
-
-        if (score > best_score) {
-            best_score = score;
-            best_move = move;
-        }
-    }
-    return best_move;
-}
-
 int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int beta, int depth) {
     if (depth == 0) return color * evaluation(board);
 
-    std::vector<Ply> moves = board.generate_valid_moves(color);
-    assert(!moves.empty());
-
-#ifdef DEBUG
-    printf("[SEARCH] color=%02d depth=%d, moves=%zu ", color, depth, moves.size());
-    for (auto m : moves) std::cout << m << " ";
-    std::cout << std::endl;
-#endif
-
     int score = INT_MIN;
+    std::vector<Ply> moves = board.generate_valid_moves(color);
+    //assert(!moves.empty());
 
     for (Ply move : moves){
+
+        if (abs(board.get_piece(move.to)) == 1){
+            return INT_MAX;
+        }
 
         int killed = board.execute_move(move);
         score = max(score, -negamax_alphabeta_failsoft(board, -color, -beta, -alpha, depth-1));
@@ -52,14 +27,41 @@ int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int
 
         alpha = max(score, alpha);
 
-        if (alpha >= beta){
+        if (alpha >= beta)
             break;
-        }
     }
     return score;
 }
 
+Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int search_depth) {
+    Ply best_move("e1e2");
+    int score       = 0;
+    int best_score  = INT_MIN;
+
+    std::vector<Ply> moves = board.generate_valid_moves(color);
+    assert(!moves.empty());
+
+    for (Ply move : moves) {
+
+        if (abs(board.get_piece(move.to)) == 1){ // can capture enemy king
+            return move;
+        }
+
+        int killed = board.execute_move(move);
+        score = -negamax_alphabeta_failsoft(board, -color, INT_MIN, INT_MAX, search_depth);
+        board.reverse_move(move, killed);
+
+        if (score > best_score) {
+            best_score  = score;
+            best_move   = move;
+        }
+    }
+    //std::cout << "best_score was " << best_score << std::endl;
+    return best_move;
+}
+
 int AI::evaluation(Board &board) {
+
     int wn = board.generate_valid_moves(WHITE).size();
     int bn = board.generate_valid_moves(BLACK).size();
 
@@ -74,6 +76,10 @@ int AI::max(int a, int b) {
 int AI::negamax(Board &board, int color, int depth) {
     if (depth == 0) return color * evaluation(board);
     std::vector<Ply> moves = board.generate_valid_moves(color);
+    if (moves.empty()){
+        std::cout << "possible checkmate" << std::endl;
+        std::cout << board;
+    }
     assert(!moves.empty());
 
     int best = INT_MIN;

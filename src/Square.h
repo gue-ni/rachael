@@ -17,7 +17,7 @@ public:
     explicit Square(int x88);
     explicit Square(std::string str);
 
-    uint8_t x88_value();
+    uint8_t index();
     bool isValid();
 
     friend std::ostream& operator<<(std::ostream&, const Square&);

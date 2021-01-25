@@ -14,7 +14,7 @@ Board::Board(bool draw_color) : draw_color(draw_color) {
 }
 
 int Board::get_piece(Square alg) {
-    return x88[alg.x88_value()];
+    return x88[alg.index()];
 }
 
 int Board::material(int color) {
@@ -70,61 +70,7 @@ void Board::calculate_material() {
 }
 
 void Board::set_piece(Square alg, int piece) {
-    x88[alg.x88_value()] = piece;
-}
-
-std::vector<Ply> Board::generate_valid_moves_piece(int square) {
-    int piece = x88[square];
-
-    if (piece == 0) return std::vector<Ply>();
-
-    int color = get_color(piece);
-    std::vector<Ply> legal_moves;
-
-    switch (abs(piece)){
-        case PAWN:{ // pawn
-            if (is_empty(square + N * color) && !off_the_board(square + N * color)){
-
-                legal_moves.emplace_back(square, square + N * color);
-
-                if (Square(square).rank == (color == WHITE ? 2 : 7)
-                    && is_empty(square + (2 * N) * color)
-                    && !off_the_board(square + (2 * N) * color)){
-                    legal_moves.emplace_back(square, square + (2 * N) * color);
-                }
-            }
-
-            if (is_enemy(square + NE * color, piece) && !off_the_board(square + NE * color)){
-                legal_moves.emplace_back(square, square + NE * color);
-            }
-
-            if (is_enemy(square + NW * color, piece) && !off_the_board(square + NW * color)){
-                legal_moves.emplace_back(square, square + NW * color);
-            }
-            break;
-        }
-        case ROOK:{
-            legal_moves = check_directions(square, std::vector<int>{N, S, E, W}, 8);
-            break;
-        }
-        case KNIGHT:{
-            legal_moves = check_directions(square, std::vector<int>{NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW }, 1);
-            break;
-        }
-        case BISHOP:{
-            legal_moves = check_directions(square, std::vector<int>{NE, SE, SW, NW}, 8);
-            break;
-        }
-        case QUEEN:{
-            legal_moves = check_directions(square, std::vector<int>{ N, NE, E, SE, S, SW, W, NW }, 8);
-            break;
-        }
-        case KING:{
-            legal_moves = check_directions(square, std::vector<int>{N, NE, E, SE, S, SW, W, NW}, 1);
-            break;
-        }
-    }
-    return legal_moves;
+    x88[alg.index()] = piece;
 }
 
 int  Board::get_color(int piece) {
@@ -146,9 +92,9 @@ bool Board::is_friendly(int square, int piece) {
     return get_color(x88[square]) == get_color(piece);
 }
 
-std::vector<Ply> Board::check_directions(int from, const std::vector<int>& dirs, int max_steps) {
+std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps) {
     std::vector<Ply> moves;
-    int steps, to, piece = x88[from];
+    int steps, to;
     assert(piece != 0);
 
     for (int dir : dirs){
@@ -158,9 +104,7 @@ std::vector<Ply> Board::check_directions(int from, const std::vector<int>& dirs,
         while(steps < max_steps) {
             to += dir;
 
-            if (off_the_board(to) || is_friendly(to, piece)) {
-                break;
-            }
+            if (off_the_board(to) || is_friendly(to, piece)) break;
 
             if (is_enemy(to, piece)) {
                 moves.emplace_back(from, to);
@@ -187,6 +131,69 @@ std::vector<Ply> Board::generate_valid_moves(int color) {
     }
     return valid_moves;
 }
+
+std::vector<Ply> Board::generate_valid_moves_piece(int square) {
+    int piece = x88[square];
+
+    if (piece == 0) return std::vector<Ply>();
+
+    int color = get_color(piece);
+    std::vector<Ply> legal_moves;
+
+    switch (abs(piece)){
+        case PAWN:{ // pawn
+            if (is_empty(square + N * color) && !off_the_board(square + N * color)){
+                legal_moves.emplace_back(square, square + N * color);
+
+                if (Square(square).rank == (color == WHITE ? 2 : 7)
+                    && is_empty(square + (2 * N) * color)
+                    && !off_the_board(square + (2 * N) * color)){
+                    legal_moves.emplace_back(square, square + (2 * N) * color);
+                }
+            }
+
+            if (is_enemy(square + NE * color, piece) && !off_the_board(square + NE * color)){
+                legal_moves.emplace_back(square, square + NE * color);
+            }
+
+            if (is_enemy(square + NW * color, piece) && !off_the_board(square + NW * color)){
+                legal_moves.emplace_back(square, square + NW * color);
+            }
+            break;
+        }
+        case ROOK:{
+            legal_moves = check_directions(square, piece, {N, S, E, W}, 8);
+            break;
+        }
+        case KNIGHT:{
+            legal_moves = check_directions(square, piece, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1);
+            break;
+        }
+        case BISHOP:{
+            legal_moves = check_directions(square, piece, {NE, SE, SW, NW}, 8);
+            break;
+        }
+        case QUEEN:{
+            legal_moves = check_directions(square, piece, {N, NE, E, SE, S, SW, W, NW}, 8);
+            break;
+        }
+        case KING:{
+            std::vector<Ply> possible = check_directions(square, piece, {N, NE, E, SE, S, SW, W, NW}, 1);
+            for (auto p : possible){
+                int k = execute_move(p);
+
+                if (!is_threatened(p.to.index(), color)){
+                    legal_moves.push_back(p);
+                }
+
+                reverse_move(p, k);
+            }
+            break;
+        }
+    }
+    return legal_moves;
+}
+
 
 std::ostream& operator<<(std::ostream &strm, const Board &board) {
     std::string padding = " ";
@@ -218,4 +225,53 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
     strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
     return strm;
 }
+
+bool Board::is_threatened(int square, int color) {
+
+
+
+    // Rook or Queen
+    for (Ply move : check_directions(square, color, {N, S, E, W}, 8)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && (p == 5 || p == 2)){
+            return true;
+        }
+    }
+
+    // Bishop or Queen
+    for (Ply move : check_directions(square, color, {NE, SE, SW, NW}, 8)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && (p == 3 || p == 2)) return true;
+    }
+
+    // Knight
+    for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && (p == 4 || p == 2)) return true;
+    }
+
+    // King
+    for (Ply move : check_directions(square, color, {NE, SE, SW, NW, N, S, E, W}, 1)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && p == 1) return true;
+    }
+
+    // Pawn
+    if (color == WHITE){
+        if (is_enemy(square+NE, color) && abs(x88[square+NE]) == 6) return true;
+        if (is_enemy(square+NW, color) && abs(x88[square+NW]) == 6) return true;
+    } else {
+        if (is_enemy(square+SE, color) && abs(x88[square+SE]) == 6) return true;
+        if (is_enemy(square+SW, color) && abs(x88[square+SW]) == 6) return true;
+    }
+    return false;
+}
+
+Board::Board(const std::vector<int> &brd, bool draw_color): draw_color(draw_color) {
+    assert(brd.size() == 128);
+    for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
+    calculate_material();
+}
+
+
 
