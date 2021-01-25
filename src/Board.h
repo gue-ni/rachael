@@ -65,36 +65,35 @@ class Board {
 public:
     explicit Board(bool draw_color);
 
-    int material(int color);
-
     inline int  get_piece(Algebraic alg);
     inline void set_piece(Algebraic alg, int piece);
 
     std::vector<Ply> generate_valid_moves(int color);
-    std::vector<Ply> check_directions(int from, const std::vector<int>& dirs, int max_steps);
     std::vector<Ply> generate_valid_moves_piece(int square);
-    static std::vector<int> valid_squares();
+    std::vector<Ply> omp_generate_valid_moves(int color);
+    std::vector<Ply> check_directions(int from, const std::vector<int>& dirs, int max_steps);
 
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
+    int material(int color);
 
     void draw();
 
-    inline bool is_empty(int square);
-    inline bool is_enemy(int square, int piece);
-    inline bool is_friendly(int square, int piece);
-    static inline bool off_the_board(int square);
-    static inline int  get_color(int piece);
-    inline static uint8_t x88_conv(uint8_t x, uint8_t y);
-
 private:
-
     bool draw_color = false;
     char pieces[7] = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     int material_value[7] = { 0, 200, 9, 5, 3, 3, 1 };
-    int w_material = -1;
-    int b_material = -1;
+    int w_material, b_material;
     int x88[128] = RUY_LOPEZ;
+
+    int valid_squares[64] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                             0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+                             0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+                             0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+                             0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+                             0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+                             0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+                             0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 
     /*
     int x88[128] = {   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
@@ -107,10 +106,12 @@ private:
                        0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 };
     */
 
-
-
-
     void calculate_material();
+    inline bool is_empty(int square);
+    inline bool is_enemy(int square, int piece);
+    inline bool is_friendly(int square, int piece);
+    static inline bool off_the_board(int square);
+    static inline int  get_color(int piece);
 };
 
 
