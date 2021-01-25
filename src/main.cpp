@@ -1,5 +1,4 @@
 #include <iostream>
-#include <memory>
 #include "Board.h"
 #include "Algrebraic.h"
 #include "AI.h"
@@ -21,24 +20,36 @@ void take_turn(Board& board, int color){
 
 }
 
+double timer(clock_t tic, clock_t toc){
+    return (double)(toc - tic) / CLOCKS_PER_SEC;
+}
+
 int main() {
-
     Board board(true);
-    //board.draw();
+    board.draw();
+
+    clock_t tic, toc;
+    double dt;
 
 
-    std::vector<Ply> moves = board.generate_valid_moves(WHITE);
+    tic = clock();
+    std::vector<Ply> moves = board.generate_valid_moves(BLACK);
+    toc = clock();
     for (auto &move : moves) std::cout << move << std::endl;
-    std::cout << moves.size() << " moves" << std::endl;
-
-    int eval = AI::evaluation(board);
-    std::cout << "evaluation: " << eval << std::endl;
-
-    Ply best_move = AI::find_best_move(board, WHITE, 4);
-    std::cout << "best move: " << best_move << std::endl;
+    printf("%zu moves %f\n", moves.size(), timer(tic, toc));
 
 
+    /*
+    Algebraic square("b7");
+    std::cout << "moves for " << square << std::endl;
+    for (auto &move : board.generate_valid_moves_piece(square.x88_value())) std::cout << move  << std::endl;
+    */
 
-
+    /*
+    tic = clock();
+    Ply best_move = AI::find_best_move(board, BLACK, 3);
+    toc = clock();
+    std::cout << best_move << " " << timer(tic, toc) << std::endl;
+     */
     return 0;
 }

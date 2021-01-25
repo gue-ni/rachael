@@ -37,72 +37,80 @@
 #define ROOK 5
 #define PAWN 6
 
+#define RUY_LOPEZ \
+{  5,  4,  3,  2,  1,  0,  0,  5, 99, 99, 99, 99, 99, 99, 99, 99, \
+   6,  6,  6,  6,  0,  6,  6,  6, 99, 99, 99, 99, 99, 99, 99, 99, \
+   0,  0,  0,  0,  0,  4,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+   0,  0,  0,  0,  6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+   0,  3,  0,  0, -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+   0,  0, -4,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  -6, -6, -6, -6,  0, -6, -6, -6, 99, 99, 99, 99, 99, 99, 99, 99, \
+  -5,  0, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 };
+
+#define DEFAULT_BOARD \
+{ 5,  4,  3,  2,  1,  3,  4,  5, 99, 99, 99, 99, 99, 99, 99, 99, \
+  6,  6,  6,  6,  6,  6,  6,  6, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+ -6, -6, -6, -6, -6, -6, -6, -6, 99, 99, 99, 99, 99, 99, 99, 99, \
+ -5, -4, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 };
+
 #include <vector>
 #include "Algrebraic.h"
 #include "Ply.h"
 
 class Board {
 public:
-    Board(bool draw_color);
+    explicit Board(bool draw_color);
 
     int material(int color);
 
-    int  get_piece(Algebraic alg);
-    void set_piece(Algebraic alg, int piece);
+    inline int  get_piece(Algebraic alg);
+    inline void set_piece(Algebraic alg, int piece);
 
     std::vector<Ply> generate_valid_moves(int color);
-    std::vector<Ply> check_directions(Algebraic pos, std::vector<int> dirs, int max_steps);
-    std::vector<Ply> generate_valid_moves_piece(Algebraic pos);
+    std::vector<Ply> check_directions(int from, const std::vector<int>& dirs, int max_steps);
+    std::vector<Ply> generate_valid_moves_piece(int square);
+    static std::vector<int> valid_squares();
 
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
 
     void draw();
 
-    static uint8_t x88_conv(uint8_t x, uint8_t y);
-    static uint8_t x88_conv(Algebraic alg);
-
-    bool is_empty(int square);
-    bool is_enemy(int square, int piece);
-    bool is_friendly(int square, int piece);
-    int get_color(int piece);
-    static bool off_the_board(uint8_t square);
+    inline bool is_empty(int square);
+    inline bool is_enemy(int square, int piece);
+    inline bool is_friendly(int square, int piece);
+    static inline bool off_the_board(int square);
+    static inline int  get_color(int piece);
+    inline static uint8_t x88_conv(uint8_t x, uint8_t y);
 
 private:
 
     bool draw_color = false;
     char pieces[7] = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     int material_value[7] = { 0, 200, 9, 5, 3, 3, 1 };
-
-
-    int x88[128] = {   5,  4,  3,  2,  1,  3,  4,  5, 99, 99, 99, 99, 99, 99, 99, 99,
-                       6,  6,  6,  6,  6,  6,  6,  6, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                      -6, -6, -6, -6, -6, -6, -6, -6, 99, 99, 99, 99, 99, 99, 99, 99,
-                      -5, -4, -3, -2, -1, -3, -4, -5, 99, 99, 99, 99, 99, 99, 99, 99 };
-
+    int w_material = -1;
+    int b_material = -1;
+    int x88[128] = RUY_LOPEZ;
 
     /*
     int x88[128] = {   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
                        0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
                        0,  0,  0,  6,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
-                       0,  6,  0,  0,  -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
+                       0,  6, -5,  0,  -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
                        0,  0,  0,  0,  0,  0, -6,  0, 99, 99, 99, 99, 99, 99, 99, 99,
                        0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
                        0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99,
                        0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 };
     */
 
-    int w_material = -1;
-    int b_material = -1;
+
+
 
     void calculate_material();
-
-
-
 };
 
 

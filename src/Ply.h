@@ -15,6 +15,7 @@ public:
     Algebraic to;
 
     Ply(Algebraic from, Algebraic to);
+    Ply(int f, int t);
     explicit Ply(std::string move);
     friend std::ostream& operator<<(std::ostream&, const Ply&);
 };
