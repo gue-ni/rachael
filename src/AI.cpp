@@ -9,16 +9,26 @@
 #include "AI.h"
 
 int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int beta, int depth) {
-    if (depth == 0) return color * evaluation(board);
+    if (depth == 0) {
+        int eval = color * evaluation(board);
+#ifdef DEBUG
+        std::cout << "[SEARCH] depth=" << depth << ", color=" << color << ", eval=" << eval << std::endl;
+#endif
+        return eval;
+    }
 
-    int score = INT_MIN;
+    int score = MIN-depth;
     std::vector<Ply> moves = board.generate_valid_moves(color);
-    //assert(!moves.empty());
+#ifdef DEBUG
+    std::cout << "[SEARCH] depth=" << depth << ", color=" << color << ", moves=" << moves.size() << " ";
+    for (auto &p : moves) std::cout << p << " ";
+    std::cout << std::endl;
+#endif
 
     for (Ply move : moves){
 
         if (abs(board.get_piece(move.to)) == 1){
-            return INT_MAX;
+            return MAX+depth;
         }
 
         int killed = board.execute_move(move);
@@ -33,10 +43,10 @@ int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int
     return score;
 }
 
-Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int search_depth) {
+Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int depth) {
     Ply best_move("e1e2");
     int score       = 0;
-    int best_score  = INT_MIN;
+    int best_score  = MIN;
 
     std::vector<Ply> moves = board.generate_valid_moves(color);
     assert(!moves.empty());
@@ -44,11 +54,17 @@ Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int sear
     for (Ply move : moves) {
 
         if (abs(board.get_piece(move.to)) == 1){ // can capture enemy king
+#ifdef DEBUG
+            std::cout << move << " can capture king" << std::endl;
+#endif
             return move;
         }
 
         int killed = board.execute_move(move);
-        score = -negamax_alphabeta_failsoft(board, -color, INT_MIN, INT_MAX, search_depth);
+        score = -negamax_alphabeta_failsoft(board, -color, MIN, MAX, depth);
+#ifdef DEBUG
+        std::cout << "[ROOT] " << move << " " << score << std::endl;
+#endif
         board.reverse_move(move, killed);
 
         if (score > best_score) {
@@ -56,12 +72,10 @@ Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int sear
             best_move   = move;
         }
     }
-    //std::cout << "best_score was " << best_score << std::endl;
     return best_move;
 }
 
 int AI::evaluation(Board &board) {
-
     int wn = board.generate_valid_moves(WHITE).size();
     int bn = board.generate_valid_moves(BLACK).size();
 
