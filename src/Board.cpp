@@ -120,11 +120,11 @@ std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<
     return moves;
 }
 
-std::vector<Ply> Board::generate_valid_moves(int color) {
+std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
     std::vector<Ply> valid_moves, moves;
 
     for (int sq : valid_squares){
-        if (!is_empty(sq) && get_color(x88[sq]) == color){
+        if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
             moves = generate_valid_moves_piece(sq);
             valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
         }

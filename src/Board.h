@@ -60,9 +60,9 @@
 #define EMPTY_BOARD \
 { 0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
-  0,  0,  0,  6,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
-  0,  6, -5,  0, -6,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
-  0,  0,  0,  0,  0,  0, -6,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 } \
@@ -76,11 +76,10 @@ public:
     explicit Board(bool draw_color);
     Board(const std::vector<int> &brd, bool draw_color);
 
-
     int  get_piece(Square alg);
     void set_piece(Square alg, int piece);
 
-    std::vector<Ply> generate_valid_moves(int color);
+    std::vector<Ply> generate_valid_moves(int color_to_move);
     std::vector<Ply> generate_valid_moves_piece(int square);
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
     bool is_threatened(int square, int color);
@@ -112,8 +111,8 @@ private:
     inline bool is_empty(int square);
     inline bool is_enemy(int square, int piece);
     inline bool is_friendly(int square, int piece);
-    static inline bool off_the_board(int square);
     static inline int  get_color(int piece);
+    static inline bool off_the_board(int square);
 };
 
 

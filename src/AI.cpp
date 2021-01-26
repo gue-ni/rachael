@@ -11,7 +11,7 @@
 int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int beta, int depth) {
     if (depth == 0) {
         int eval = color * evaluation(board);
-#ifdef DEBUG
+#ifdef DEBUG_SEARCH
         std::cout << "[SEARCH] depth=" << depth << ", color=" << color << ", eval=" << eval << std::endl;
 #endif
         return eval;
@@ -19,7 +19,7 @@ int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int
 
     int score = MIN-depth;
     std::vector<Ply> moves = board.generate_valid_moves(color);
-#ifdef DEBUG
+#ifdef DEBUG_SEARCH
     std::cout << "[SEARCH] depth=" << depth << ", color=" << color << ", moves=" << moves.size() << " ";
     for (auto &p : moves) std::cout << p << " ";
     std::cout << std::endl;
@@ -43,18 +43,23 @@ int AI::negamax_alphabeta_failsoft(Board &board, const int color, int alpha, int
     return score;
 }
 
-Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int depth) {
-    Ply best_move("e1e2");
+std::optional<Ply> AI::negamax_alphabeta_failsoft(Board &board, int color, int depth) {
     int score       = 0;
     int best_score  = MIN;
 
+    std::optional<Ply> best_move = std::nullopt;
+
     std::vector<Ply> moves = board.generate_valid_moves(color);
-    assert(!moves.empty());
+    //assert(!moves.empty());
+    //Ply best_move = moves.front();
+    if (!moves.empty()){
+        best_move = moves.front();
+    }
 
     for (Ply move : moves) {
 
         if (abs(board.get_piece(move.to)) == 1){ // can capture enemy king
-#ifdef DEBUG
+#ifdef DEBUG_SEARCH
             std::cout << move << " can capture king" << std::endl;
 #endif
             return move;
@@ -62,7 +67,7 @@ Ply AI::negamax_alphabeta_failsoft(Board &board, const int color, const int dept
 
         int killed = board.execute_move(move);
         score = -negamax_alphabeta_failsoft(board, -color, MIN, MAX, depth);
-#ifdef DEBUG
+#ifdef DEBUG_SEARCH
         std::cout << "[ROOT] " << move << " " << score << std::endl;
 #endif
         board.reverse_move(move, killed);
