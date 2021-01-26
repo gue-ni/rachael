@@ -3,7 +3,6 @@
 #include "Square.h"
 #include "AI.h"
 
-
 int take_turn(Board &board, int color, int ply, int search_depth) {
     clock_t tic = clock();
     std::optional<Ply> best_move = AI::negamax_alphabeta_failsoft(board, color, search_depth);
@@ -30,19 +29,12 @@ int take_turn(Board &board, int color, int ply, int search_depth) {
     }
 }
 
-double timer(clock_t tic, clock_t toc){
-    return (double)(toc - tic) / CLOCKS_PER_SEC;
-}
-
 int main(int argc, char **argv) {
-    int plies = 1, search_depth, turns;
+    int plies = 1, search_depth = 3, turns = 5;
 
     if (argc == 3){
         search_depth    = atoi(argv[1]);
         turns           = atoi(argv[2]);
-    } else {
-        search_depth = 3;
-        turns = 5;
     }
 
     /*
@@ -56,6 +48,7 @@ int main(int argc, char **argv) {
                              0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 };
     Board board(brd,true);
      */
+
     Board board(true);
 
     std::cout

@@ -12,7 +12,7 @@ bool Square::isValid() {
 }
 
 Square::Square(char f, int r) : rank(r), file(f){
-    //assert(isValid());
+    assert(isValid());
 }
 
 std::ostream& operator<<(std::ostream &strm, const Square &a) {
@@ -20,15 +20,15 @@ std::ostream& operator<<(std::ostream &strm, const Square &a) {
 }
 
 Square::Square(std::string str) : rank(str[1] - 48), file(str[0]) {
-    //assert(isValid());
+    assert(isValid());
 }
 
 Square::Square(int x, int y) : rank(y + 1), file(x + 97) {
-    //assert(isValid());
+    assert(isValid());
 }
 
 uint8_t Square::index() {
-    //assert(isValid());
+    assert(isValid());
     int8_t f = file - 97;
     int8_t r = rank - 1;
     return 16 * r + f;

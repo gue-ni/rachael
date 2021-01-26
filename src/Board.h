@@ -84,9 +84,9 @@ public:
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
     bool is_threatened(int square, int color);
 
+    int material(int color);
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
-    int material(int color);
 
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
@@ -94,7 +94,7 @@ private:
     bool draw_color         = false;
     char pieces[7]          = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     int material_value[7]   = { 0, 200, 9, 5, 3, 3, 1 };
-    int x88[128]            = RUY_LOPEZ;
+    int x88[128]            = DEFAULT_BOARD;
     int w_material          = 0;
     int b_material          = 0;
 
