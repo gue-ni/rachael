@@ -3,7 +3,7 @@
 
 #include "Board.h"
 #include "Square.h"
-#include "AI.h"
+#include "Engine.h"
 
 bool human_take_turn(Board &board, int color, int ply){
     std::vector<Ply> possible_moves = board.generate_valid_moves(color);
@@ -20,7 +20,7 @@ bool human_take_turn(Board &board, int color, int ply){
 
     Ply move(input);
 
-    board.execute_move(move);
+    board.make_move(move);
     std::cout << "\n"
               << board
               << (color == WHITE ? "white" : "black")
@@ -34,12 +34,12 @@ bool human_take_turn(Board &board, int color, int ply){
 
 bool ngine_take_turn(Board &board, int color, int ply, int search_depth) {
     clock_t tic = clock();
-    std::optional<Ply> best_move = AI::negamax_alphabeta_failsoft(board, color, search_depth);
+    std::optional<Ply> best_move = Engine::find_best_move(board, color, search_depth, NEGAMAX_ALPHABETA_FAILSOFT);
     clock_t toc = clock();
     double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 
     if (best_move.has_value()){
-        board.execute_move(best_move.value());
+        board.make_move(best_move.value());
         std::cout << "Ply " << ply << ":\n"
                   << board
                   << (color == WHITE ? "white" : "black")
@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    Board board(color_output);
+    Board board(DEFAULT_BOARD, color_output);
 
     std::cout
     << "search_depth=" << search_depth

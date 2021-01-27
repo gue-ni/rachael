@@ -165,14 +165,14 @@ std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
 
     for (int sq : valid_squares){
         if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
-            moves = generate_valid_moves_piece(sq);
+            moves = generate_valid_moves_square(sq);
             valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
         }
     }
     return valid_moves;
 }
 
-std::vector<Ply> Board::generate_valid_moves_piece(int square) {
+std::vector<Ply> Board::generate_valid_moves_square(int square) {
     int piece = x88[square];
 
     if (piece == 0) return std::vector<Ply>();
@@ -228,6 +228,49 @@ std::vector<Ply> Board::generate_valid_moves_piece(int square) {
 
                 reverse_move(p, k);
             }
+
+            // check castle
+
+            if (!is_threatened(square, color)){
+                if (color == WHITE){
+                    if (!w_king_moved && !w_r_rook_moved
+                        && !is_threatened(0x05, color)
+                        && !is_threatened(0x06, color)
+                        && !is_threatened(square, color)
+                        && x88[0x05] == EMPTY && x88[0x06] == EMPTY){
+                        legal_moves.emplace_back("e1g1");
+                    }
+
+                    if (!w_king_moved && !w_l_rook_moved
+                        && !is_threatened(0x01, color)
+                        && !is_threatened(0x02, color)
+                        && !is_threatened(0x03, color)
+                        && !is_threatened(square, color)
+                        && x88[0x01] == EMPTY && x88[0x02] == EMPTY && x88[0x03] == EMPTY){
+                        legal_moves.emplace_back("e1c1");
+                    }
+
+
+
+                } else {
+                    if (!b_king_moved && !b_r_rook_moved
+                    && !is_threatened(0x76, color)
+                    && !is_threatened(0x76, color)
+                    && !is_threatened(square, color)
+                    && x88[0x75] == EMPTY && x88[0x76] == EMPTY){
+                        legal_moves.emplace_back("e8g8");
+                    }
+
+                    if (!b_king_moved && !b_l_rook_moved
+                        && !is_threatened(0x71, color)
+                        && !is_threatened(0x72, color)
+                        && !is_threatened(0x73, color)
+                        && !is_threatened(square, color)
+                        && x88[0x71] == EMPTY && x88[0x72] == EMPTY && x88[0x73] == EMPTY){
+                        legal_moves.emplace_back("e8c8");
+                    }
+                }
+            }
             break;
         }
     }
@@ -280,4 +323,37 @@ Board::Board(const std::vector<int> &brd, bool draw_color): draw_color(draw_colo
     assert(brd.size() == 128);
     for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
     calculate_material();
+}
+
+int Board::make_move(Ply ply) {
+    if (get_piece(ply.from) ==  1 && ply.from == Square("e1")) w_king_moved   = true;
+    if (get_piece(ply.from) ==  5 && ply.from == Square("a1")) w_l_rook_moved = true;
+    if (get_piece(ply.from) ==  5 && ply.from == Square("h1")) w_r_rook_moved = true;
+
+    if (get_piece(ply.from) == -1 && ply.from == Square("e8")) b_king_moved   = true;
+    if (get_piece(ply.from) == -5 && ply.from == Square("a8")) b_l_rook_moved = true;
+    if (get_piece(ply.from) == -5 && ply.from == Square("h8")) b_r_rook_moved = true;
+
+    if (abs(get_piece(ply.from)) == 1) {
+        if (ply == Ply("e1g1")) {
+            execute_move(Ply("e1g1"));
+            return execute_move(Ply("h1f1"));
+        }
+
+        if (ply == Ply("e1c1")) {
+            execute_move(Ply("e1c1"));
+            return execute_move(Ply("a1d1"));
+        }
+
+        if (ply == Ply("e8c8")) {
+            execute_move(Ply("e8c8"));
+            return execute_move(Ply("a8d8"));
+        }
+
+        if (ply == Ply("e8g8")) {
+            execute_move(Ply("e8g8"));
+            return execute_move(Ply("h8f8"));
+        }
+    }
+    return execute_move(ply);
 }
