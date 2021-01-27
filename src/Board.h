@@ -1,6 +1,3 @@
-//
-// Created by jakob on 1/22/21.
-//
 
 #ifndef CHESS_ENGINE_CPP_BOARD_H
 #define CHESS_ENGINE_CPP_BOARD_H
@@ -12,30 +9,30 @@
 #define WHITE_TTY   "\033[0;34m"
 #define CLEAR_TTY   "\033[0m"
 
-#define N   16
-#define S  -16
-#define E    1
-#define W   -1
-#define NE  17
-#define NW  15
-#define SE -15
-#define SW -17
-#define NNE 33
-#define ENE 18
+#define N    16
+#define S   -16
+#define E     1
+#define W    -1
+#define NE   17
+#define NW   15
+#define SE  -15
+#define SW  -17
+#define NNE  33
+#define ENE  18
 #define ESE -14
 #define SSE -31
 #define SSW -33
 #define WSW -18
-#define WNW 14
-#define NNW 31
+#define WNW  14
+#define NNW  31
 
-#define EMPTY 0
-#define KING  1
-#define QUEEN 2
-#define BISHOP 3
-#define KNIGHT 4
-#define ROOK 5
-#define PAWN 6
+#define EMPTY   0
+#define KING    1
+#define QUEEN   2
+#define BISHOP  3
+#define KNIGHT  4
+#define ROOK    5
+#define PAWN    6
 
 #define RUY_LOPEZ \
 {  5,  4,  3,  2,  1,  0,  0,  5, 99, 99, 99, 99, 99, 99, 99, 99, \
@@ -82,9 +79,8 @@ public:
     std::vector<Ply> generate_valid_moves(int color_to_move);
     std::vector<Ply> generate_valid_moves_piece(int square);
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
-    bool is_threatened(int square, int color);
 
-    int material(int color);
+    int  material(int color);
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
 
@@ -108,6 +104,7 @@ private:
                              0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
 
     void calculate_material();
+    bool is_threatened(int square, int color);
     inline bool is_empty(int square);
     inline bool is_enemy(int square, int piece);
     inline bool is_friendly(int square, int piece);

@@ -1,6 +1,3 @@
-//
-// Created by jakob on 1/22/21.
-//
 
 #ifndef CHESS_ENGINE_CPP_SQUARE_H
 #define CHESS_ENGINE_CPP_SQUARE_H
@@ -12,15 +9,16 @@ public:
     int  rank;
     char file;
 
-    Square(char f, int r);
     Square(int x, int y);
+    Square(char f, int r);
     explicit Square(int x88);
     explicit Square(std::string str);
 
     uint8_t index();
-    bool isValid();
+    bool is_valid();
 
     friend std::ostream& operator<<(std::ostream&, const Square&);
+    friend bool operator==(const Square& sq1, const Square& sq2);
 };
 
 

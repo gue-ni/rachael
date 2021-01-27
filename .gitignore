@@ -1,4 +1,7 @@
 .idea/
 cmake-build-debug/
 build/
+games/
+
 engine.zip
+ps.txt

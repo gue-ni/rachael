@@ -1,9 +1,8 @@
-//
-// Created by jakob on 1/22/21.
-//
 
 #include <cassert>
 #include <iostream>
+#include <algorithm>
+
 
 #include "Board.h"
 
@@ -90,6 +89,47 @@ bool Board::is_empty(int square) {
 bool Board::is_friendly(int square, int piece) {
     if (x88[square] == EMPTY) return false;
     return get_color(x88[square]) == get_color(piece);
+}
+
+bool Board::is_threatened(int square, int color) {
+
+
+
+    // Rook or Queen
+    for (Ply move : check_directions(square, color, {N, S, E, W}, 8)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && (p == 5 || p == 2)){
+            return true;
+        }
+    }
+
+    // Bishop or Queen
+    for (Ply move : check_directions(square, color, {NE, SE, SW, NW}, 8)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && (p == 3 || p == 2)) return true;
+    }
+
+    // Knight
+    for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && (p == 4 || p == 2)) return true;
+    }
+
+    // King
+    for (Ply move : check_directions(square, color, {NE, SE, SW, NW, N, S, E, W}, 1)){
+        int p = abs(x88[move.to.index()]);
+        if (is_enemy(move.to.index(), color) && p == 1) return true;
+    }
+
+    // Pawn
+    if (color == WHITE){
+        if (is_enemy(square+NE, color) && abs(x88[square+NE]) == 6) return true;
+        if (is_enemy(square+NW, color) && abs(x88[square+NW]) == 6) return true;
+    } else {
+        if (is_enemy(square+SE, color) && abs(x88[square+SE]) == 6) return true;
+        if (is_enemy(square+SW, color) && abs(x88[square+SW]) == 6) return true;
+    }
+    return false;
 }
 
 std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps) {
@@ -194,11 +234,11 @@ std::vector<Ply> Board::generate_valid_moves_piece(int square) {
     return legal_moves;
 }
 
-
 std::ostream& operator<<(std::ostream &strm, const Board &board) {
     std::string padding = " ";
 
     strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
+
     for (uint8_t y = 0; y < 8; y++){
         for (uint8_t x = 0; x < 8; x++){
 
@@ -208,14 +248,24 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
             int piece = board.x88[sq + (sq & ~(uint8_t)7)];
             int piece_symbol = board.pieces[abs(piece)];
 
-            if (board.draw_color && piece_symbol != '.'){
+            if (piece_symbol != '.'){
                 if (board.get_color(piece) == WHITE){
-                    strm << WHITE_TTY;
+                    if (board.draw_color){
+                        strm << WHITE_TTY;
+                    } else {
+                        piece_symbol = tolower(piece_symbol);
+                    }
                 } else {
-                    strm << BLACK_TTY;
+                    if (board.draw_color){
+                        strm << BLACK_TTY;
+                    } else {
+                        piece_symbol = toupper(piece_symbol);
+                    }
                 }
             }
+
             strm << " " << (char)piece_symbol << " ";
+
             if (board.draw_color && piece_symbol != '.') strm << CLEAR_TTY;
 
             if (x == 7) strm <<" " << 8 - y;
@@ -226,52 +276,8 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
     return strm;
 }
 
-bool Board::is_threatened(int square, int color) {
-
-
-
-    // Rook or Queen
-    for (Ply move : check_directions(square, color, {N, S, E, W}, 8)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && (p == 5 || p == 2)){
-            return true;
-        }
-    }
-
-    // Bishop or Queen
-    for (Ply move : check_directions(square, color, {NE, SE, SW, NW}, 8)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && (p == 3 || p == 2)) return true;
-    }
-
-    // Knight
-    for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && (p == 4 || p == 2)) return true;
-    }
-
-    // King
-    for (Ply move : check_directions(square, color, {NE, SE, SW, NW, N, S, E, W}, 1)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && p == 1) return true;
-    }
-
-    // Pawn
-    if (color == WHITE){
-        if (is_enemy(square+NE, color) && abs(x88[square+NE]) == 6) return true;
-        if (is_enemy(square+NW, color) && abs(x88[square+NW]) == 6) return true;
-    } else {
-        if (is_enemy(square+SE, color) && abs(x88[square+SE]) == 6) return true;
-        if (is_enemy(square+SW, color) && abs(x88[square+SW]) == 6) return true;
-    }
-    return false;
-}
-
 Board::Board(const std::vector<int> &brd, bool draw_color): draw_color(draw_color) {
     assert(brd.size() == 128);
     for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
     calculate_material();
 }
-
-
-
