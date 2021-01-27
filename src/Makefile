@@ -1,20 +1,19 @@
-CC:=emcc
+CC:=g++
 LFLAGS:=-O3 -Wall
 CFLAGS:=-std=c++17 -g -Wall
 
-
-
 obj:=main.o Board.o Engine.o Ply.o Square.o
 
-.PHONY: clean
+.PHONY: clean all
 
 all: engine
 
 engine: $(obj)
-	$(CC) $(LFLAGS) $^ -s WASM=1 -o engine.js
+	$(CC) $(LFLAGS) -o $@ $^
 
-%.o: ../%.cpp
+%.o: %.cpp
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 clean:
-	rm -f $(obj) engine *.wasm *.js
+	rm -f $(obj) engine
+

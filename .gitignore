@@ -6,6 +6,8 @@ games/
 make_zip.sh
 engine.zip
 ps.txt
+src/web/README.md
+src/web/test.cpp
 
 *.wasm
 *.html
