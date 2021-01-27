@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
     << ", black_is_human=" << black_is_human
     << "\n\n"
     << board
-    << std::endl;
+    << "\n";
 
     bool checkmate;
 

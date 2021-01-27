@@ -111,11 +111,14 @@ private:
 
     int  execute_move(Ply ply);
     void reverse_move(Ply ply, int killed_piece);
+
     void calculate_material();
+
     bool is_threatened(int square, int color);
     inline bool is_empty(int square);
     inline bool is_enemy(int square, int piece);
     inline bool is_friendly(int square, int piece);
+
     static inline int  get_color(int piece);
     static inline bool off_the_board(int square);
 };
