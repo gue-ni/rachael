@@ -1,11 +1,8 @@
-//
-// Created by jakob on 1/23/21.
-//
 
 #include <vector>
 #include <cassert>
 #include <iostream>
-#include <climits>
+
 #include "Engine.h"
 
 
@@ -24,12 +21,8 @@ int Engine::max(int a, int b) {
 
 std::optional<Ply> Engine::find_best_move(Board &board, int color_to_move, int depth, int algorithm) {
     switch (algorithm){
-        case NEGAMAX:
-            return negamax(board, color_to_move, depth);
-
-        case NEGAMAX_ALPHABETA_FAILSOFT:
-            return negamax_alphabeta_failsoft(board, color_to_move, depth);
-
+        case NEGAMAX:                       return negamax(board, color_to_move, depth);
+        case NEGAMAX_ALPHABETA_FAILSOFT:    return negamax_alphabeta_failsoft(board, color_to_move, depth);
         default:
             assert(false);
             return std::nullopt;
@@ -141,5 +134,3 @@ int Engine::negamax_alphabeta_failsoft(Board &board, const int color_to_move, in
     }
     return score;
 }
-
-

@@ -1,6 +1,3 @@
-//
-// Created by jakob on 1/23/21.
-//
 
 #ifndef CHESS_ENGINE_CPP_ENGINE_H
 #define CHESS_ENGINE_CPP_ENGINE_H

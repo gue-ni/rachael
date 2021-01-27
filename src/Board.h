@@ -62,7 +62,7 @@
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
   0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99, \
-  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 } \
+  0,  0,  0,  0,  0,  0,  0,  0, 99, 99, 99, 99, 99, 99, 99, 99 }
 
 #include <vector>
 #include "Square.h"
@@ -88,8 +88,8 @@ public:
 private:
     friend class Engine;
 
-    char pieces[7]          = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
-    int material_value[7]   = { 0,   200, 9,   5,   3,   3,   1 };
+    const char pieces[7]          = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
+    const int material_value[7]   = { 0,   200, 9,   5,   3,   3,   1 };
     int x88[128]            = DEFAULT_BOARD;
     int w_material = 0, b_material = 0;
     bool w_king_moved       = false;
@@ -114,7 +114,7 @@ private:
 
     void calculate_material();
 
-    bool is_threatened(int square, int color);
+    bool        is_threatened(int square, int color);
     inline bool is_empty(int square);
     inline bool is_enemy(int square, int piece);
     inline bool is_friendly(int square, int piece);

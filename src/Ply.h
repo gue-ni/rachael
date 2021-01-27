@@ -4,6 +4,7 @@
 
 
 #include <string>
+
 #include "Square.h"
 
 class Ply {

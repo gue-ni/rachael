@@ -3,5 +3,11 @@ cmake-build-debug/
 build/
 games/
 
+make_zip.sh
 engine.zip
 ps.txt
+
+*.wasm
+*.html
+*.js
+*.o

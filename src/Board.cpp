@@ -319,10 +319,9 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
     return strm;
 }
 
-Board::Board(const std::vector<int> &brd, bool draw_color): draw_color(draw_color) {
+Board::Board(const std::vector<int> &brd, bool draw_color): Board(draw_color) {
     assert(brd.size() == 128);
     for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
-    calculate_material();
 }
 
 int Board::make_move(Ply ply) {

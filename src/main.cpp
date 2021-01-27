@@ -5,11 +5,14 @@
 #include "Square.h"
 #include "Engine.h"
 
+std::vector<Ply> move_history;
+
 bool human_take_turn(Board &board, int color, int ply){
     std::vector<Ply> possible_moves = board.generate_valid_moves(color);
+
     if (possible_moves.empty()){
         std::cout << (color == WHITE ? "white" : "black") << " checkmate" << std::endl;
-        return 1;
+        return true;
     }
 
     std::string input;
@@ -21,6 +24,7 @@ bool human_take_turn(Board &board, int color, int ply){
     Ply move(input);
 
     board.make_move(move);
+    move_history.push_back(move);
     std::cout << "\n"
               << board
               << (color == WHITE ? "white" : "black")
@@ -34,16 +38,17 @@ bool human_take_turn(Board &board, int color, int ply){
 
 bool ngine_take_turn(Board &board, int color, int ply, int search_depth) {
     clock_t tic = clock();
-    std::optional<Ply> best_move = Engine::find_best_move(board, color, search_depth, NEGAMAX_ALPHABETA_FAILSOFT);
+    std::optional<Ply> move = Engine::find_best_move(board, color, search_depth, NEGAMAX_ALPHABETA_FAILSOFT);
     clock_t toc = clock();
     double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 
-    if (best_move.has_value()){
-        board.make_move(best_move.value());
+    if (move.has_value()){
+        board.make_move(move.value());
+        move_history.push_back(move.value());
         std::cout << "Ply " << ply << ":\n"
                   << board
                   << (color == WHITE ? "white" : "black")
-                  <<  " moves " << best_move.value()
+                  << " moves " << move.value()
                   << ", found after " << dt << " seconds"
                   << std::endl
                   << std::endl;
@@ -136,8 +141,7 @@ int main(int argc, char **argv) {
      <<   "white_material=" << board.material(WHITE)
      << ", black_material=" << board.material(BLACK)
      << std::endl;
-
-
-
+    for (auto &m : move_history) std::cout << m << " ";
+    std::cout << std::endl;
     return 0;
 }
