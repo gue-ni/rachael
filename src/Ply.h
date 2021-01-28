@@ -17,6 +17,7 @@ public:
     explicit Ply(std::string move);
 
     bool is_valid();
+    std::string as_string();
 
     friend std::ostream& operator<<(std::ostream&, const Ply&);
     friend bool operator==(const Ply& one, const Ply& two);

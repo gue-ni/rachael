@@ -7,6 +7,7 @@
 
 
 #include "Board.h"
+#include "ReversiblePly.h"
 
 Board::Board(bool draw_color) : draw_color(draw_color) {
     w_material = 0;
@@ -162,8 +163,6 @@ std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<
     return moves;
 }
 
-
-
 std::vector<Ply> Board::generate_valid_moves_square(int square) {
     int piece = x88[square];
 
@@ -272,7 +271,7 @@ std::vector<Ply> Board::generate_valid_moves_square(int square) {
 std::ostream& operator<<(std::ostream &strm, const Board &board) {
     std::string padding = " ";
 
-    strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
+    strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
 
     for (uint8_t y = 0; y < 8; y++){
         for (uint8_t x = 0; x < 8; x++){
@@ -329,19 +328,13 @@ int Board::make_move(Ply ply) {
         if (ply == Ply("e1g1")) {
             execute_move(Ply("e1g1"));
             return execute_move(Ply("h1f1"));
-        }
-
-        if (ply == Ply("e1c1")) {
+        } else if (ply == Ply("e1c1")) {
             execute_move(Ply("e1c1"));
             return execute_move(Ply("a1d1"));
-        }
-
-        if (ply == Ply("e8c8")) {
+        } else if (ply == Ply("e8c8")) {
             execute_move(Ply("e8c8"));
             return execute_move(Ply("a8d8"));
-        }
-
-        if (ply == Ply("e8g8")) {
+        } else if (ply == Ply("e8g8")) {
             execute_move(Ply("e8g8"));
             return execute_move(Ply("h8f8"));
         }
@@ -349,47 +342,7 @@ int Board::make_move(Ply ply) {
     return execute_move(ply);
 }
 
-std::vector<Ply> Board::generate_valid_moves_threaded(int color_to_move) {
-    std::vector<Ply> valid_moves;
-    std::vector<Ply> top_moves, bottom_moves;
-
-    auto f = [&](const std::vector<int>& squares, std::vector<Ply> *moves){
-        std::vector<Ply> m;
-        for (int sq : squares){
-            if (!this->is_empty(sq) && this->get_color(this->x88[sq]) == color_to_move){
-                m = this->generate_valid_moves_square(sq);
-                if (!m.empty()) moves->insert(moves->end(), m.begin(), m.end());
-            }
-        }
-    };
-
-    /*
-    auto g = [](int x){
-        for (int i = 0; i < x; i++){
-            sleep(1);
-        }
-    };
-     */
-
-    std::thread t1(f, std::vector<int>{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-                                       0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
-                                       0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
-                                       0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37}, &top_moves);
-
-    std::thread t2(f, std::vector<int>{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
-                                       0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
-                                       0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
-                                       0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77}, &bottom_moves);
-
-
-
-    t1.join();
-    t2.join();
-    valid_moves.insert(valid_moves.end(), top_moves.begin(),    top_moves.end());
-    valid_moves.insert(valid_moves.end(), bottom_moves.begin(), bottom_moves.end());
-    return valid_moves;
-}
-
+// TODO improve, add caching
 std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
     std::vector<Ply> moves;
     std::vector<Ply> valid_moves;
@@ -401,6 +354,104 @@ std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
         }
     }
     return valid_moves;
+}
+
+void Board::reverse_move_rev(ReversiblePly ply) {
+    //std::cout << "reverse move: " << ply << std::endl;
+
+    if (ply.w_king_moved)   w_king_moved    = false;
+    if (ply.w_r_rook_moved) w_r_rook_moved  = false;
+    if (ply.w_l_rook_moved) w_l_rook_moved  = false;
+
+    if (ply.b_king_moved)   b_king_moved    = false;
+    if (ply.b_l_rook_moved) b_l_rook_moved  = false;
+    if (ply.b_r_rook_moved) b_r_rook_moved  = false;
+
+
+
+    if (abs(get_piece(ply.to)) == 1) {
+        std::string move = ply.as_string();
+        if (move == "e1g1") {
+            reverse_move(Ply("e1g1"), 0);
+            return reverse_move(Ply("h1f1"), 0);
+
+        } else if (move == "e1c1") {
+            reverse_move(Ply("e1c1"), 0);
+            return reverse_move(Ply("a1d1"), 0);
+
+        } else if (move == "e8c8") {
+            reverse_move(Ply("e8c8"), 0);
+            return reverse_move(Ply("a8d8"), 0);
+
+        } else if (move == "e8g8") {
+            reverse_move(Ply("e8g8"), 0);
+            return reverse_move(Ply("h8f8"), 0);
+        }
+    }
+
+    reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
+}
+
+ReversiblePly Board::execute_move_rev(Ply ply) {
+    ReversiblePly reversible(ply);
+    int killed = 0;
+
+    if (get_piece(ply.from) ==  1 && ply.from == Square("e1") && !w_king_moved)   {
+        w_king_moved   = true;
+        reversible.w_king_moved = true;
+    }
+    if (get_piece(ply.from) ==  5 && ply.from == Square("a1") && !w_l_rook_moved) {
+        w_l_rook_moved = true;
+        reversible.w_l_rook_moved = true;
+    }
+    if (get_piece(ply.from) ==  5 && ply.from == Square("h1") && !w_r_rook_moved) {
+        w_r_rook_moved = true;
+        reversible.w_r_rook_moved = true;
+    }
+
+    if (get_piece(ply.from) == -1 && ply.from == Square("e8") && !b_king_moved)   {
+        b_king_moved   = true;
+        reversible.b_king_moved = true;
+    }
+    if (get_piece(ply.from) == -5 && ply.from == Square("a8") && !b_l_rook_moved) {
+        b_l_rook_moved = true;
+        reversible.b_l_rook_moved = true;
+    }
+    if (get_piece(ply.from) == -5 && ply.from == Square("h8") && !b_r_rook_moved) {
+        b_r_rook_moved = true;
+        reversible.b_r_rook_moved = true;
+    }
+
+    if (abs(get_piece(ply.from)) == 1) {
+        if (ply == Ply("e1g1")) {
+            std::cout << "ply is e1g1" << std::endl;
+            execute_move(Ply("e1g1"));
+            execute_move(Ply("h1f1"));
+
+        } else if (ply == Ply("e1c1")) {
+            std::cout << "ply is e1c1" << std::endl;
+            execute_move(Ply("e1c1"));
+            execute_move(Ply("a1d1"));
+
+        } else if (ply == Ply("e8c8")) {
+            std::cout << "ply is e8c8" << std::endl;
+
+            execute_move(Ply("e8c8"));
+            execute_move(Ply("a8d8"));
+
+        } else if (ply == Ply("e8g8")) {
+            std::cout << "ply is e8g8" << std::endl;
+            execute_move(Ply("e8g8"));
+            execute_move(Ply("h8f8"));
+        } else {
+            killed = execute_move(ply);
+        }
+    } else {
+        killed = execute_move(ply);
+    }
+
+    reversible.killed_piece = killed;
+    return reversible;
 }
 
 

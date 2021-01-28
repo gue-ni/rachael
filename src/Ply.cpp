@@ -1,5 +1,6 @@
 
 #include <cassert>
+#include <sstream>
 
 #include "Ply.h"
 
@@ -22,6 +23,12 @@ bool Ply::is_valid() {
 
 bool operator==(const Ply &one, const Ply& two){
     return one.to == two.to && one.from == two.from;
+}
+
+std::string Ply::as_string() {
+    std::ostringstream str;
+    str << from.file << from.rank << to.file << to.rank;
+    return str.str();
 }
 
 

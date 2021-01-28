@@ -10,17 +10,20 @@
 
 class ReversiblePly : public Ply {
 public:
-    int killed_piece;
-    bool w_king_first_move;
-    bool w_l_rook_first_move;
-    bool w_r_rook_first_move;
+    int killed_piece = 0;
 
-    bool b_king_first_move;
-    bool b_l_rook_first_move;
-    bool b_r_rook_first_move;
+    // previous state
+    bool w_king_moved       = false;
+    bool w_l_rook_moved     = false;
+    bool w_r_rook_moved     = false;
+    bool b_king_moved       = false;
+    bool b_l_rook_moved     = false;
+    bool b_r_rook_moved     = false;
 
     ReversiblePly(Ply ply, int killed);
+    explicit ReversiblePly(Ply ply);
 
+    friend std::ostream& operator<<(std::ostream&, const ReversiblePly&);
 };
 
 
