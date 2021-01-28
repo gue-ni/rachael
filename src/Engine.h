@@ -17,7 +17,7 @@
 class Engine {
 public:
     static std::optional<Ply> find_best_move(Board &board, int color_to_move, int depth, int algorithm);
-
+    
 private:
     static int max(int a, int b);
 

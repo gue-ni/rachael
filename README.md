@@ -20,3 +20,9 @@ A simple chess engine, written entirely in C++17. It uses the Negmax algorithm w
            
 white e2e3, found after 0.110870 seconds
 ```
+## TODO
+implement caching strategy
+only recaclulate squares on diagonals, file, rank, adjacent and knight positions for to and from square.
+
+reversable moves
+	

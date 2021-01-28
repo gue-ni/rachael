@@ -1,14 +1,16 @@
 CC:=emcc
+
 LFLAGS:=-O3 -Wall
 CFLAGS:=-std=c++17 -g -Wall
 
-
-
 obj:=main.o Board.o Engine.o Ply.o Square.o
 
-.PHONY: clean
+.PHONY: clean web
 
-all: engine
+all: engine web
+
+web:
+	$(CC) -std=c++17 -O3 --bind -o test.js WebEngine.cpp ../Board.cpp ../Engine.cpp ../Square.cpp ../Ply.cpp
 
 engine: $(obj)
 	$(CC) $(LFLAGS) $^ -s WASM=1 -o engine.js

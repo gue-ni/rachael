@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <thread>
+#include <zconf.h>
 
 
 #include "Board.h"
@@ -160,17 +162,7 @@ std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<
     return moves;
 }
 
-std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
-    std::vector<Ply> valid_moves, moves;
 
-    for (int sq : valid_squares){
-        if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
-            moves = generate_valid_moves_square(sq);
-            valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
-        }
-    }
-    return valid_moves;
-}
 
 std::vector<Ply> Board::generate_valid_moves_square(int square) {
     int piece = x88[square];
@@ -356,3 +348,61 @@ int Board::make_move(Ply ply) {
     }
     return execute_move(ply);
 }
+
+std::vector<Ply> Board::generate_valid_moves_threaded(int color_to_move) {
+    std::vector<Ply> valid_moves;
+    std::vector<Ply> top_moves, bottom_moves;
+
+    auto f = [&](const std::vector<int>& squares, std::vector<Ply> *moves){
+        std::vector<Ply> m;
+        for (int sq : squares){
+            if (!this->is_empty(sq) && this->get_color(this->x88[sq]) == color_to_move){
+                m = this->generate_valid_moves_square(sq);
+                if (!m.empty()) moves->insert(moves->end(), m.begin(), m.end());
+            }
+        }
+    };
+
+    /*
+    auto g = [](int x){
+        for (int i = 0; i < x; i++){
+            sleep(1);
+        }
+    };
+     */
+
+    std::thread t1(f, std::vector<int>{0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+                                       0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+                                       0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+                                       0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37}, &top_moves);
+
+    std::thread t2(f, std::vector<int>{0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+                                       0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+                                       0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
+                                       0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77}, &bottom_moves);
+
+
+
+    t1.join();
+    t2.join();
+    valid_moves.insert(valid_moves.end(), top_moves.begin(),    top_moves.end());
+    valid_moves.insert(valid_moves.end(), bottom_moves.begin(), bottom_moves.end());
+    return valid_moves;
+}
+
+std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
+    std::vector<Ply> moves;
+    std::vector<Ply> valid_moves;
+
+    for (int sq : valid_squares){
+        if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
+         moves = generate_valid_moves_square(sq);
+         valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
+        }
+    }
+    return valid_moves;
+}
+
+
+
+

@@ -7,7 +7,7 @@
 
 std::vector<Ply> move_history;
 
-bool human_take_turn(Board &board, int color, int ply){
+bool  human_take_turn(Board &board, int color, int ply){
     std::vector<Ply> possible_moves = board.generate_valid_moves(color);
 
     if (possible_moves.empty()){
@@ -36,7 +36,7 @@ bool human_take_turn(Board &board, int color, int ply){
 
 }
 
-bool ngine_take_turn(Board &board, int color, int ply, int search_depth) {
+bool engine_take_turn(Board &board, int color, int ply, int search_depth) {
     clock_t tic = clock();
     std::optional<Ply> move = Engine::find_best_move(board, color, search_depth, NEGAMAX_ALPHABETA_FAILSOFT);
     clock_t toc = clock();
@@ -117,12 +117,11 @@ int main(int argc, char **argv) {
     << "\n";
 
     bool checkmate;
-
     while (turns > 0){
         if (white_is_human){
             checkmate = human_take_turn(board, WHITE, plies++);
         } else {
-            checkmate = ngine_take_turn(board, WHITE, plies++, search_depth);
+            checkmate = engine_take_turn(board, WHITE, plies++, search_depth);
         }
 
         if (checkmate) break;
@@ -130,17 +129,17 @@ int main(int argc, char **argv) {
         if (black_is_human){
             checkmate = human_take_turn(board, BLACK, plies++);
         } else {
-            checkmate = ngine_take_turn(board, BLACK, plies++, search_depth);
+            checkmate = engine_take_turn(board, BLACK, plies++, search_depth);
         }
 
         if (checkmate) break;
         turns--;
      }
 
-     std::cout
-     <<   "white_material=" << board.material(WHITE)
-     << ", black_material=" << board.material(BLACK)
-     << std::endl;
+    std::cout
+    <<   "white_material=" << board.material(WHITE)
+    << ", black_material=" << board.material(BLACK)
+    << std::endl;
     for (auto &m : move_history) std::cout << m << " ";
     std::cout << std::endl;
     return 0;

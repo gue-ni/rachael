@@ -77,6 +77,7 @@ public:
     void set_piece(Square alg, int piece);
 
     std::vector<Ply> generate_valid_moves(int color_to_move);
+    std::vector<Ply> generate_valid_moves_threaded(int color_to_move);
     std::vector<Ply> generate_valid_moves_square(int square);
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
 
@@ -100,7 +101,7 @@ private:
     bool b_r_rook_moved     = false;
     bool draw_color         = false;
 
-    int valid_squares[64] = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+    std::vector<int> valid_squares = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                              0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
                              0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
                              0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
