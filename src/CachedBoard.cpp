@@ -23,7 +23,7 @@ std::vector<Ply> CachedBoard::generate_valid_moves(int color_to_move) {
     }
 }
 
-CachedBoard::CachedBoard(const std::vector<int> &brd, bool draw_color) : Board(brd, draw_color) {
+CachedBoard::CachedBoard(const std::vector<int> &brd, bool draw_color) : SimpleBoard(brd, draw_color) {
     std::vector<Ply> moves;
     for (int sq : valid_squares){
         if (x88[sq] == EMPTY) continue;
@@ -36,15 +36,15 @@ CachedBoard::CachedBoard(const std::vector<int> &brd, bool draw_color) : Board(b
     }
 }
 
-Reversible CachedBoard::execute_reversible_move(Ply ply) {
+Reversible CachedBoard::make_move(Ply ply) {
     move_history.push_back(ply);
-    Reversible rev =  Board::execute_reversible_move(ply);
+    Reversible rev = SimpleBoard::make_move(ply);
     update_cache_after_move();
     return rev;
 }
 
-void CachedBoard::undo_reversible_move(Reversible ply) {
-    Board::undo_reversible_move(ply);
+void CachedBoard::undo_move(Reversible ply) {
+    SimpleBoard::undo_move(ply);
     update_cache_after_undo();
     move_history.pop_back();
 }
@@ -82,7 +82,7 @@ std::vector<int> CachedBoard::generate_squares_of_interest(int from , int to) {
 
 void CachedBoard::update_cache_after_move() {
     Ply last_move = move_history.back();
-    soi = generate_squares_of_interest(last_move.from.index(), last_move.to.index());
+    soi = generate_squares_of_interest(last_move.from, last_move.to);
 
     /*
     std::cout << soi.size() << " ";

@@ -6,16 +6,16 @@
 #define CHESS_ENGINE_CPP_CACHEDBOARD_H
 
 #include <map>
-#include "Board.h"
+#include "SimpleBoard.h"
 
-class CachedBoard : public Board {
+class CachedBoard : public SimpleBoard {
 public:
     CachedBoard(const std::vector<int> &brd, bool draw_color);
     std::vector<Ply> move_history;
 
 
-    Reversible execute_reversible_move(Ply ply) override;
-    void undo_reversible_move(Reversible ply) override;
+    Reversible make_move(Ply ply) override;
+    void undo_move(Reversible ply) override;
 
     std::map<int, std::vector<Ply>> cached_white_moves;
     std::map<int, std::vector<Ply>> cached_black_moves;

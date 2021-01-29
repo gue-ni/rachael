@@ -1,400 +1,14 @@
-
-#include <cassert>
-#include <iostream>
-#include <algorithm>
-#include <thread>
-#include <zconf.h>
-
+//
+// Created by jakob on 1/29/21.
+//
 
 #include "Board.h"
-#include "Reversible.h"
 
-Board::Board(bool draw_color) : draw_color(draw_color) {
-    w_material = 0;
-    b_material = 0;
-    calculate_material();
-}
-
-int Board::get_piece(Square alg) {
-    return x88[alg.index()];
-}
-
-int Board::material(int color) {
-    return color == WHITE ? w_material : b_material;
-}
-
-bool Board::off_the_board(int square) {
-    return square & (uint8_t)0x88;
-}
-
-int Board::execute_move(Ply ply) {
-    int killed = get_piece(ply.to);
-    set_piece(ply.to, get_piece(ply.from));
-    set_piece(ply.from, 0);
-
-    if (killed != 0){
-        if (killed > 0){
-            w_material -= material_value[abs(killed)];
-        } else {
-            b_material -= material_value[abs(killed)];
-        }
-    }
-    return killed;
-}
-
-void Board::reverse_move(Ply ply, int killed_piece) {
-    set_piece(ply.from, get_piece(ply.to));
-    set_piece(ply.to, killed_piece);
-
-    if (killed_piece != 0){
-        if (killed_piece > 0){
-            w_material += material_value[abs(killed_piece)];
-        } else {
-            b_material += material_value[abs(killed_piece)];
-        }
-    }
-}
-
-void Board::calculate_material() {
-    w_material = 0;
-    b_material = 0;
-
-    for (int sq : valid_squares){
-        int p = x88[sq];
-        if (p == 0) continue;
-
-        if (p > 0){
-            w_material += material_value[abs(p)];
-        } else {
-            b_material += material_value[abs(p)];
-        }
-    }
-}
-
-void Board::set_piece(Square alg, int piece) {
-    x88[alg.index()] = piece;
-}
-
-int  Board::get_color(int piece) {
-    assert(piece != EMPTY);
-    return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
-}
-
-bool Board::is_enemy(int square, int piece) {
-    if (x88[square] == EMPTY) return false;
-    return get_color(x88[square]) != get_color(piece);
-}
-
-bool Board::is_empty(int square) {
-    return x88[square] == EMPTY;
-}
-
-bool Board::is_friendly(int square, int piece) {
-    if (x88[square] == EMPTY) return false;
-    return get_color(x88[square]) == get_color(piece);
-}
-
-bool Board::is_threatened(int square, int color) {
-
-
-
-    // Rook or Queen
-    for (Ply move : check_directions(square, color, {N, S, E, W}, 8)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && (p == 5 || p == 2)){
-            return true;
-        }
-    }
-
-    // Bishop or Queen
-    for (Ply move : check_directions(square, color, {NE, SE, SW, NW}, 8)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && (p == 3 || p == 2)) return true;
-    }
-
-    // Knight
-    for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && (p == 4 || p == 2)) return true;
-    }
-
-    // King
-    for (Ply move : check_directions(square, color, {NE, SE, SW, NW, N, S, E, W}, 1)){
-        int p = abs(x88[move.to.index()]);
-        if (is_enemy(move.to.index(), color) && p == 1) return true;
-    }
-
-    // Pawn
-    if (color == WHITE){
-        if (is_enemy(square+NE, color) && abs(x88[square+NE]) == 6) return true;
-        if (is_enemy(square+NW, color) && abs(x88[square+NW]) == 6) return true;
-    } else {
-        if (is_enemy(square+SE, color) && abs(x88[square+SE]) == 6) return true;
-        if (is_enemy(square+SW, color) && abs(x88[square+SW]) == 6) return true;
-    }
-    return false;
-}
-
-std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps) {
-    std::vector<Ply> moves;
-    int steps, to;
-    assert(piece != 0);
-
-    for (int dir : dirs){
-        steps = 0;
-        to = from;
-
-        while(steps < max_steps) {
-            to += dir;
-
-            if (off_the_board(to) || is_friendly(to, piece)) break;
-
-            if (is_enemy(to, piece)) {
-                moves.emplace_back(from, to);
-                break;
-            }
-
-            if (is_empty(to)) {
-                moves.emplace_back(from, to);
-                steps++;
-            }
-        }
-    }
-    return moves;
-}
-
-std::vector<Ply> Board::generate_valid_moves_square(int square) {
-    int piece = x88[square];
-
-    if (piece == 0) return std::vector<Ply>();
-
-    int color = get_color(piece);
-    std::vector<Ply> legal_moves;
-
-    switch (abs(piece)){
-        case PAWN:{ // pawn
-            if (is_empty(square + N * color) && !off_the_board(square + N * color)){
-                legal_moves.emplace_back(square, square + N * color);
-
-                if (Square(square).rank == (color == WHITE ? 2 : 7)
-                    && is_empty(square + (2 * N) * color)
-                    && !off_the_board(square + (2 * N) * color)){
-                    legal_moves.emplace_back(square, square + (2 * N) * color);
-                }
-            }
-
-            if (is_enemy(square + NE * color, piece) && !off_the_board(square + NE * color)){
-                legal_moves.emplace_back(square, square + NE * color);
-            }
-
-            if (is_enemy(square + NW * color, piece) && !off_the_board(square + NW * color)){
-                legal_moves.emplace_back(square, square + NW * color);
-            }
-            break;
-        }
-        case ROOK:{
-            legal_moves = check_directions(square, piece, {N, S, E, W}, 8);
-            break;
-        }
-        case KNIGHT:{
-            legal_moves = check_directions(square, piece, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1);
-            break;
-        }
-        case BISHOP:{
-            legal_moves = check_directions(square, piece, {NE, SE, SW, NW}, 8);
-            break;
-        }
-        case QUEEN:{
-            legal_moves = check_directions(square, piece, {N, NE, E, SE, S, SW, W, NW}, 8);
-            break;
-        }
-        case KING:{
-            std::vector<Ply> possible = check_directions(square, piece, {N, NE, E, SE, S, SW, W, NW}, 1);
-            for (auto p : possible){
-                int k = execute_move(p);
-
-                if (!is_threatened(p.to.index(), color)){
-                    legal_moves.push_back(p);
-                }
-
-                reverse_move(p, k);
-            }
-
-            // check castle
-
-            if (!is_threatened(square, color)){
-                if (color == WHITE){
-                    if (!w_king_moved && !w_r_rook_moved
-                        && !is_threatened(0x05, color)
-                        && !is_threatened(0x06, color)
-                        && !is_threatened(square, color)
-                        && x88[0x05] == EMPTY && x88[0x06] == EMPTY){
-                        legal_moves.emplace_back("e1g1");
-                    }
-
-                    if (!w_king_moved && !w_l_rook_moved
-                        && !is_threatened(0x01, color)
-                        && !is_threatened(0x02, color)
-                        && !is_threatened(0x03, color)
-                        && !is_threatened(square, color)
-                        && x88[0x01] == EMPTY && x88[0x02] == EMPTY && x88[0x03] == EMPTY){
-                        legal_moves.emplace_back("e1c1");
-                    }
-
-
-
-                } else {
-                    if (!b_king_moved && !b_r_rook_moved
-                    && !is_threatened(0x76, color)
-                    && !is_threatened(0x76, color)
-                    && !is_threatened(square, color)
-                    && x88[0x75] == EMPTY && x88[0x76] == EMPTY){
-                        legal_moves.emplace_back("e8g8");
-                    }
-
-                    if (!b_king_moved && !b_l_rook_moved
-                        && !is_threatened(0x71, color)
-                        && !is_threatened(0x72, color)
-                        && !is_threatened(0x73, color)
-                        && !is_threatened(square, color)
-                        && x88[0x71] == EMPTY && x88[0x72] == EMPTY && x88[0x73] == EMPTY){
-                        legal_moves.emplace_back("e8c8");
-                    }
-                }
-            }
-            break;
-        }
-    }
-    return legal_moves;
-}
-
-std::ostream& operator<<(std::ostream &strm, const Board &board) {
-    std::string padding = " ";
-
-    strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
-
-    for (uint8_t y = 0; y < 8; y++){
-        for (uint8_t x = 0; x < 8; x++){
-
-            if (x == 0) strm << padding << 8 - y << " ";
-
-            uint8_t sq = (7 - y) * 8 + x;
-            int piece = board.x88[sq + (sq & ~(uint8_t)7)];
-            int piece_symbol = board.pieces[abs(piece)];
-
-            if (piece_symbol != '.'){
-                if (board.get_color(piece) == WHITE){
-                    if (board.draw_color){
-                        strm << WHITE_TTY;
-                    } else {
-                        piece_symbol = tolower(piece_symbol);
-                    }
-                } else {
-                    if (board.draw_color){
-                        strm << BLACK_TTY;
-                    } else {
-                        piece_symbol = toupper(piece_symbol);
-                    }
-                }
-            }
-
-            strm << " " << (char)piece_symbol << " ";
-
-            if (board.draw_color && piece_symbol != '.') strm << CLEAR_TTY;
-
-            if (x == 7) strm <<" " << 8 - y;
-        }
-        printf("\n");
-    }
-    strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
-    return strm;
-}
-
-Board::Board(const std::vector<int> &brd, bool draw_color): Board(draw_color) {
-    assert(brd.size() == 128);
-    for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
-}
-
-int Board::make_move(Ply ply) {
-    if (get_piece(ply.from) ==  1 && ply.from == Square("e1")) w_king_moved   = true;
-    if (get_piece(ply.from) ==  5 && ply.from == Square("a1")) w_l_rook_moved = true;
-    if (get_piece(ply.from) ==  5 && ply.from == Square("h1")) w_r_rook_moved = true;
-
-    if (get_piece(ply.from) == -1 && ply.from == Square("e8")) b_king_moved   = true;
-    if (get_piece(ply.from) == -5 && ply.from == Square("a8")) b_l_rook_moved = true;
-    if (get_piece(ply.from) == -5 && ply.from == Square("h8")) b_r_rook_moved = true;
-
-    if (abs(get_piece(ply.from)) == 1) {
-        if (ply == Ply("e1g1")) {
-            execute_move(Ply("e1g1"));
-            return execute_move(Ply("h1f1"));
-        } else if (ply == Ply("e1c1")) {
-            execute_move(Ply("e1c1"));
-            return execute_move(Ply("a1d1"));
-        } else if (ply == Ply("e8c8")) {
-            execute_move(Ply("e8c8"));
-            return execute_move(Ply("a8d8"));
-        } else if (ply == Ply("e8g8")) {
-            execute_move(Ply("e8g8"));
-            return execute_move(Ply("h8f8"));
-        }
-    }
-    return execute_move(ply);
-}
-
-// TODO improve, add caching
-std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
-    std::vector<Ply> moves;
-    std::vector<Ply> valid_moves;
-
-    for (int sq : valid_squares){
-        if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
-         moves = generate_valid_moves_square(sq);
-         valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
-        }
-    }
-
-    return valid_moves;
-}
-
-void Board::undo_reversible_move(Reversible ply) {
-    //std::cout << "reverse move: " << ply << std::endl;
-
-    if (ply.w_king_moved)   w_king_moved    = false;
-    if (ply.w_r_rook_moved) w_r_rook_moved  = false;
-    if (ply.w_l_rook_moved) w_l_rook_moved  = false;
-
-    if (ply.b_king_moved)   b_king_moved    = false;
-    if (ply.b_l_rook_moved) b_l_rook_moved  = false;
-    if (ply.b_r_rook_moved) b_r_rook_moved  = false;
-
-    if (abs(get_piece(ply.to)) == 1) {
-        std::string move = ply.as_string();
-        if (move == "e1g1") {
-            reverse_move(Ply("e1g1"), 0);
-            return reverse_move(Ply("h1f1"), 0);
-
-        } else if (move == "e1c1") {
-            reverse_move(Ply("e1c1"), 0);
-            return reverse_move(Ply("a1d1"), 0);
-
-        } else if (move == "e8c8") {
-            reverse_move(Ply("e8c8"), 0);
-            return reverse_move(Ply("a8d8"), 0);
-
-        } else if (move == "e8g8") {
-            reverse_move(Ply("e8g8"), 0);
-            return reverse_move(Ply("h8f8"), 0);
-        }
-    }
-
-    reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
-}
-
-Reversible Board::execute_reversible_move(Ply ply) {
+Reversible Board::make_move(Ply ply) {
     Reversible reversible(ply);
     int killed = 0;
 
+    /*
     if (get_piece(ply.from) ==  1 && ply.from == Square("e1") && !w_king_moved)   {
         w_king_moved   = true;
         reversible.w_king_moved = true;
@@ -443,14 +57,43 @@ Reversible Board::execute_reversible_move(Ply ply) {
         killed = execute_move(ply);
     }
 
+    */
+    //Reversible reversible(ply);
     reversible.killed_piece = killed;
     return reversible;
 }
 
-int Board::x88diff(int a, int b) {
-    return 0x77 + a - b;
-}
+void Board::undo_move(Reversible ply) {
+//std::cout << "reverse move: " << ply << std::endl;
+
+    if (ply.w_king_moved)   w_king_moved    = false;
+    if (ply.w_r_rook_moved) w_r_rook_moved  = false;
+    if (ply.w_l_rook_moved) w_l_rook_moved  = false;
+
+    if (ply.b_king_moved)   b_king_moved    = false;
+    if (ply.b_l_rook_moved) b_l_rook_moved  = false;
+    if (ply.b_r_rook_moved) b_r_rook_moved  = false;
+
+    if (abs(get_piece(ply.to)) == 1) {
+        std::string move = ply.as_string();
+        if (move == "e1g1") {
+            reverse_move(Ply("e1g1"), 0);
+            return reverse_move(Ply("h1f1"), 0);
+
+        } else if (move == "e1c1") {
+            reverse_move(Ply("e1c1"), 0);
+            return reverse_move(Ply("a1d1"), 0);
+
+        } else if (move == "e8c8") {
+            reverse_move(Ply("e8c8"), 0);
+            return reverse_move(Ply("a8d8"), 0);
+
+        } else if (move == "e8g8") {
+            reverse_move(Ply("e8g8"), 0);
+            return reverse_move(Ply("h8f8"), 0);
+        }
+    }
 
 
 
-
+    reverse_move(Ply(ply.from, ply.to), ply.killed_piece);}

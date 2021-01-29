@@ -1,12 +1,12 @@
 #include <iostream>
-#include "../src/Board.h"
+#include "../src/SimpleBoard.h"
 #include "../src/CachedBoard.h"
 #include "../src/Engine.h"
 
 
 int main(){
     CachedBoard cachedBoard(DEFAULT_BOARD, true);
-    Board board(DEFAULT_BOARD, true);
+    SimpleBoard board(DEFAULT_BOARD, true);
     std::cout << cachedBoard << std::endl;
 
     //std::vector<Ply> history = { Ply("e2e4"), Ply("e7e5")};
@@ -28,10 +28,10 @@ int main(){
      */
 
     for (auto m : cachedBoard.generate_valid_moves(WHITE)) std::cout << m << " "; std::cout << std::endl;
-    Reversible r = cachedBoard.execute_reversible_move(Ply("e2e4"));
+    Reversible r = cachedBoard.make_move(Ply("e2e4"));
     std::cout << cachedBoard << std::endl;
     for (auto m : cachedBoard.generate_valid_moves(WHITE)) std::cout << m << " "; std::cout << std::endl;
-    cachedBoard.undo_reversible_move(r);
+    cachedBoard.undo_move(r);
     std::cout << cachedBoard << std::endl;
     for (auto m : cachedBoard.generate_valid_moves(WHITE)) std::cout << m << " "; std::cout << std::endl;
 

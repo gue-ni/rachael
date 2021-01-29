@@ -12,7 +12,7 @@ int main(){
     clock_t tic, toc;
 
     CachedBoard cachedBoard(DEFAULT_BOARD, true);
-    Board board(DEFAULT_BOARD, true);
+    SimpleBoard board(DEFAULT_BOARD, true);
 
     tic = clock();
     cachedBoard.generate_valid_moves(WHITE);

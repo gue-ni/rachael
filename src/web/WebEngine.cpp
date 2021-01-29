@@ -5,7 +5,7 @@
 #include <emscripten/bind.h>
 #include <iostream>
 
-#include "../Board.h"
+#include "../SimpleBoard.h"
 
 using namespace emscripten;
 

@@ -6,7 +6,7 @@
 #include "Engine.h"
 
 
-int Engine::evaluation(Board &board) {
+int Engine::evaluation(SimpleBoard &board) {
     int wn = board.generate_valid_moves(WHITE).size();
     int bn = board.generate_valid_moves(BLACK).size();
 
@@ -19,7 +19,7 @@ int Engine::max(int a, int b) {
 }
 
 
-std::optional<Ply> Engine::find_best_move(Board &board, int color_to_move, int depth, int algorithm) {
+std::optional<Ply> Engine::find_best_move(SimpleBoard &board, int color_to_move, int depth, int algorithm) {
     switch (algorithm){
         case NEGAMAX:                       return negamax(board, color_to_move, depth);
         case NEGAMAX_ALPHABETA_FAILSOFT:    return negamax_alphabeta_failsoft(board, color_to_move, depth);
@@ -30,7 +30,7 @@ std::optional<Ply> Engine::find_best_move(Board &board, int color_to_move, int d
 }
 
 
-std::optional<Ply> Engine::negamax(Board &board, int color_to_move, int depth) {
+std::optional<Ply> Engine::negamax(SimpleBoard &board, int color_to_move, int depth) {
     std::optional<Ply> best_move = std::nullopt;
     std::vector<Ply> moves = board.generate_valid_moves(color_to_move);
 
@@ -47,7 +47,7 @@ std::optional<Ply> Engine::negamax(Board &board, int color_to_move, int depth) {
     return best_move;
 }
 
-int Engine::negamax_rec(Board &board, int color_to_move, int depth) {
+int Engine::negamax_rec(SimpleBoard &board, int color_to_move, int depth) {
     if (depth == 0) return color_to_move * evaluation(board);
 
     std::vector<Ply> moves = board.generate_valid_moves(color_to_move);
@@ -65,7 +65,7 @@ int Engine::negamax_rec(Board &board, int color_to_move, int depth) {
 }
 
 
-std::optional<Ply> Engine::negamax_alphabeta_failsoft(Board &board, int color_to_move, int depth) {
+std::optional<Ply> Engine::negamax_alphabeta_failsoft(SimpleBoard &board, int color_to_move, int depth) {
     int score       = 0;
     int best_score  = MIN;
 
@@ -85,13 +85,13 @@ std::optional<Ply> Engine::negamax_alphabeta_failsoft(Board &board, int color_to
         }
 
         //int killed = board.execute_move(move);
-        Reversible rp = board.execute_reversible_move(move);
+        Reversible rp = board.make_move(move);
         score = -negamax_alphabeta_failsoft(board, -color_to_move, MIN, MAX, depth);
 #ifdef DEBUG_SEARCH
         std::cout << "[ROOT] " << move << " " << score << std::endl;
 #endif
         //board.reverse_move(move, killed);
-        board.undo_reversible_move(rp);
+        board.undo_move(rp);
 
         if (score > best_score) {
             best_score  = score;
@@ -101,7 +101,7 @@ std::optional<Ply> Engine::negamax_alphabeta_failsoft(Board &board, int color_to
     return best_move;
 }
 
-int Engine::negamax_alphabeta_failsoft(Board &board, const int color_to_move, int alpha, int beta, int depth) {
+int Engine::negamax_alphabeta_failsoft(SimpleBoard &board, const int color_to_move, int alpha, int beta, int depth) {
     if (depth == 0) {
         int eval = color_to_move * evaluation(board);
 #ifdef DEBUG_SEARCH
@@ -126,11 +126,11 @@ int Engine::negamax_alphabeta_failsoft(Board &board, const int color_to_move, in
         }
 
         //int killed = board.execute_move(move);
-        Reversible rp = board.execute_reversible_move(move);
+        Reversible rp = board.make_move(move);
 
         score = max(score, -negamax_alphabeta_failsoft(board, -color_to_move, -beta, -alpha, depth - 1));
         //board.reverse_move(move, killed);
-        board.undo_reversible_move(rp);
+        board.undo_move(rp);
 
         alpha = max(score, alpha);
 

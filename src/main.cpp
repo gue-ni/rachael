@@ -1,13 +1,13 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "Board.h"
+#include "SimpleBoard.h"
 #include "Square.h"
 #include "Engine.h"
 
 std::vector<Ply> move_history;
 
-bool  human_take_turn(Board &board, int color, int ply){
+bool  human_take_turn(SimpleBoard &board, int color, int ply){
     std::vector<Ply> possible_moves = board.generate_valid_moves(color);
 
     if (possible_moves.empty()){
@@ -36,7 +36,7 @@ bool  human_take_turn(Board &board, int color, int ply){
 
 }
 
-bool engine_take_turn(Board &board, int color, int ply, int search_depth) {
+bool engine_take_turn(SimpleBoard &board, int color, int ply, int search_depth) {
     clock_t tic = clock();
     std::optional<Ply> move = Engine::find_best_move(board, color, search_depth, NEGAMAX_ALPHABETA_FAILSOFT);
     clock_t toc = clock();
@@ -49,7 +49,7 @@ bool engine_take_turn(Board &board, int color, int ply, int search_depth) {
                   << board
                   << (color == WHITE ? "white" : "black")
                   << " moves " << move.value()
-                  << ", found after " << dt << " seconds"
+                  //<< ", found after " << dt << " seconds"
                   << std::endl
                   << std::endl;
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    Board board(DEFAULT_BOARD, color_output);
+    SimpleBoard board(DEFAULT_BOARD, color_output);
 
     std::cout
     << "search_depth=" << search_depth
