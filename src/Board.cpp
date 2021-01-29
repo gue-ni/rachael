@@ -7,7 +7,7 @@
 
 
 #include "Board.h"
-#include "ReversiblePly.h"
+#include "Reversible.h"
 
 Board::Board(bool draw_color) : draw_color(draw_color) {
     w_material = 0;
@@ -353,10 +353,11 @@ std::vector<Ply> Board::generate_valid_moves(int color_to_move) {
          valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
         }
     }
+
     return valid_moves;
 }
 
-void Board::reverse_move_rev(ReversiblePly ply) {
+void Board::undo_reversible_move(Reversible ply) {
     //std::cout << "reverse move: " << ply << std::endl;
 
     if (ply.w_king_moved)   w_king_moved    = false;
@@ -366,8 +367,6 @@ void Board::reverse_move_rev(ReversiblePly ply) {
     if (ply.b_king_moved)   b_king_moved    = false;
     if (ply.b_l_rook_moved) b_l_rook_moved  = false;
     if (ply.b_r_rook_moved) b_r_rook_moved  = false;
-
-
 
     if (abs(get_piece(ply.to)) == 1) {
         std::string move = ply.as_string();
@@ -392,32 +391,26 @@ void Board::reverse_move_rev(ReversiblePly ply) {
     reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
 }
 
-ReversiblePly Board::execute_move_rev(Ply ply) {
-    ReversiblePly reversible(ply);
+Reversible Board::execute_reversible_move(Ply ply) {
+    Reversible reversible(ply);
     int killed = 0;
 
     if (get_piece(ply.from) ==  1 && ply.from == Square("e1") && !w_king_moved)   {
         w_king_moved   = true;
         reversible.w_king_moved = true;
-    }
-    if (get_piece(ply.from) ==  5 && ply.from == Square("a1") && !w_l_rook_moved) {
+    } else if (get_piece(ply.from) ==  5 && ply.from == Square("a1") && !w_l_rook_moved) {
         w_l_rook_moved = true;
         reversible.w_l_rook_moved = true;
-    }
-    if (get_piece(ply.from) ==  5 && ply.from == Square("h1") && !w_r_rook_moved) {
+    } else if (get_piece(ply.from) ==  5 && ply.from == Square("h1") && !w_r_rook_moved) {
         w_r_rook_moved = true;
         reversible.w_r_rook_moved = true;
-    }
-
-    if (get_piece(ply.from) == -1 && ply.from == Square("e8") && !b_king_moved)   {
+    } else if (get_piece(ply.from) == -1 && ply.from == Square("e8") && !b_king_moved)   {
         b_king_moved   = true;
         reversible.b_king_moved = true;
-    }
-    if (get_piece(ply.from) == -5 && ply.from == Square("a8") && !b_l_rook_moved) {
+    } else if (get_piece(ply.from) == -5 && ply.from == Square("a8") && !b_l_rook_moved) {
         b_l_rook_moved = true;
         reversible.b_l_rook_moved = true;
-    }
-    if (get_piece(ply.from) == -5 && ply.from == Square("h8") && !b_r_rook_moved) {
+    } else if (get_piece(ply.from) == -5 && ply.from == Square("h8") && !b_r_rook_moved) {
         b_r_rook_moved = true;
         reversible.b_r_rook_moved = true;
     }

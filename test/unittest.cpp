@@ -1,46 +1,66 @@
 #include <iostream>
 #include "../src/Board.h"
+#include "../src/CachedBoard.h"
 
+class A {
+private:
+    int a;
+
+public:
+    A(int a) : a(a) {}
+
+    void foo(){
+        std::cout << "foo" << std::endl;
+    }
+
+protected:
+    void bar(){
+        std::cout << "bar" << std::endl;
+    }
+};
+
+class B : public A {
+public:
+    using A::A;
+    void foobar(){
+        foo();
+        bar();
+    }
+
+};
 
 
 int main(){
-    Board board(RUY_LOPEZ, true);
-    //std::cout << board << std::endl;
+    Board board(DEFAULT_BOARD, true);
+    std::cout << board << std::endl;
+
+
+
+
+
+
 
     /*
-    ReversiblePly rp = board.execute_move_rev(Ply("a2a4"));
-    //ReversiblePly rp = board.execute_move_rev(Ply("e1g1"));
-    //std::cout << rp << std::endl;
-    std::cout << board << std::endl;
-    std::cout << "white king moved " << board.w_king_moved << std::endl;
-    board.reverse_move_rev(rp);
-    std::cout << board << std::endl;
-    std::cout << "white king moved " << board.w_king_moved << std::endl;
+    std::vector<Ply> history = { Ply("e2e4"), Ply("e7e5")};
+
+    int color = WHITE;
+
+    for (auto p : history){
+        std::vector<Ply> moves = board.generate_valid_moves_cached(-color);
+        for (auto m : moves) std::cout << m << " ";
+        std::cout << "\nmoves: " << moves.size() << std::endl;
+
+        board.execute_reversible_move(p);
+        board.update_cache();
+
+
+        std::cout << board << std::endl;
+        std::cout << "exectued move: " << p << std::endl << std::endl;
+        break;
+    }
+
+    std::cout << "move_history: ";
+    for (auto m : board.move_history) std::cout << m << " ";
+    std::cout << std::endl;
      */
-
-
-    ReversiblePly p1 = board.execute_move_rev(Ply("e1f1"));
-    ReversiblePly p2 = board.execute_move_rev(Ply("h1g1"));
-
-    //board.make_move(Ply("e1f1"));
-    std::cout << board << std::endl;
-    std::cout
-    << "w_king_moved=" << board.w_king_moved
-    << ", w_l_rook_moved=" << board.w_l_rook_moved
-    << ", w_r_rook_moved=" << board.w_r_rook_moved
-    << std::endl;
-
-    board.reverse_move_rev(p2);
-    //board.reverse_move_rev(p1);
-
-
-    std::cout << board << std::endl;
-    std::cout
-    << "w_king_moved=" << board.w_king_moved
-    << ", w_l_rook_moved=" << board.w_l_rook_moved
-    << ", w_r_rook_moved=" << board.w_r_rook_moved
-    << std::endl;
-
-
-
 }

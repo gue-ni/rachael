@@ -31,4 +31,6 @@ std::string Ply::as_string() {
     return str.str();
 }
 
+Ply::Ply() : from(0x00), to(0x00){}
+
 

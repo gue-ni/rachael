@@ -85,13 +85,13 @@ std::optional<Ply> Engine::negamax_alphabeta_failsoft(Board &board, int color_to
         }
 
         //int killed = board.execute_move(move);
-        ReversiblePly rp = board.execute_move_rev(move);
+        Reversible rp = board.execute_reversible_move(move);
         score = -negamax_alphabeta_failsoft(board, -color_to_move, MIN, MAX, depth);
 #ifdef DEBUG_SEARCH
         std::cout << "[ROOT] " << move << " " << score << std::endl;
 #endif
         //board.reverse_move(move, killed);
-        board.reverse_move_rev(rp);
+        board.undo_reversible_move(rp);
 
         if (score > best_score) {
             best_score  = score;
@@ -126,11 +126,11 @@ int Engine::negamax_alphabeta_failsoft(Board &board, const int color_to_move, in
         }
 
         //int killed = board.execute_move(move);
-        ReversiblePly rp = board.execute_move_rev(move);
+        Reversible rp = board.execute_reversible_move(move);
 
         score = max(score, -negamax_alphabeta_failsoft(board, -color_to_move, -beta, -alpha, depth - 1));
         //board.reverse_move(move, killed);
-        board.reverse_move_rev(rp);
+        board.undo_reversible_move(rp);
 
         alpha = max(score, alpha);
 

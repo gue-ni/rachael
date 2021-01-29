@@ -2,13 +2,13 @@
 // Created by jakob on 1/28/21.
 //
 
-#ifndef CHESS_ENGINE_CPP_REVERSIBLEPLY_H
-#define CHESS_ENGINE_CPP_REVERSIBLEPLY_H
+#ifndef CHESS_ENGINE_CPP_REVERSIBLE_H
+#define CHESS_ENGINE_CPP_REVERSIBLE_H
 
 
 #include "Ply.h"
 
-class ReversiblePly : public Ply {
+class Reversible : public Ply {
 public:
     int killed_piece = 0;
 
@@ -20,11 +20,11 @@ public:
     bool b_l_rook_moved     = false;
     bool b_r_rook_moved     = false;
 
-    ReversiblePly(Ply ply, int killed);
-    explicit ReversiblePly(Ply ply);
+    Reversible(Ply ply, int killed);
+    explicit Reversible(Ply ply);
 
-    friend std::ostream& operator<<(std::ostream&, const ReversiblePly&);
+    friend std::ostream& operator<<(std::ostream&, const Reversible&);
 };
 
 
-#endif //CHESS_ENGINE_CPP_REVERSIBLEPLY_H
+#endif //CHESS_ENGINE_CPP_REVERSIBLE_H

@@ -67,7 +67,7 @@
 #include <vector>
 #include "Square.h"
 #include "Ply.h"
-#include "ReversiblePly.h"
+#include "Reversible.h"
 
 class Board {
 public:
@@ -86,9 +86,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
-
-    ReversiblePly execute_move_rev(Ply ply);
-    void reverse_move_rev(ReversiblePly ply);
+    virtual Reversible execute_reversible_move(Ply ply);
+    virtual void undo_reversible_move(Reversible ply);
 
     bool w_king_moved       = false;
     bool w_l_rook_moved     = false;
@@ -98,7 +97,7 @@ public:
     bool b_r_rook_moved     = false;
     bool draw_color         = false;
 
-private:
+protected:
     friend class Engine;
 
     const char pieces[7]          = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
@@ -106,6 +105,18 @@ private:
     int x88[128]            = DEFAULT_BOARD;
     int w_material = 0, b_material = 0;
 
+    void reverse_move(Ply ply, int killed_piece);
+    int  execute_move(Ply ply);
+
+    void calculate_material();
+
+    bool        is_threatened(int square, int color);
+    bool is_empty(int square);
+    bool is_enemy(int square, int piece);
+    bool is_friendly(int square, int piece);
+
+    static int  get_color(int piece);
+    static bool off_the_board(int square);
 
     std::vector<int> valid_squares = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
                              0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
@@ -115,19 +126,6 @@ private:
                              0x50, 0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
                              0x60, 0x61, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67,
                              0x70, 0x71, 0x72, 0x73, 0x74, 0x75, 0x76, 0x77};
-
-    void reverse_move(Ply ply, int killed_piece);
-    int  execute_move(Ply ply);
-
-    void calculate_material();
-
-    bool        is_threatened(int square, int color);
-    inline bool is_empty(int square);
-    inline bool is_enemy(int square, int piece);
-    inline bool is_friendly(int square, int piece);
-
-    static inline int  get_color(int piece);
-    static inline bool off_the_board(int square);
 };
 
 
