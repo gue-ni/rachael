@@ -22,6 +22,8 @@ public:
 
     friend std::ostream& operator<<(std::ostream&, const Ply&);
     friend bool operator==(const Ply& one, const Ply& two);
+    friend bool operator<(Ply& p1, Ply& p2);
+
 };
 
 

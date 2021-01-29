@@ -1,66 +1,56 @@
 #include <iostream>
 #include "../src/Board.h"
 #include "../src/CachedBoard.h"
-
-class A {
-private:
-    int a;
-
-public:
-    A(int a) : a(a) {}
-
-    void foo(){
-        std::cout << "foo" << std::endl;
-    }
-
-protected:
-    void bar(){
-        std::cout << "bar" << std::endl;
-    }
-};
-
-class B : public A {
-public:
-    using A::A;
-    void foobar(){
-        foo();
-        bar();
-    }
-
-};
+#include "../src/Engine.h"
 
 
 int main(){
+    CachedBoard cachedBoard(DEFAULT_BOARD, true);
     Board board(DEFAULT_BOARD, true);
-    std::cout << board << std::endl;
+    std::cout << cachedBoard << std::endl;
 
-
-
-
-
-
+    //std::vector<Ply> history = { Ply("e2e4"), Ply("e7e5")};
 
     /*
-    std::vector<Ply> history = { Ply("e2e4"), Ply("e7e5")};
-
     int color = WHITE;
-
     for (auto p : history){
-        std::vector<Ply> moves = board.generate_valid_moves_cached(-color);
+        std::vector<Ply> moves = cachedBoard.generate_valid_moves_cached(-color);
         for (auto m : moves) std::cout << m << " ";
         std::cout << "\nmoves: " << moves.size() << std::endl;
 
-        board.execute_reversible_move(p);
-        board.update_cache();
+        cachedBoard.execute_reversible_move(p);
+        cachedBoard.update_cache_after_move();
 
-
-        std::cout << board << std::endl;
+        std::cout << cachedBoard << std::endl;
         std::cout << "exectued move: " << p << std::endl << std::endl;
         break;
     }
-
-    std::cout << "move_history: ";
-    for (auto m : board.move_history) std::cout << m << " ";
-    std::cout << std::endl;
      */
+
+
+
+    for (auto m : cachedBoard.generate_valid_moves_cached(WHITE)) std::cout << m << " "; std::cout << std::endl;
+    Reversible r = cachedBoard.execute_reversible_move(Ply("e2e4"));
+    std::cout << cachedBoard << std::endl;
+    for (auto m : cachedBoard.generate_valid_moves_cached(WHITE)) std::cout << m << " "; std::cout << std::endl;
+    cachedBoard.undo_reversible_move(r);
+    std::cout << cachedBoard << std::endl;
+    for (auto m : cachedBoard.generate_valid_moves_cached(WHITE)) std::cout << m << " "; std::cout << std::endl;
+
+
+    clock_t tic = clock();
+    std::optional<Ply> p = Engine::find_best_move(cachedBoard, WHITE, 3, NEGAMAX_ALPHABETA_FAILSOFT);
+    clock_t toc = clock();
+    double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
+    std::cout << p.value() << std::endl;
+    printf("%f\n", dt);
+
+    tic = clock();
+    p = Engine::find_best_move(board, WHITE, 3, NEGAMAX_ALPHABETA_FAILSOFT);
+    toc = clock();
+    dt = (double)(toc - tic) / CLOCKS_PER_SEC;
+    std::cout << p.value() << std::endl;
+    printf("%f\n", dt);
+
+
 }

@@ -84,6 +84,8 @@ public:
     int  material(int color);
     int make_move(Ply ply);
 
+    static int x88diff(int a, int b);
+
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
     virtual Reversible execute_reversible_move(Ply ply);

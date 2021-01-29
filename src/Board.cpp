@@ -447,6 +447,10 @@ Reversible Board::execute_reversible_move(Ply ply) {
     return reversible;
 }
 
+int Board::x88diff(int a, int b) {
+    return 0x77 + a - b;
+}
+
 
 
 

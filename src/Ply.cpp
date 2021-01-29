@@ -33,4 +33,8 @@ std::string Ply::as_string() {
 
 Ply::Ply() : from(0x00), to(0x00){}
 
+bool operator<(Ply &p1, Ply &p2) {
+    return p1.as_string() < p2.as_string();
+}
+
 
