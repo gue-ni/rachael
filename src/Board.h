@@ -77,7 +77,7 @@ public:
     int  get_piece(Square alg);
     void set_piece(Square alg, int piece);
 
-    std::vector<Ply> generate_valid_moves(int color_to_move);
+    virtual std::vector<Ply> generate_valid_moves(int color_to_move);
     std::vector<Ply> generate_valid_moves_square(int square);
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
 

@@ -417,23 +417,23 @@ Reversible Board::execute_reversible_move(Ply ply) {
 
     if (abs(get_piece(ply.from)) == 1) {
         if (ply == Ply("e1g1")) {
-            std::cout << "ply is e1g1" << std::endl;
+            //std::cout << "ply is e1g1" << std::endl;
             execute_move(Ply("e1g1"));
             execute_move(Ply("h1f1"));
 
         } else if (ply == Ply("e1c1")) {
-            std::cout << "ply is e1c1" << std::endl;
+            //std::cout << "ply is e1c1" << std::endl;
             execute_move(Ply("e1c1"));
             execute_move(Ply("a1d1"));
 
         } else if (ply == Ply("e8c8")) {
-            std::cout << "ply is e8c8" << std::endl;
+            //std::cout << "ply is e8c8" << std::endl;
 
             execute_move(Ply("e8c8"));
             execute_move(Ply("a8d8"));
 
         } else if (ply == Ply("e8g8")) {
-            std::cout << "ply is e8g8" << std::endl;
+            //std::cout << "ply is e8g8" << std::endl;
             execute_move(Ply("e8g8"));
             execute_move(Ply("h8f8"));
         } else {

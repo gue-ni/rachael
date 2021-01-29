@@ -27,16 +27,13 @@ int main(){
     }
      */
 
-
-
-    for (auto m : cachedBoard.generate_valid_moves_cached(WHITE)) std::cout << m << " "; std::cout << std::endl;
+    for (auto m : cachedBoard.generate_valid_moves(WHITE)) std::cout << m << " "; std::cout << std::endl;
     Reversible r = cachedBoard.execute_reversible_move(Ply("e2e4"));
     std::cout << cachedBoard << std::endl;
-    for (auto m : cachedBoard.generate_valid_moves_cached(WHITE)) std::cout << m << " "; std::cout << std::endl;
+    for (auto m : cachedBoard.generate_valid_moves(WHITE)) std::cout << m << " "; std::cout << std::endl;
     cachedBoard.undo_reversible_move(r);
     std::cout << cachedBoard << std::endl;
-    for (auto m : cachedBoard.generate_valid_moves_cached(WHITE)) std::cout << m << " "; std::cout << std::endl;
-
+    for (auto m : cachedBoard.generate_valid_moves(WHITE)) std::cout << m << " "; std::cout << std::endl;
 
     clock_t tic = clock();
     std::optional<Ply> p = Engine::find_best_move(cachedBoard, WHITE, 3, NEGAMAX_ALPHABETA_FAILSOFT);

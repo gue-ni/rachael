@@ -5,7 +5,7 @@
 #include <algorithm>
 #include "CachedBoard.h"
 
-std::vector<Ply> CachedBoard::generate_valid_moves_cached(int color_to_move) {
+std::vector<Ply> CachedBoard::generate_valid_moves(int color_to_move) {
     if (color_to_move == WHITE){
         std::vector<Ply> white_moves;
         for (const auto &p : cached_white_moves){
