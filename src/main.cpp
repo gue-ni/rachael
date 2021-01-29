@@ -3,7 +3,7 @@
 
 #include "SimpleBoard.h"
 #include "Square.h"
-#include "Engine.h"
+#include "Search.h"
 
 std::vector<Ply> move_history;
 
@@ -37,8 +37,10 @@ bool  human_take_turn(SimpleBoard &board, int color, int ply){
 }
 
 bool engine_take_turn(SimpleBoard &board, int color, int ply, int search_depth) {
+    Search search(NEGAMAX_ALPHABETA_FAILHARD);
+
     clock_t tic = clock();
-    std::optional<Ply> move = Engine::find_best_move(board, color, search_depth, NEGAMAX_ALPHABETA_FAILSOFT);
+    std::optional<Ply> move = search.find_best_move(board, color, search_depth);
     clock_t toc = clock();
     double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 

@@ -20,7 +20,6 @@ public:
     std::map<int, std::vector<Ply>> cached_white_moves;
     std::map<int, std::vector<Ply>> cached_black_moves;
 
-
     std::vector<Ply> generate_valid_moves(int color_to_move) override;
     void update_cache_after_move();
     void update_cache_after_undo();

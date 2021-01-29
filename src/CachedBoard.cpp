@@ -27,7 +27,7 @@ CachedBoard::CachedBoard(const std::vector<int> &brd, bool draw_color) : SimpleB
     std::vector<Ply> moves;
     for (int sq : valid_squares){
         if (x88[sq] == EMPTY) continue;
-        moves = generate_valid_moves_square(sq);
+        generate_valid_moves_square(moves, sq);
         if (get_color(x88[sq]) == WHITE){
             cached_white_moves[sq] = moves;
         } else {
@@ -106,7 +106,7 @@ void CachedBoard::update_cache() {
             continue;
         }
 
-        moves = generate_valid_moves_square(sq);
+        generate_valid_moves_square(moves, sq);
         if (get_color(x88[sq]) == WHITE){
             cached_white_moves[sq] = moves;
         } else {

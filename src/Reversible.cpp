@@ -7,9 +7,7 @@
 Reversible::Reversible(Ply ply, int killed) : Ply(ply.from, ply.to), killed_piece(killed){}
 
 std::ostream &operator<<(std::ostream &strm, const Reversible &p) {
-    return strm << Square(p.from) << Square(p.to)
-    << " killed=" << p.killed_piece
-    << " w_king_moved=" << p.w_king_moved;
+    return strm << Square(p.from) << Square(p.to) << " killed=" << p.killed_piece;
 }
 
 Reversible::Reversible(Ply ply) : Ply(ply.from, ply.to), killed_piece(0){}

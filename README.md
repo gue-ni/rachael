@@ -1,4 +1,4 @@
-# Simple Chess Engine
+# Simple Chess Search
 
 A simple chess engine, written entirely in C++17. It uses the Negmax algorithm with Alpha-Beta pruning to search for the best moves to make.
 
@@ -20,6 +20,12 @@ A simple chess engine, written entirely in C++17. It uses the Negmax algorithm w
            
 white e2e3, found after 0.110870 seconds
 ```
+```
+./engine -d 3 -t 4
+e2e3 e7e5 d1h5 d8f6 f1b5 a7a6 b5d3 g7g6
+```
+
+
 ## TODO
 implement caching strategy
 only recaclulate squares on diagonals, file, rank, adjacent and knight positions for to and from square.

@@ -1,10 +1,8 @@
-
 #include <cassert>
 #include <iostream>
 #include <algorithm>
 #include <thread>
 #include <zconf.h>
-
 
 #include "SimpleBoard.h"
 #include "Reversible.h"
@@ -129,13 +127,67 @@ std::vector<Ply> SimpleBoard::check_directions(int from, int piece, const std::v
     return moves;
 }
 
-std::vector<Ply> SimpleBoard::generate_valid_moves_square(int square) {
+std::ostream& operator<<(std::ostream &strm, const SimpleBoard &board) {
+    std::string padding = " ";
+
+    strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
+
+    for (uint8_t y = 0; y < 8; y++){
+        for (uint8_t x = 0; x < 8; x++){
+
+            if (x == 0) strm << padding << 8 - y << " ";
+
+            uint8_t sq = (7 - y) * 8 + x;
+            int piece = board.x88[sq + (sq & ~(uint8_t)7)];
+            int piece_symbol = board.pieces[abs(piece)];
+
+            if (piece_symbol != '.'){
+                if (board.get_color(piece) == WHITE){
+                    if (board.draw_color){
+                        strm << WHITE_TTY;
+                    } else {
+                        piece_symbol = tolower(piece_symbol);
+                    }
+                } else {
+                    if (board.draw_color){
+                        strm << BLACK_TTY;
+                    } else {
+                        piece_symbol = toupper(piece_symbol);
+                    }
+                }
+            }
+
+            strm << " " << (char)piece_symbol << " ";
+
+            if (board.draw_color && piece_symbol != '.') strm << CLEAR_TTY;
+
+            if (x == 7) strm <<" " << 8 - y;
+        }
+        printf("\n");
+    }
+    strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
+    return strm;
+}
+
+SimpleBoard::SimpleBoard(const std::vector<int> &brd, bool draw_color): SimpleBoard(draw_color) {
+    assert(brd.size() == 128);
+    for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
+}
+
+void SimpleBoard::undo_move(Reversible ply) {
+    reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
+}
+
+Reversible SimpleBoard::make_move(Ply ply) {
+    return Reversible(ply, execute_move(ply));
+}
+
+void SimpleBoard::generate_valid_moves_square(std::vector<Ply> &legal_moves, int square) {
     int piece = x88[square];
 
-    if (piece == 0) return std::vector<Ply>();
+    if (piece == 0) return;
 
     int color = get_color(piece);
-    std::vector<Ply> legal_moves;
 
     switch (abs(piece)){
         case PAWN:{ // pawn
@@ -159,23 +211,24 @@ std::vector<Ply> SimpleBoard::generate_valid_moves_square(int square) {
             break;
         }
         case ROOK:{
-            legal_moves = check_directions(square, piece, {N, S, E, W}, 8);
+            check_directions(legal_moves, square, piece, {N, S, E, W}, 8);
             break;
         }
         case KNIGHT:{
-            legal_moves = check_directions(square, piece, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1);
+             check_directions(legal_moves, square, piece, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1);
             break;
         }
         case BISHOP:{
-            legal_moves = check_directions(square, piece, {NE, SE, SW, NW}, 8);
+            check_directions(legal_moves, square, piece, {NE, SE, SW, NW}, 8);
             break;
         }
         case QUEEN:{
-            legal_moves = check_directions(square, piece, {N, NE, E, SE, S, SW, W, NW}, 8);
+            check_directions(legal_moves, square, piece, {N, NE, E, SE, S, SW, W, NW}, 8);
             break;
         }
         case KING:{
-            std::vector<Ply> possible = check_directions(square, piece, {N, NE, E, SE, S, SW, W, NW}, 1);
+            std::vector<Ply> possible;
+            check_directions(possible, square, piece, {N, NE, E, SE, S, SW, W, NW}, 1);
             for (auto p : possible){
                 int k = execute_move(p);
 
@@ -230,76 +283,49 @@ std::vector<Ply> SimpleBoard::generate_valid_moves_square(int square) {
             break;
         }
     }
-    return legal_moves;
 }
 
-std::ostream& operator<<(std::ostream &strm, const SimpleBoard &board) {
-    std::string padding = " ";
+void SimpleBoard::check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs,
+                                   int max_steps) {
+    int steps, to;
+    assert(piece != 0);
 
-    strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
+    for (int dir : dirs){
+        steps = 0;
+        to = from;
 
-    for (uint8_t y = 0; y < 8; y++){
-        for (uint8_t x = 0; x < 8; x++){
+        while(steps < max_steps) {
+            to += dir;
 
-            if (x == 0) strm << padding << 8 - y << " ";
+            if (off_the_board(to) || is_friendly(to, piece)) break;
 
-            uint8_t sq = (7 - y) * 8 + x;
-            int piece = board.x88[sq + (sq & ~(uint8_t)7)];
-            int piece_symbol = board.pieces[abs(piece)];
-
-            if (piece_symbol != '.'){
-                if (board.get_color(piece) == WHITE){
-                    if (board.draw_color){
-                        strm << WHITE_TTY;
-                    } else {
-                        piece_symbol = tolower(piece_symbol);
-                    }
-                } else {
-                    if (board.draw_color){
-                        strm << BLACK_TTY;
-                    } else {
-                        piece_symbol = toupper(piece_symbol);
-                    }
-                }
+            if (is_enemy(to, piece)) {
+                moves.emplace_back(from, to);
+                break;
             }
 
-            strm << " " << (char)piece_symbol << " ";
-
-            if (board.draw_color && piece_symbol != '.') strm << CLEAR_TTY;
-
-            if (x == 7) strm <<" " << 8 - y;
+            if (is_empty(to)) {
+                moves.emplace_back(from, to);
+                steps++;
+            }
         }
-        printf("\n");
     }
-    strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
-    return strm;
+
 }
 
-SimpleBoard::SimpleBoard(const std::vector<int> &brd, bool draw_color): SimpleBoard(draw_color) {
-    assert(brd.size() == 128);
-    for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
-}
-
-// TODO improve, add caching
 std::vector<Ply> SimpleBoard::generate_valid_moves(int color_to_move) {
-    std::vector<Ply> valid_moves, moves;
+
+    std::vector<Ply> valid_moves;
 
     for (int sq : valid_squares){
         if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
-         moves = generate_valid_moves_square(sq);
-         valid_moves.insert(valid_moves.end(), moves.begin(), moves.end());
+            generate_valid_moves_square(valid_moves, sq);
         }
     }
     return valid_moves;
 }
 
-void SimpleBoard::undo_move(Reversible ply) {
-    reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
-}
 
-Reversible SimpleBoard::make_move(Ply ply) {
-    return Reversible(ply, execute_move(ply));
-}
 
 
 

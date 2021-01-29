@@ -86,7 +86,7 @@ public:
     friend std::ostream& operator<<(std::ostream&, const SimpleBoard&);
 
 protected:
-    friend class Engine;
+    friend class Search;
 
     const char pieces[7]            = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     const int material_value[7]     = { 0,   200, 9,   5,   3,   3,   1 };
@@ -99,7 +99,10 @@ protected:
 
     void calculate_material();
 
-    std::vector<Ply> generate_valid_moves_square(int square);
+    void generate_valid_moves_square(std::vector<Ply> &legal_moves, int square);
+
+    // faster
+    void check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs, int max_steps);
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
 
     bool is_threatened(int square, int color);

@@ -1,46 +1,30 @@
 #include <iostream>
-#include "../src/CachedBoard.h"
-#include "../src/Engine.h"
+#include "../src/Search.h"
+#include "util.h"
 
-
-double dt(clock_t tic, clock_t toc){
-    return  (double)(toc - tic) / CLOCKS_PER_SEC;
-}
 
 int main(){
 
+    SimpleBoard board(RUY_LOPEZ, true);
+
+    Search s1(NEGAMAX_ALPHABETA_FAILHARD, true);
+    Search s2(NEGAMAX_ALPHABETA_FAILHARD, false);
+
     clock_t tic, toc;
 
-    CachedBoard cachedBoard(DEFAULT_BOARD, true);
-    SimpleBoard board(DEFAULT_BOARD, true);
+    int depth = 5;
+    
+    tic = clock();
+    std::optional<Ply> p1 = s1.find_best_move(board, WHITE, depth);
+    toc = clock();
+    std::cout << p1.value();
+    printf(" depth=%d, order_moves=true %f\n", depth, dt(tic, toc));
 
     tic = clock();
-    cachedBoard.generate_valid_moves(WHITE);
+    std::optional<Ply> p2 = s2.find_best_move(board, WHITE, depth);
     toc = clock();
-    std::cout << "cached: ";
-    printf(" %f\n", dt(tic, toc));
+    std::cout << p2.value();
+    printf(" depth=%d, order_moves=false %f\n", depth, dt(tic, toc));
 
-    tic = clock();
-    board.generate_valid_moves(WHITE);
-    toc = clock();
-    std::cout << "non-cached: ";
-    printf(" %f\n", dt(tic, toc));
-
-
-    tic = clock();
-    std::optional<Ply> p = Engine::find_best_move(cachedBoard, WHITE, 3, NEGAMAX_ALPHABETA_FAILSOFT);
-    toc = clock();
-
-    std::cout << "cached: ";
-    std::cout << p.value() << std::endl;
-    printf(" %f\n", dt(tic, toc));
-
-    tic = clock();
-    p = Engine::find_best_move(board, WHITE, 3, NEGAMAX_ALPHABETA_FAILSOFT);
-    toc = clock();
-
-    std::cout << "conventional: ";
-    std::cout << p.value();
-    printf(" %f\n", dt(tic, toc));
     return 0;
 }

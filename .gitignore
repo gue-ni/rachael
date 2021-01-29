@@ -14,3 +14,5 @@ src/web/test.cpp
 *.html
 *.js
 *.o
+bin/
+Quokka/
