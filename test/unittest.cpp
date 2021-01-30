@@ -1,16 +1,26 @@
 #include <iostream>
+
 #include "../src/SimpleBoard.h"
 #include "../src/Search.h"
 #include "util.h"
 
 
 int main(){
-    SimpleBoard board(RUY_LOPEZ, true);
+
+    std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    SimpleBoard board(fen, true);
     std::cout << board << std::endl;
 
-    Search s1(NEGAMAX_ALPHABETA_FAILHARD, true);
 
-    std::vector<Ply> moves = board.generate_valid_moves(WHITE);
-    s1.move_ordering(board, moves);
+    /*
+    clock_t tic, toc;
+    tic = clock();
+    std::optional<Ply> move = search.find_best_move(board, WHITE, 4);
+    toc = clock();
+    std::cout << move.value() << " " << dt(tic, toc) << std::endl;
+    */
+
+   ;
+
 
 }

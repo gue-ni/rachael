@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <algorithm>
 #include <thread>
 #include <zconf.h>
@@ -129,7 +130,7 @@ std::vector<Ply> SimpleBoard::check_directions(int from, int piece, const std::v
 
 std::ostream& operator<<(std::ostream &strm, const SimpleBoard &board) {
     std::string padding = " ";
-
+    strm << padding << "Ply " << board.move_history.size() << ":\n";
     strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
 
     for (uint8_t y = 0; y < 8; y++){
@@ -175,10 +176,12 @@ SimpleBoard::SimpleBoard(const std::vector<int> &brd, bool draw_color): SimpleBo
 }
 
 void SimpleBoard::undo_move(Reversible ply) {
+    move_history.pop_back();
     reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
 }
 
 Reversible SimpleBoard::make_move(Ply ply) {
+    move_history.push_back(ply);
     return Reversible(ply, execute_move(ply));
 }
 
@@ -323,6 +326,18 @@ std::vector<Ply> SimpleBoard::generate_valid_moves(int color_to_move) {
         }
     }
     return valid_moves;
+}
+
+SimpleBoard::SimpleBoard(std::string fen, bool draw_color) : draw_color(draw_color) {
+
+    std::istringstream iss(fen);
+
+    do {
+        std::string str;
+        iss >> str;
+        std::cout << str << std::endl;
+    } while (iss);
+
 }
 
 

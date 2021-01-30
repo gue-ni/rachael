@@ -7,11 +7,14 @@
 
 
 int Search::evaluation(SimpleBoard &board) {
-    int wn = board.generate_valid_moves(WHITE).size();
-    int bn = board.generate_valid_moves(BLACK).size();
+    int mobility =  ((int)board.generate_valid_moves(WHITE).size()
+            - (int)board.generate_valid_moves(BLACK).size());
+    std::cout << "mobility: " << mobility << std::endl;
 
-    int mobility =  (wn - bn);
-    return mobility + (board.material(WHITE) - board.material(BLACK));
+    int material = board.material(WHITE) - board.material(BLACK);
+    std::cout << "material: " << material << std::endl;
+
+    return mobility + material;
 }
 
 int Search::max(int a, int b) {
@@ -124,23 +127,29 @@ int Search::_alphabeta_failsoft(SimpleBoard &board, int color_to_move, int alpha
 #endif
 
     if (order_moves) move_ordering(board, moves);
+
     for (Ply move : moves){
 
         if (abs(board.get_piece(move.to)) == 1){
             return MAX+depth;
         }
 
-        //int killed = board.execute_move(move);
         Reversible rp = board.make_move(move);
-
         score = max(score, -_alphabeta_failsoft(board, -color_to_move, -beta, -alpha, depth - 1));
-        //board.reverse_move(move, killed);
         board.undo_move(rp);
 
         alpha = max(score, alpha);
 
-        if (alpha >= beta)
+        if (alpha >= beta) {
+            if (board.get_piece(move.to) == 0) {
+                if (color_to_move == WHITE) {
+                    w_history_heuristic[move.from][move.to] = depth * depth;
+                } else {
+                    b_history_heuristic[move.from][move.to] = depth * depth;
+                }
+            }
             break;
+        }
     }
     return score;
 }

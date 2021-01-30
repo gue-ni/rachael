@@ -5,9 +5,8 @@
 #include "Square.h"
 #include "Search.h"
 
-std::vector<Ply> move_history;
 
-bool  human_take_turn(SimpleBoard &board, int color, int ply){
+bool human_take_turn(SimpleBoard &board, int color){
     std::vector<Ply> possible_moves = board.generate_valid_moves(color);
 
     if (possible_moves.empty()){
@@ -17,14 +16,12 @@ bool  human_take_turn(SimpleBoard &board, int color, int ply){
 
     std::string input;
 
-    std::cout << "Ply " << ply << ":\n";
     std::cout << "Enter your move: " << std::endl;
     std::cin >> input;
 
     Ply move(input);
 
     board.make_move(move);
-    move_history.push_back(move);
     std::cout << "\n"
               << board
               << (color == WHITE ? "white" : "black")
@@ -36,7 +33,7 @@ bool  human_take_turn(SimpleBoard &board, int color, int ply){
 
 }
 
-bool engine_take_turn(SimpleBoard &board, int color, int ply, int search_depth) {
+bool engine_take_turn(SimpleBoard &board, int color, int search_depth) {
     Search search(NEGAMAX_ALPHABETA_FAILHARD);
 
     clock_t tic = clock();
@@ -46,12 +43,10 @@ bool engine_take_turn(SimpleBoard &board, int color, int ply, int search_depth) 
 
     if (move.has_value()){
         board.make_move(move.value());
-        move_history.push_back(move.value());
-        std::cout << "Ply " << ply << ":\n"
-                  << board
+        std::cout << board
                   << (color == WHITE ? "white" : "black")
                   << " moves " << move.value()
-                  //<< ", found after " << dt << " seconds"
+                  << ", found after " << dt << " seconds"
                   << std::endl
                   << std::endl;
 
@@ -66,7 +61,7 @@ bool engine_take_turn(SimpleBoard &board, int color, int ply, int search_depth) 
 }
 
 int main(int argc, char **argv) {
-    int plies = 1, search_depth = 3, turns = 500;
+    int search_depth = 3, turns = 500;
     bool color_output = true, white_is_human = false, black_is_human = false;
 
     if (argc == 1){
@@ -121,17 +116,17 @@ int main(int argc, char **argv) {
     bool checkmate;
     while (turns > 0){
         if (white_is_human){
-            checkmate = human_take_turn(board, WHITE, plies++);
+            checkmate = human_take_turn(board, WHITE);
         } else {
-            checkmate = engine_take_turn(board, WHITE, plies++, search_depth);
+            checkmate = engine_take_turn(board, WHITE, search_depth);
         }
 
         if (checkmate) break;
 
         if (black_is_human){
-            checkmate = human_take_turn(board, BLACK, plies++);
+            checkmate = human_take_turn(board, BLACK);
         } else {
-            checkmate = engine_take_turn(board, BLACK, plies++, search_depth);
+            checkmate = engine_take_turn(board, BLACK, search_depth);
         }
 
         if (checkmate) break;
@@ -142,7 +137,9 @@ int main(int argc, char **argv) {
     <<   "white_material=" << board.material(WHITE)
     << ", black_material=" << board.material(BLACK)
     << std::endl;
-    for (auto &m : move_history) std::cout << m << " ";
+
+
+    for (auto &m : board.move_history) std::cout << m << " ";
     std::cout << std::endl;
     return 0;
 }
