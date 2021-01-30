@@ -53,7 +53,7 @@ public:
     explicit SimpleBoard(bool draw_color);
     SimpleBoard(const std::string& fen, bool draw_color);
 
-    virtual std::vector<Ply> gen_legal_moves(int color);
+    virtual std::vector<Ply> gen_pseudo_legal_moves(int color);
 
     virtual Reversible make_move(Ply ply);
     virtual       void undo_move(Reversible ply);
@@ -66,9 +66,21 @@ public:
 
     int color_to_move = WHITE;
 
+    inline int  get_piece(int square) {
+        return x88[square];
+    }
+
+    inline bool is_empty(int square){
+        return x88[square] == EMPTY;
+    }
+
+    static inline int get_color(int piece) {
+        assert(piece != EMPTY);
+        return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
+    }
+
 protected:
     friend class Search;
-    friend class Search2;
 
     const char pieces[7]            = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     const int material_value[7]     = { 0,   200, 9,   5,   3,   3,   1 };
@@ -114,14 +126,6 @@ protected:
         return x88[square] == EMPTY ? false : get_color(x88[square]) == get_color(piece);
     }
 
-    inline bool is_empty(int square){
-        return x88[square] == EMPTY;
-    }
-
-    inline int  get_piece(int square) {
-        return x88[square];
-    }
-
     inline void set_piece(int square, int piece) {
         x88[square] = piece;
     }
@@ -130,10 +134,6 @@ protected:
         return square & (uint8_t)0x88;
     }
 
-    static inline int get_color(int piece) {
-        assert(piece != EMPTY);
-        return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
-    }
 };
 
 #endif //CHESS_ENGINE_CPP_SIMPLEBOARD_H

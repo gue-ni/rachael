@@ -7,8 +7,8 @@
 
 
 int Search::evaluation(SimpleBoard &board) {
-    int mobility =  ((int) board.gen_legal_moves(WHITE).size()
-            - (int) board.gen_legal_moves(BLACK).size());
+    int mobility =  ((int) board.gen_pseudo_legal_moves(WHITE).size()
+            - (int) board.gen_pseudo_legal_moves(BLACK).size());
 
     //std::cout << "mobility: " << mobility << std::endl;
 
@@ -36,7 +36,7 @@ std::optional<Ply> Search::search(SimpleBoard &board, int color_to_move, int dep
 
 std::optional<Ply> Search::negamax(SimpleBoard &board, int color_to_move, int depth) {
     std::optional<Ply> best_move = std::nullopt;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
 
     int best = MIN;
 
@@ -56,7 +56,7 @@ std::optional<Ply> Search::negamax(SimpleBoard &board, int color_to_move, int de
 int Search::_negamax(SimpleBoard &board, int color_to_move, int depth) {
     if (depth == 0) return color_to_move * evaluation(board);
 
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
     int best = MIN-depth;
 
     if (order_moves) move_ordering(board, moves);
@@ -77,7 +77,7 @@ std::optional<Ply> Search::alphabeta_failsoft(SimpleBoard &board, int color_to_m
     int best_score  = MIN;
 
     std::optional<Ply> best_move = std::nullopt;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
     if (!moves.empty()){
         best_move = moves.front();
     }
@@ -120,7 +120,7 @@ int Search::_alphabeta_failsoft(SimpleBoard &board, int color_to_move, int alpha
     }
 
     int score = MIN-depth;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
 
 #ifdef DEBUG_SEARCH
     std::cout << "[SEARCH] depth=" << depth << ", color_to_move=" << color_to_move << ", moves=" << moves.size() << " ";
@@ -161,7 +161,7 @@ std::optional<Ply> Search::alphabeta_failhard(SimpleBoard &board, int color_to_m
     int best_score  = MIN;
 
     std::optional<Ply> best_move = std::nullopt;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
     if (!moves.empty()){
         best_move = moves.front();
     }
@@ -192,7 +192,7 @@ int Search::_alphabeta_failhard(SimpleBoard &board, int color_to_move, int alpha
     }
 
     int score;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
 
     if (order_moves) move_ordering(board, moves);
 

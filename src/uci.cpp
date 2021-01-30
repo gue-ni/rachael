@@ -12,7 +12,6 @@
 std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 SimpleBoard board(DEFAULT_BOARD, true);
 
-
 void uci_go(std::string input){
     std::string cmd;
     std::istringstream ss(input);
@@ -24,9 +23,11 @@ void uci_go(std::string input){
         } else if (cmd == "depth"){
             ss >> cmd;
             int d = std::stoi(cmd);
-            Search2 search;
-            std::optional<Ply> best_move = search.search(board, board.color_to_move, d);
-            std::cout << "bestmove " << best_move.value() << std::endl;
+
+            Ply p;
+            std::thread t1(thread_search, std::ref(board), board.color_to_move, d, std::ref(p));
+            t1.join();
+            std::cout << "bestmove " << p << std::endl;
         }
 
     } while (ss);
@@ -66,6 +67,10 @@ void uci_position(std::string input){
     //std::cout << board << std::endl;
 }
 
+void uci_stop(){
+
+}
+
 bool startswith(std::string str, std::string prefix){
     return str.rfind(prefix, 0) == 0;
 }
@@ -86,6 +91,8 @@ int main(){
 
         } else if (startswith(input,  "debug")) {
         } else if (startswith(input,   "stop")) {
+            uci_stop();
+
         } else if (startswith(input,"isready")) {
             std::cout << "readyok" << std::endl;
 

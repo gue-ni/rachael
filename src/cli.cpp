@@ -7,7 +7,7 @@
 
 
 bool human_take_turn(SimpleBoard &board, int color){
-    std::vector<Ply> possible_moves = board.gen_legal_moves(color);
+    std::vector<Ply> possible_moves = board.gen_pseudo_legal_moves(color);
 
     if (possible_moves.empty()){
         std::cout << (color == WHITE ? "white" : "black") << " checkmate" << std::endl;

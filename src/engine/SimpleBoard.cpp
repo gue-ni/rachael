@@ -321,7 +321,7 @@ void SimpleBoard::check_directions(std::vector<Ply> &moves, int from, int piece,
 
 }
 
-std::vector<Ply> SimpleBoard::gen_legal_moves(int color) {
+std::vector<Ply> SimpleBoard::gen_pseudo_legal_moves(int color) {
 
     std::vector<Ply> valid_moves;
 

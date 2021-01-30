@@ -7,8 +7,7 @@
 
 #include "Square.h"
 
-class Ply {
-public:
+struct Ply {
     int from;
     int to;
 

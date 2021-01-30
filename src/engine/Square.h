@@ -4,8 +4,7 @@
 
 #include <ostream>
 
-class Square {
-public:
+struct Square {
     int  rank;
     char file;
 

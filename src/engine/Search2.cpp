@@ -5,7 +5,7 @@
 #include <iostream>
 #include "Search2.h"
 
-void Search2::sort_moves(SimpleBoard &board, std::vector<Ply> &moves) {
+void sort_moves(SimpleBoard &board, SearchState &ss, std::vector<Ply> &moves) {
     // https://www.chessprogramming.org/Move_Ordering
 
     std::vector<int> move_val(moves.size());
@@ -20,8 +20,11 @@ void Search2::sort_moves(SimpleBoard &board, std::vector<Ply> &moves) {
         } else {
             // history heuristic
             move_val[i] = board.get_color(board.get_piece(moves[i].from)) == WHITE
-                          ? w_history_heuristic[moves[i].from][moves[i].to]
-                          : b_history_heuristic[moves[i].from][moves[i].to];
+                          ? ss.w_history_heuristic[moves[i].from][moves[i].to]
+                          : ss.b_history_heuristic[moves[i].from][moves[i].to];
+
+            //move_val[i] = ss.history(board.get_piece(moves[i].from), moves[i].from, moves[i].to);
+
         }
     }
 
@@ -46,18 +49,23 @@ void Search2::sort_moves(SimpleBoard &board, std::vector<Ply> &moves) {
     }
 }
 
+void thread_search(SimpleBoard& board, int color_to_move, int depth, Ply &ply){
+    std::optional<Ply> move = search(board, color_to_move, depth);
+    ply = move.value();
+}
 
-std::optional<Ply> Search2::search(SimpleBoard &board, int color_to_move, int depth) {
+std::optional<Ply> search(SimpleBoard &board, int color_to_move, int depth) {
     int score       = 0;
     int best_score  = MIN;
 
     std::optional<Ply> best_move = std::nullopt;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
     if (!moves.empty()){
         best_move = moves.front();
     }
 
-    sort_moves(board, moves);
+    SearchState ss;
+    sort_moves(board, ss,moves);
 
     for (Ply move : moves) {
 
@@ -66,7 +74,7 @@ std::optional<Ply> Search2::search(SimpleBoard &board, int color_to_move, int de
         }
 
         Reversible r = board.make_move(move);
-        score = -_search(board, -color_to_move, MIN, MAX, depth);
+        score = -alpha_beta(board, ss, -color_to_move, MIN, MAX, depth);
         board.undo_move(r);
 
         if (score > best_score) {
@@ -77,15 +85,15 @@ std::optional<Ply> Search2::search(SimpleBoard &board, int color_to_move, int de
     return best_move;
 }
 
-int Search2::_search(SimpleBoard &board, int color_to_move, int alpha, int beta, int depth) {
+int alpha_beta(SimpleBoard &board, SearchState &ss, int color_to_move, int alpha, int beta, int depth) {
     if (depth == 0) {
         return color_to_move * evaluation(board);
     }
 
     int score;
-    std::vector<Ply> moves = board.gen_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
 
-    sort_moves(board, moves);
+    sort_moves(board, ss,moves);
 
     for (Ply move : moves){
 
@@ -94,18 +102,13 @@ int Search2::_search(SimpleBoard &board, int color_to_move, int alpha, int beta,
         }
 
         Reversible r = board.make_move(move);
-        score = -_search(board, -color_to_move, -beta, -alpha, depth - 1);
+        score = -alpha_beta(board, ss, -color_to_move, -beta, -alpha, depth - 1);
         board.undo_move(r);
 
         if (score >= beta){ // beta cutoff
             if (board.get_piece(move.to) == 0){
-                if (color_to_move == WHITE){
-                    w_history_heuristic[move.from][move.to] = depth * depth;
-                } else {
-                    b_history_heuristic[move.from][move.to] = depth * depth;
-                }
+                ss.history(color_to_move, move.from, move.to, depth*depth);
             }
-
             return beta;
         }
 
@@ -117,9 +120,9 @@ int Search2::_search(SimpleBoard &board, int color_to_move, int alpha, int beta,
     return alpha;
 }
 
-int Search2::evaluation(SimpleBoard &board) {
-    int mobility =  ((int) board.gen_legal_moves(WHITE).size()
-                     - (int) board.gen_legal_moves(BLACK).size());
+int evaluation(SimpleBoard &board) {
+    int mobility =  ((int) board.gen_pseudo_legal_moves(WHITE).size()
+                     - (int) board.gen_pseudo_legal_moves(BLACK).size());
 
     //std::cout << "mobility: " << mobility << std::endl;
 
@@ -130,15 +133,13 @@ int Search2::evaluation(SimpleBoard &board) {
     return mobility + material;
 }
 
-Search2::Search2() {
-
-}
-
-std::optional<Ply> Search2::iterative_deepening(SimpleBoard &board, int color_to_move) {
+std::optional<Ply> iterative_deepening(SimpleBoard &board, int color_to_move) {
     std::optional<Ply> best_move = std::nullopt;
 
+    SearchState ss;
+
     for (int i = 0; i < 8; i++){
-        best_move = search(board, color_to_move, i);
+        best_move = search(board, ss, color_to_move, i);
         std::cout << "Depth: " << i << ", best_move=" << best_move.value() << std::endl;
     }
 
