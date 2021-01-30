@@ -35,7 +35,8 @@ class Search {
 public:
     explicit Search(int algorithm);
     Search(int algorithm, bool order_moves);
-    std::optional<Ply> find_best_move(SimpleBoard &board, int color_to_move, int depth);
+
+    std::optional<Ply> search(SimpleBoard &board, int color_to_move, int depth);
 
     int algorithm;
     bool order_moves = true;

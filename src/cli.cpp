@@ -37,7 +37,7 @@ bool engine_take_turn(SimpleBoard &board, int color, int search_depth) {
     Search search(NEGAMAX_ALPHABETA_FAILHARD);
 
     clock_t tic = clock();
-    std::optional<Ply> move = search.find_best_move(board, color, search_depth);
+    std::optional<Ply> move = search.search(board, color, search_depth);
     clock_t toc = clock();
     double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 

@@ -9,10 +9,12 @@
 int Search::evaluation(SimpleBoard &board) {
     int mobility =  ((int)board.generate_valid_moves(WHITE).size()
             - (int)board.generate_valid_moves(BLACK).size());
-    std::cout << "mobility: " << mobility << std::endl;
+
+    //std::cout << "mobility: " << mobility << std::endl;
 
     int material = board.material(WHITE) - board.material(BLACK);
-    std::cout << "material: " << material << std::endl;
+
+    //std::cout << "material: " << material << std::endl;
 
     return mobility + material;
 }
@@ -21,7 +23,7 @@ int Search::max(int a, int b) {
     return a > b ? a : b;
 }
 
-std::optional<Ply> Search::find_best_move(SimpleBoard &board, int color_to_move, int depth) {
+std::optional<Ply> Search::search(SimpleBoard &board, int color_to_move, int depth) {
     switch (algorithm){
         case NEGAMAX:                       return negamax(board, color_to_move, depth);
         case NEGAMAX_ALPHABETA_FAILSOFT:    return alphabeta_failsoft(board, color_to_move, depth);

@@ -9,7 +9,7 @@ add_executable(engine_cli src/cli.cpp src/engine/SimpleBoard.cpp src/engine/Simp
         src/engine/Square.cpp src/engine/Square.h src/engine/Ply.cpp src/engine/Ply.h src/engine/Search.cpp src/engine/Search.h
         src/engine/Reversible.cpp src/engine/Reversible.h)
 
-add_executable(engine_uci src/uci.cpp src/engine/SimpleBoard.cpp src/engine/SimpleBoard.h
+add_executable(rachael src/uci.cpp src/engine/SimpleBoard.cpp src/engine/SimpleBoard.h
         src/engine/Square.cpp src/engine/Square.h src/engine/Ply.cpp src/engine/Ply.h src/engine/Search.cpp src/engine/Search.h
         src/engine/Reversible.cpp src/engine/Reversible.h)
 

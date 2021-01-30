@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <thread>
+#include <map>
 #include <zconf.h>
 
 #include "SimpleBoard.h"
@@ -331,13 +332,34 @@ std::vector<Ply> SimpleBoard::generate_valid_moves(int color_to_move) {
 }
 
 SimpleBoard::SimpleBoard(const std::string& fen, bool draw_color) : draw_color(draw_color) {
+    set_board(fen);
+}
 
-    std::cout << fen << std::endl;
+void SimpleBoard::set_board(const std::string &fen) {
 
+    for (auto sq : valid_squares){
+        x88[sq] = 0;
+    }
+
+    std::string substr;
     std::istringstream iss(fen);
+    iss >> substr;
 
+    std::map<char, int> pcs = {
+            {'p', -6},{'r', -5},{'n', -4},{'b', -3},{'q', -2},{'k', -1},
+            {'P',  6},{'R',  5},{'N',  4},{'B',  3},{'Q',  2},{'K',  1},
+    };
 
-
+    int sq = 0x70;
+    for (char c : substr){
+        if (isdigit(c)){
+            sq += (c - 48);
+        } else if (c == '/'){
+            sq -= 0x18;
+        } else {
+            x88[sq++] = pcs[c];
+        }
+    }
 }
 
 

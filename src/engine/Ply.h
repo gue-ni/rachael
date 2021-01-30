@@ -14,9 +14,7 @@ public:
 
     Ply();
     Ply(int f, int t);
-    /*
-    Ply(Square from, Square to);
-     */
+
     explicit Ply(std::string move);
 
     std::string as_string();
