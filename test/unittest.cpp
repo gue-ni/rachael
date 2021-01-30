@@ -1,8 +1,7 @@
 #include <iostream>
 
-#include "../src/SimpleBoard.h"
-#include "../src/Search.h"
-#include "util.h"
+#include "../src/engine/SimpleBoard.h"
+#include "../src/engine/Search.h"
 
 
 int main(){

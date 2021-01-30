@@ -1,9 +1,9 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "SimpleBoard.h"
-#include "Square.h"
-#include "Search.h"
+#include "engine/SimpleBoard.h"
+#include "engine/Square.h"
+#include "engine/Search.h"
 
 
 bool human_take_turn(SimpleBoard &board, int color){

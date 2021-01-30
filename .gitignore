@@ -2,13 +2,13 @@
 cmake-build-debug/
 build/
 games/
-src/web/tmp/
+web/tmp/
 
 make_zip.sh
 engine.zip
 ps.txt
-src/web/README.md
-src/web/test.cpp
+web/README.md
+web/test.cpp
 
 *.wasm
 *.html

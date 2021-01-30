@@ -170,10 +170,12 @@ std::ostream& operator<<(std::ostream &strm, const SimpleBoard &board) {
     return strm;
 }
 
+/*
 SimpleBoard::SimpleBoard(const std::vector<int> &brd, bool draw_color): SimpleBoard(draw_color) {
     assert(brd.size() == 128);
     for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
 }
+*/
 
 void SimpleBoard::undo_move(Reversible ply) {
     move_history.pop_back();
@@ -328,15 +330,13 @@ std::vector<Ply> SimpleBoard::generate_valid_moves(int color_to_move) {
     return valid_moves;
 }
 
-SimpleBoard::SimpleBoard(std::string fen, bool draw_color) : draw_color(draw_color) {
+SimpleBoard::SimpleBoard(const std::string& fen, bool draw_color) : draw_color(draw_color) {
+
+    std::cout << fen << std::endl;
 
     std::istringstream iss(fen);
 
-    do {
-        std::string str;
-        iss >> str;
-        std::cout << str << std::endl;
-    } while (iss);
+
 
 }
 

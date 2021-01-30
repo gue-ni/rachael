@@ -2,6 +2,9 @@
 
 A simple chess engine, written entirely in C++17. It uses the Negmax algorithm with Alpha-Beta pruning to search for the best moves to make.
 
+https://stackoverflow.com/questions/17003561/using-the-universal-chess-interface
+https://www.stmintz.com/ccc/index.php?id=141612
+
 
 ```
 ./engine 3 10 0 1

@@ -94,8 +94,8 @@
 class SimpleBoard {
 public:
     explicit SimpleBoard(bool draw_color);
-    SimpleBoard(const std::vector<int> &brd, bool draw_color);
-    SimpleBoard(std::string fen, bool draw_color);
+    //SimpleBoard(const std::vector<int> &brd, bool draw_color);
+    SimpleBoard(const std::string& fen, bool draw_color);
 
     virtual std::vector<Ply> generate_valid_moves(int color_to_move);
 

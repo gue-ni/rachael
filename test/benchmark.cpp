@@ -1,5 +1,6 @@
 #include <iostream>
-#include "../src/Search.h"
+#include "../src/engine/Search.h"
+#include "../src/engine/SimpleBoard.h"
 #include "util.h"
 
 
