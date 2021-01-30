@@ -16,3 +16,5 @@ src/web/test.cpp
 *.o
 bin/
 Quokka/
+lichess/
+lichess_bot/
