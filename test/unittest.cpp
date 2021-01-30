@@ -2,7 +2,7 @@
 #include <sstream>
 
 #include "../src/engine/SimpleBoard.h"
-#include "../src/engine/Search.h"
+#include "../src/engine/Search2.h"
 
 
 int main(){
@@ -10,13 +10,15 @@ int main(){
     SimpleBoard board(RUY_LOPEZ, true);
     std::cout << board << std::endl;
 
-    std::istringstream ss("wow this works");
 
-    do {
-        std::string cmd;
-        ss >> cmd;
-        std::cout << cmd << std::endl;
-    } while (ss);
+    Search2 s2;
+    std::optional<Ply> m1 = s2.search(board, WHITE, 4);
+    std::cout << m1.value() << std::endl;
+
+
+
+    std::optional<Ply> m2 = s2.iterative_deepening(board, WHITE);
+    std::cout << m2.value() << std::endl;
 
 
     /*

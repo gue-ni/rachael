@@ -179,16 +179,18 @@ SimpleBoard::SimpleBoard(const std::vector<int> &brd, bool draw_color): SimpleBo
 */
 
 void SimpleBoard::undo_move(Reversible ply) {
+    color_to_move = -color_to_move;
     move_history.pop_back();
     reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
 }
 
 Reversible SimpleBoard::make_move(Ply ply) {
+    color_to_move = -color_to_move;
     move_history.push_back(ply);
     return Reversible(ply, execute_move(ply));
 }
 
-void SimpleBoard::generate_valid_moves_square(std::vector<Ply> &legal_moves, int square) {
+void SimpleBoard::legal_moves_square(std::vector<Ply> &legal_moves, int square) {
     int piece = x88[square];
 
     if (piece == 0) return;
@@ -319,13 +321,13 @@ void SimpleBoard::check_directions(std::vector<Ply> &moves, int from, int piece,
 
 }
 
-std::vector<Ply> SimpleBoard::generate_valid_moves(int color_to_move) {
+std::vector<Ply> SimpleBoard::gen_legal_moves(int color) {
 
     std::vector<Ply> valid_moves;
 
     for (int sq : valid_squares){
-        if (!is_empty(sq) && get_color(x88[sq]) == color_to_move){
-            generate_valid_moves_square(valid_moves, sq);
+        if (!is_empty(sq) && get_color(x88[sq]) == color){
+            legal_moves_square(valid_moves, sq);
         }
     }
     return valid_moves;

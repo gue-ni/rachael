@@ -1,6 +1,6 @@
 
-#nd CSSNGE_P_MPEBORD_
-#dfin CHSS_NGIE_CPP_SIMPLEBOARD_H
+#ifndef CHESS_ENGINE_CPP_SIMPLEBOARD_H
+#define CHESS_ENGINE_CPP_SIMPLEBOARD_H
 
 #include <cassert>
 
@@ -8,8 +8,8 @@
 #define BLACK -1
 
 #define BLACK_TTY   "\033[0;31m"
-#defne WHTE_TT   "\33[0;4m"
-#efineCLEAR_TTY   "\033[0m"
+#define WHITE_TTY   "\033[0;34m"
+#define CLEAR_TTY   "\033[0m"
 
 #define N    16
 #define S   -16
@@ -53,7 +53,7 @@ public:
     explicit SimpleBoard(bool draw_color);
     SimpleBoard(const std::string& fen, bool draw_color);
 
-    virtual std::vector<Ply> generate_valid_moves(int color_to_move);
+    virtual std::vector<Ply> gen_legal_moves(int color);
 
     virtual Reversible make_move(Ply ply);
     virtual       void undo_move(Reversible ply);
@@ -64,8 +64,11 @@ public:
     std::vector<Ply> move_history;
     friend std::ostream& operator<<(std::ostream&, const SimpleBoard&);
 
+    int color_to_move = WHITE;
+
 protected:
     friend class Search;
+    friend class Search2;
 
     const char pieces[7]            = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     const int material_value[7]     = { 0,   200, 9,   5,   3,   3,   1 };
@@ -87,6 +90,7 @@ protected:
                                         0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,
                                         0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,
                                         0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77  };
+
     int w_material = 0, b_material = 0;
     bool draw_color = true;
 
@@ -95,7 +99,7 @@ protected:
 
     void calculate_material();
 
-    void generate_valid_moves_square(std::vector<Ply> &legal_moves, int square);
+    void legal_moves_square(std::vector<Ply> &legal_moves, int square);
 
     void check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs, int max_steps);
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
@@ -131,6 +135,5 @@ protected:
         return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
     }
 };
-
 
 #endif //CHESS_ENGINE_CPP_SIMPLEBOARD_H
