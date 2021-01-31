@@ -9,11 +9,9 @@
 #define MAX  999
 
 #include <optional>
-#include "SimpleBoard.h"
+#include "Board.h"
 
 struct SearchState {
-    std::vector<Ply> principal_variation;
-
     int w_history_heuristic[128][128];
     int b_history_heuristic[128][128];
 
@@ -26,18 +24,17 @@ struct SearchState {
     }
 };
 
-int evaluation(SimpleBoard &board);
+int evaluation(Board &board);
 
-void sort_moves(SimpleBoard &board, std::vector<Ply> &moves);
+void sort_moves(Board &board, std::vector<Ply> &moves);
 
-void thread_search(SimpleBoard& board, int color_to_move, int depth, Ply &ply);
+void thread_search(Board& board, int color_to_move, int depth, Ply &ply);
 
-std::optional<Ply> iterative_deepening(SimpleBoard &board, int color_to_move);
+std::optional<Ply> iterative_deepening(Board &board, int color_to_move);
 
-std::optional<Ply> search(SimpleBoard &board, int color_to_move, int depth);
+std::optional<Ply> search(Board &board, int color_to_move, int depth);
 
-int alpha_beta(SimpleBoard &board, SearchState &ss, int color_to_move, int alpha, int beta, int depth);
-
-
+int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv,
+               int color_to_move, int alpha, int beta, int depth);
 
 #endif //CHESS_ENGINE_CPP_SEARCH2_H

@@ -6,7 +6,7 @@
 #define CHESS_ENGINE_CPP_CACHEDBOARD_H
 
 #include <map>
-#include "../SimpleBoard.h"
+#include "../Board.h"
 
 class CachedBoard : public SimpleBoard {
 public:

@@ -1,12 +1,12 @@
 #include <iostream>
 #include "../src/engine/Search.h"
-#include "../src/engine/SimpleBoard.h"
+#include "../src/engine/Board.h"
 #include "util.h"
 
 
 int main(){
 
-    SimpleBoard board(RUY_LOPEZ, true);
+    Board board(RUY_LOPEZ, true);
 
     Search s1(NEGAMAX_ALPHABETA_FAILHARD, true);
     Search s2(NEGAMAX_ALPHABETA_FAILHARD, false);

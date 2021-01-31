@@ -6,20 +6,20 @@
 #include <map>
 #include <zconf.h>
 
-#include "SimpleBoard.h"
+#include "Board.h"
 #include "Reversible.h"
 
-SimpleBoard::SimpleBoard(bool draw_color) : draw_color(draw_color) {
+Board::Board(bool draw_color) : draw_color(draw_color) {
     w_material = 0;
     b_material = 0;
     calculate_material();
 }
 
-int SimpleBoard::material(int color) {
+int Board::material(int color) {
     return color == WHITE ? w_material : b_material;
 }
 
-int SimpleBoard::execute_move(Ply ply) {
+int Board::execute_move(Ply ply) {
     int killed = get_piece(ply.to);
     set_piece(ply.to, get_piece(ply.from));
     set_piece(ply.from, 0);
@@ -34,7 +34,7 @@ int SimpleBoard::execute_move(Ply ply) {
     return killed;
 }
 
-void SimpleBoard::reverse_move(Ply ply, int killed_piece) {
+void Board::reverse_move(Ply ply, int killed_piece) {
     set_piece(ply.from, get_piece(ply.to));
     set_piece(ply.to, killed_piece);
 
@@ -47,7 +47,7 @@ void SimpleBoard::reverse_move(Ply ply, int killed_piece) {
     }
 }
 
-void SimpleBoard::calculate_material() {
+void Board::calculate_material() {
     w_material = 0;
     b_material = 0;
 
@@ -63,7 +63,7 @@ void SimpleBoard::calculate_material() {
     }
 }
 
-bool SimpleBoard::is_threatened(int square, int color) {
+bool Board::is_threatened(int square, int color) {
     // Rook or Queen
     for (Ply move : check_directions(square, color, {N, S, E, W}, 8)){
         int p = abs(x88[move.to]);
@@ -101,7 +101,7 @@ bool SimpleBoard::is_threatened(int square, int color) {
     return false;
 }
 
-std::vector<Ply> SimpleBoard::check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps) {
+std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps) {
     std::vector<Ply> moves;
     int steps, to;
     assert(piece != 0);
@@ -129,7 +129,7 @@ std::vector<Ply> SimpleBoard::check_directions(int from, int piece, const std::v
     return moves;
 }
 
-std::ostream& operator<<(std::ostream &strm, const SimpleBoard &board) {
+std::ostream& operator<<(std::ostream &strm, const Board &board) {
     std::string padding = " ";
     strm << padding << "Ply " << board.move_history.size() << ":\n";
     strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
@@ -172,25 +172,25 @@ std::ostream& operator<<(std::ostream &strm, const SimpleBoard &board) {
 }
 
 /*
-SimpleBoard::SimpleBoard(const std::vector<int> &brd, bool draw_color): SimpleBoard(draw_color) {
+Board::Board(const std::vector<int> &brd, bool draw_color): Board(draw_color) {
     assert(brd.size() == 128);
     for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
 }
 */
 
-void SimpleBoard::undo_move(Reversible ply) {
+void Board::undo_move(Reversible ply) {
     color_to_move = -color_to_move;
     move_history.pop_back();
     reverse_move(Ply(ply.from, ply.to), ply.killed_piece);
 }
 
-Reversible SimpleBoard::make_move(Ply ply) {
+Reversible Board::make_move(Ply ply) {
     color_to_move = -color_to_move;
     move_history.push_back(ply);
     return Reversible(ply, execute_move(ply));
 }
 
-void SimpleBoard::legal_moves_square(std::vector<Ply> &legal_moves, int square) {
+void Board::legal_moves_square(std::vector<Ply> &legal_moves, int square) {
     int piece = x88[square];
 
     if (piece == 0) return;
@@ -293,8 +293,8 @@ void SimpleBoard::legal_moves_square(std::vector<Ply> &legal_moves, int square) 
     }
 }
 
-void SimpleBoard::check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs,
-                                   int max_steps) {
+void Board::check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs,
+                             int max_steps) {
     int steps, to;
     assert(piece != 0);
 
@@ -321,7 +321,7 @@ void SimpleBoard::check_directions(std::vector<Ply> &moves, int from, int piece,
 
 }
 
-std::vector<Ply> SimpleBoard::gen_pseudo_legal_moves(int color) {
+std::vector<Ply> Board::gen_pseudo_legal_moves(int color) {
 
     std::vector<Ply> valid_moves;
 
@@ -333,11 +333,11 @@ std::vector<Ply> SimpleBoard::gen_pseudo_legal_moves(int color) {
     return valid_moves;
 }
 
-SimpleBoard::SimpleBoard(const std::string& fen, bool draw_color) : draw_color(draw_color) {
+Board::Board(const std::string& fen, bool draw_color) : draw_color(draw_color) {
     set_board(fen);
 }
 
-void SimpleBoard::set_board(const std::string &fen) {
+void Board::set_board(const std::string &fen) {
 
     for (auto sq : valid_squares){
         x88[sq] = 0;

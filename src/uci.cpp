@@ -2,7 +2,7 @@
 #include <sstream>
 #include <optional>
 #include <thread>
-#include "engine/SimpleBoard.h"
+#include "engine/Board.h"
 #include "engine/Search.h"
 #include "engine/Search2.h"
 
@@ -10,7 +10,7 @@
 #define NAME "Rachael 1.0"
 
 std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-SimpleBoard board(DEFAULT_BOARD, true);
+Board board(DEFAULT_BOARD, true);
 
 void uci_go(std::string input){
     std::string cmd;

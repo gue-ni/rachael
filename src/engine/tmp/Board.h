@@ -6,7 +6,7 @@
 #define CHESS_ENGINE_CPP_BOARD_H
 
 
-#include "../SimpleBoard.h"
+#include "../Board.h"
 #include "../Reversible.h"
 
 class Board : public SimpleBoard {

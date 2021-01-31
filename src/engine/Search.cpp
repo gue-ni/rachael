@@ -6,7 +6,7 @@
 #include "Search.h"
 
 
-int Search::evaluation(SimpleBoard &board) {
+int Search::evaluation(Board &board) {
     int mobility =  ((int) board.gen_pseudo_legal_moves(WHITE).size()
             - (int) board.gen_pseudo_legal_moves(BLACK).size());
 
@@ -23,7 +23,7 @@ int Search::max(int a, int b) {
     return a > b ? a : b;
 }
 
-std::optional<Ply> Search::search(SimpleBoard &board, int color_to_move, int depth) {
+std::optional<Ply> Search::search(Board &board, int color_to_move, int depth) {
     switch (algorithm){
         case NEGAMAX:                       return negamax(board, color_to_move, depth);
         case NEGAMAX_ALPHABETA_FAILSOFT:    return alphabeta_failsoft(board, color_to_move, depth);
@@ -34,7 +34,7 @@ std::optional<Ply> Search::search(SimpleBoard &board, int color_to_move, int dep
     }
 }
 
-std::optional<Ply> Search::negamax(SimpleBoard &board, int color_to_move, int depth) {
+std::optional<Ply> Search::negamax(Board &board, int color_to_move, int depth) {
     std::optional<Ply> best_move = std::nullopt;
     std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
 
@@ -53,7 +53,7 @@ std::optional<Ply> Search::negamax(SimpleBoard &board, int color_to_move, int de
     return best_move;
 }
 
-int Search::_negamax(SimpleBoard &board, int color_to_move, int depth) {
+int Search::_negamax(Board &board, int color_to_move, int depth) {
     if (depth == 0) return color_to_move * evaluation(board);
 
     std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
@@ -72,7 +72,7 @@ int Search::_negamax(SimpleBoard &board, int color_to_move, int depth) {
     return best;
 }
 
-std::optional<Ply> Search::alphabeta_failsoft(SimpleBoard &board, int color_to_move, int depth) {
+std::optional<Ply> Search::alphabeta_failsoft(Board &board, int color_to_move, int depth) {
     int score       = 0;
     int best_score  = MIN;
 
@@ -110,7 +110,7 @@ std::optional<Ply> Search::alphabeta_failsoft(SimpleBoard &board, int color_to_m
     return best_move;
 }
 
-int Search::_alphabeta_failsoft(SimpleBoard &board, int color_to_move, int alpha, int beta, int depth) {
+int Search::_alphabeta_failsoft(Board &board, int color_to_move, int alpha, int beta, int depth) {
     if (depth == 0) {
         int eval = color_to_move * evaluation(board);
 #ifdef DEBUG_SEARCH
@@ -156,7 +156,7 @@ int Search::_alphabeta_failsoft(SimpleBoard &board, int color_to_move, int alpha
     return score;
 }
 
-std::optional<Ply> Search::alphabeta_failhard(SimpleBoard &board, int color_to_move, int depth) {
+std::optional<Ply> Search::alphabeta_failhard(Board &board, int color_to_move, int depth) {
     int score       = 0;
     int best_score  = MIN;
 
@@ -186,7 +186,7 @@ std::optional<Ply> Search::alphabeta_failhard(SimpleBoard &board, int color_to_m
     return best_move;
 }
 
-int Search::_alphabeta_failhard(SimpleBoard &board, int color_to_move, int alpha, int beta, int depth) {
+int Search::_alphabeta_failhard(Board &board, int color_to_move, int alpha, int beta, int depth) {
     if (depth == 0) {
         return color_to_move * evaluation(board);
     }
@@ -228,7 +228,7 @@ int Search::_alphabeta_failhard(SimpleBoard &board, int color_to_move, int alpha
 
 Search::Search(int algorithm) : algorithm(algorithm) {}
 
-void Search::move_ordering(SimpleBoard &board, std::vector<Ply> &moves) {
+void Search::move_ordering(Board &board, std::vector<Ply> &moves) {
     // https://www.chessprogramming.org/Move_Ordering
 
     std::vector<int> move_val(moves.size());

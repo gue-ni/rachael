@@ -16,7 +16,7 @@
 #include <optional>
 
 #include "Ply.h"
-#include "SimpleBoard.h"
+#include "Board.h"
 
 /**
  * https://www.chessprogramming.org/Move_Ordering
@@ -36,7 +36,7 @@ public:
     explicit Search(int algorithm);
     Search(int algorithm, bool order_moves);
 
-    std::optional<Ply> search(SimpleBoard &board, int color_to_move, int depth);
+    std::optional<Ply> search(Board &board, int color_to_move, int depth);
 
     int algorithm;
     bool order_moves = true;
@@ -45,17 +45,17 @@ public:
     int b_history_heuristic[128][128];
 
     static int max(int a, int b);
-    static int evaluation(SimpleBoard &board);
-    void move_ordering(SimpleBoard &board, std::vector<Ply> &moves);
+    static int evaluation(Board &board);
+    void move_ordering(Board &board, std::vector<Ply> &moves);
 
-    std::optional<Ply> negamax(SimpleBoard& board, int color_to_move, int depth);
-    int _negamax(SimpleBoard& board, int color_to_move, int depth);
+    std::optional<Ply> negamax(Board& board, int color_to_move, int depth);
+    int _negamax(Board& board, int color_to_move, int depth);
 
-    std::optional<Ply> alphabeta_failsoft(SimpleBoard &board, int color_to_move, int depth);
-    int _alphabeta_failsoft(SimpleBoard &board, int color_to_move, int alpha, int beta, int depth);
+    std::optional<Ply> alphabeta_failsoft(Board &board, int color_to_move, int depth);
+    int _alphabeta_failsoft(Board &board, int color_to_move, int alpha, int beta, int depth);
 
-    std::optional<Ply> alphabeta_failhard(SimpleBoard &board, int color_to_move, int depth);
-    int _alphabeta_failhard(SimpleBoard &board, int color_to_move, int alpha, int beta, int depth);
+    std::optional<Ply> alphabeta_failhard(Board &board, int color_to_move, int depth);
+    int _alphabeta_failhard(Board &board, int color_to_move, int alpha, int beta, int depth);
 };
 
 

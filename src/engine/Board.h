@@ -1,6 +1,6 @@
 
-#ifndef CHESS_ENGINE_CPP_SIMPLEBOARD_H
-#define CHESS_ENGINE_CPP_SIMPLEBOARD_H
+#ifndef CHESS_ENGINE_CPP_BOARD_H
+#define CHESS_ENGINE_CPP_BOARD_H
 
 #include <cassert>
 
@@ -48,10 +48,10 @@
 #include "Ply.h"
 #include "Reversible.h"
 
-class SimpleBoard {
+class Board {
 public:
-    explicit SimpleBoard(bool draw_color);
-    SimpleBoard(const std::string& fen, bool draw_color);
+    explicit Board(bool draw_color);
+    Board(const std::string& fen, bool draw_color);
 
     virtual std::vector<Ply> gen_pseudo_legal_moves(int color);
 
@@ -62,7 +62,7 @@ public:
     void set_board(const std::string &fen);
 
     std::vector<Ply> move_history;
-    friend std::ostream& operator<<(std::ostream&, const SimpleBoard&);
+    friend std::ostream& operator<<(std::ostream&, const Board&);
 
     int color_to_move = WHITE;
 
@@ -136,4 +136,4 @@ protected:
 
 };
 
-#endif //CHESS_ENGINE_CPP_SIMPLEBOARD_H
+#endif //CHESS_ENGINE_CPP_BOARD_H

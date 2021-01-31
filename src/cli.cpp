@@ -1,12 +1,12 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "engine/SimpleBoard.h"
+#include "engine/Board.h"
 #include "engine/Square.h"
 #include "engine/Search.h"
 
 
-bool human_take_turn(SimpleBoard &board, int color){
+bool human_take_turn(Board &board, int color){
     std::vector<Ply> possible_moves = board.gen_pseudo_legal_moves(color);
 
     if (possible_moves.empty()){
@@ -33,7 +33,7 @@ bool human_take_turn(SimpleBoard &board, int color){
 
 }
 
-bool engine_take_turn(SimpleBoard &board, int color, int search_depth) {
+bool engine_take_turn(Board &board, int color, int search_depth) {
     Search search(NEGAMAX_ALPHABETA_FAILHARD);
 
     clock_t tic = clock();
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    SimpleBoard board(DEFAULT_BOARD, color_output);
+    Board board(DEFAULT_BOARD, color_output);
 
     std::cout
     << "search_depth=" << search_depth
