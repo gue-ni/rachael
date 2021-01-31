@@ -153,11 +153,11 @@ std::optional<Ply> iterative_deepening(Board &board, int color_to_move) {
     SearchState ss{};
     std::vector<Ply> principal_variation;
 
-    for (int depth = 1; depth < 10; depth++){
+    for (int depth = 0; depth < 10; depth++){
 
         int score = alpha_beta(board, ss, principal_variation, color_to_move, MIN, MAX, depth);
 
-        std::cout << "info " << " depth " << depth << " principal_variation ";
+        std::cout << "info score cp " << score << " depth " << depth << " principal_variation ";
         for (auto m : principal_variation) std::cout << m << " ";
         std::cout << std::endl;
     }

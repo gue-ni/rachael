@@ -8,7 +8,7 @@
 
 int main(){
 
-    Board board(DEFAULT_BOARD, true);
+    Board board(RUY_LOPEZ, true);
     std::cout << board << std::endl;
 
     clock_t tic, toc;
