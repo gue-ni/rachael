@@ -39,7 +39,7 @@ void uci_go(std::string input){
         if (cmd == "infinite"){
 			Ply p;
 			int d = 99;
-			searchState.start_time = get_time();
+			searchState.start_time = NOW;
             thrd = std::thread(iterative_deepening, std::ref(board), std::ref(p), std::ref(searchState), d, std::ref(stop));
             break;
 
@@ -47,6 +47,7 @@ void uci_go(std::string input){
             ss >> cmd;
             int d = std::stoi(cmd);
             Ply p;
+            searchState.start_time = NOW;
             thrd = std::thread(iterative_deepening, std::ref(board), std::ref(p), std::ref(searchState), d, std::ref(stop));
             thrd.join();
         }
