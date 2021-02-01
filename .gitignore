@@ -3,19 +3,20 @@ cmake-build-debug/
 build/
 games/
 web/tmp/
+src/tmp/
+bin/
+Quokka/
+lichess/
+lichess_bot/
 
 make_zip.sh
 engine.zip
 ps.txt
 web/README.md
 web/test.cpp
+rachael
 
 *.wasm
 *.html
 *.js
 *.o
-bin/
-Quokka/
-lichess/
-lichess_bot/
-rachael
