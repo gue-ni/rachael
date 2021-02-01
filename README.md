@@ -5,7 +5,6 @@ A simple chess engine, written entirely in C++17. It uses the Negmax algorithm w
 https://stackoverflow.com/questions/17003561/using-the-universal-chess-interface
 https://www.stmintz.com/ccc/index.php?id=141612
 
-
 ```
 ./engine 3 10 0 1
 
