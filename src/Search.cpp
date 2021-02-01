@@ -1,6 +1,3 @@
-//
-// Created by jakob on 1/30/21.
-//
 
 #include <iostream>
 #include "Search.h"
@@ -96,7 +93,7 @@ std::optional<Ply> search(Board &board, int depth) {
 int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth) {
     if (depth == 0) {
         pv.clear();
-        return board.color_to_move * evaluation(board);
+        return board.color_to_move * evaluation_1(board);
     }
 
     int score;
@@ -154,5 +151,7 @@ std::optional<Ply> iterative_deepening(Board &board) {
     return best_move;
 }
 
-
+int quiesence(int alpha, int beta){
+    return 0;
+}
 

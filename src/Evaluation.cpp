@@ -4,7 +4,7 @@
 
 #include "Evaluation.h"
 
-int evaluation(Board &board) {
+int evaluation_1(Board &board) {
     int mobility =     (int) board.gen_pseudo_legal_moves(WHITE).size()
                        - (int) board.gen_pseudo_legal_moves(BLACK).size();
 

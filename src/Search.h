@@ -48,4 +48,6 @@ std::optional<Ply> search(Board &board, int depth);
 
 int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth);
 
+int quiesence(int alpha, int beta);
+
 #endif //CHESS_ENGINE_CPP_SEARCH_H
