@@ -6,18 +6,25 @@ OBJ_DIR := ./obj
 LFLAGS:=-O3 -Wall -pthread
 CFLAGS:=-std=c++17 -O3 -g -Wall
 
-OBJ_FILES:= obj/uci.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o
+RACHAEL_OBJ:= obj/uci.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o
+UNITTEST_OBJ:= obj/unittest.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o
+
 
 .PHONY: clean all
 
-all: rachael
+all: rachael unittest
 
-rachael: $(OBJ_FILES)
+rachael: $(RACHAEL_OBJ)
 	$(CC) $(LFLAGS) -o $@ $^
 
+unittest: $(UNITTEST_OBJ)
+	$(CC) $(LFLAGS) -o $@ $^
+
+
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 clean:
-	rm -f $(OBJ_DIR)/*.o rachael
+	rm -f $(OBJ_DIR)/*.o rachael unittest
 

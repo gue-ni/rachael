@@ -133,7 +133,7 @@ std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<
 std::ostream& operator<<(std::ostream &strm, const Board &board) {
     std::string padding = " ";
     strm << padding << "Ply " << board.move_history.size() << ":\n";
-    strm << padding << "\n   a  b  c  d  e  f  g  h" << std::endl;
+    strm << padding << "\n    a  b  c  d  e  f  g  h" << std::endl;
 
     for (uint8_t y = 0; y < 8; y++){
         for (uint8_t x = 0; x < 8; x++){

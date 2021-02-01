@@ -18,7 +18,7 @@ int main(){
     tic = clock();
     bool stop = false;
     thrd = std::thread(iterative_deepening, std::ref(board), std::ref(move), 7, std::ref(stop));
-    //thrd.join();
+    thrd.join();
     toc = clock();
     std::cout << move << " " << dt(tic, toc) << std::endl;
 
