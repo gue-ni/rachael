@@ -3,7 +3,7 @@
 //
 
 #include <iostream>
-#include "Search2.h"
+#include "Search.h"
 #include "Evaluation.h"
 
 void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {

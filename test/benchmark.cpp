@@ -1,6 +1,6 @@
 #include <iostream>
-#include "../src/engine/Search.h"
-#include "../src/engine/Board.h"
+#include "../src/Search.h"
+#include "../src/Board.h"
 #include "util.h"
 
 
@@ -8,6 +8,7 @@ int main(){
 
     Board board(RUY_LOPEZ, true);
 
+    /*
     Search s1(NEGAMAX_ALPHABETA_FAILHARD, true);
     Search s2(NEGAMAX_ALPHABETA_FAILHARD, false);
     Search s3(NEGAMAX_ALPHABETA_FAILSOFT, true);
@@ -40,6 +41,8 @@ int main(){
     toc = clock();
     std::cout << p4.value();
     printf(" depth=%d, order_moves=%d %f\n", depth, s4.order_moves, dt(tic, toc));
+
+     */
 
     return 0;
 }

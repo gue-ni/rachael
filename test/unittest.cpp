@@ -1,8 +1,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "../src/engine/Board.h"
-#include "../src/engine/Search2.h"
+#include "../src/Board.h"
+#include "../src/Search.h"
 #include "util.h"
 
 

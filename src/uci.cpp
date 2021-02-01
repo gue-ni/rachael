@@ -2,9 +2,8 @@
 #include <sstream>
 #include <optional>
 #include <thread>
-#include "engine/Board.h"
-#include "engine/Search.h"
-#include "engine/Search2.h"
+#include "Board.h"
+#include "Search.h"
 
 #define AUTHOR "Jakob Maier"
 #define NAME "Rachael 1.0"

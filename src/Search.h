@@ -2,14 +2,27 @@
 // Created by jakob on 1/30/21.
 //
 
-#ifndef CHESS_ENGINE_CPP_SEARCH2_H
-#define CHESS_ENGINE_CPP_SEARCH2_H
+#ifndef CHESS_ENGINE_CPP_SEARCH_H
+#define CHESS_ENGINE_CPP_SEARCH_H
 
 #define MIN -999
 #define MAX  999
 
 #include <optional>
 #include "Board.h"
+
+/**
+ * https://www.chessprogramming.org/Move_Ordering
+ * https://www.chessprogramming.org/History_Heuristic
+ * https://www.chessprogramming.org/Triangular_PV-Table
+ * https://www.chessprogramming.org/Transposition_Table
+ * https://stackoverflow.com/questions/9964496/alpha-beta-move-ordering
+ *
+ * TODO implment move ordering
+ * 16*victimValue - attacherValue
+ *
+ * TODO implement hash table for good moves
+ */
 
 struct SearchState {
     int w_history_heuristic[128][128];
@@ -35,4 +48,4 @@ std::optional<Ply> search(Board &board, int depth);
 
 int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth);
 
-#endif //CHESS_ENGINE_CPP_SEARCH2_H
+#endif //CHESS_ENGINE_CPP_SEARCH_H

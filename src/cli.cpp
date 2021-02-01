@@ -1,9 +1,9 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "engine/Board.h"
-#include "engine/Square.h"
-#include "engine/Search.h"
+#include "Board.h"
+#include "Square.h"
+#include "Search.h"
 
 
 bool human_take_turn(Board &board, int color){
@@ -34,10 +34,10 @@ bool human_take_turn(Board &board, int color){
 }
 
 bool engine_take_turn(Board &board, int color, int search_depth) {
-    Search search(NEGAMAX_ALPHABETA_FAILHARD);
+    //Search search(NEGAMAX_ALPHA//BETA_FAILHARD);
 
     clock_t tic = clock();
-    std::optional<Ply> move = search.search(board, color, search_depth);
+    std::optional<Ply> move = search(board, search_depth);
     clock_t toc = clock();
     double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 
