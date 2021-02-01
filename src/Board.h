@@ -42,6 +42,14 @@
 #define DEFAULT_BOARD \
 "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
+#define FRENCH_DEFENSE_BURN_VARIATION \
+"rnbqkb1r/ppp2ppp/4pn2/3p2B1/3PP3/2N5/PPP2PPP/R2QKBNR b KQkq - 0 5"
+
+#define SICILIAN_DEFENSE \
+"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"
+
+#define SICILIAN_DEFENSE_NAJDORF_VARIATION \
+"rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"
 
 #include <vector>
 #include "Square.h"
@@ -51,17 +59,21 @@
 class Board {
 public:
     explicit Board(bool draw_color);
+
     Board(const std::string& fen, bool draw_color);
 
-    virtual std::vector<Ply> gen_pseudo_legal_moves(int color);
+    std::vector<Ply> gen_pseudo_legal_moves(int color);
 
-    virtual Reversible make_move(Ply ply);
-    virtual       void undo_move(Reversible ply);
+    Reversible make_move(Ply ply);
+
+    void undo_move(Reversible ply);
 
     int  material(int color);
+
     void set_board(const std::string &fen);
 
     std::vector<Ply> move_history;
+
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
     int color_to_move;
@@ -107,6 +119,7 @@ protected:
     bool draw_color = true;
 
     void reverse_move(Ply ply, int killed_piece);
+
     int  execute_move(Ply ply);
 
     void calculate_material();
@@ -114,6 +127,7 @@ protected:
     void legal_moves_square(std::vector<Ply> &legal_moves, int square);
 
     void check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs, int max_steps);
+
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
 
     bool is_threatened(int square, int color);
@@ -133,7 +147,6 @@ protected:
     static inline bool off_the_board(int square){
         return square & (uint8_t)0x88;
     }
-
 };
 
 #endif //CHESS_ENGINE_CPP_BOARD_H

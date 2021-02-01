@@ -28,7 +28,7 @@ struct SearchState {
     int w_history_heuristic[128][128];
     int b_history_heuristic[128][128];
 
-    inline void history(int color, int from, int to, int val){
+    inline void history_heuristic(int color, int from, int to, int val){
         if (color == WHITE){
             w_history_heuristic[from][to] = val;
         } else {
@@ -37,12 +37,9 @@ struct SearchState {
     }
 };
 
+void thread_search(Board &board, int depth, Ply &ply);
 
-void sort_moves(Board &board, std::vector<Ply> &moves);
-
-void thread_search(Board& board, int color_to_move, int depth, Ply &ply);
-
-std::optional<Ply> iterative_deepening(Board &board);
+void iterative_deepening(Board &board, Ply &best_move, int max_depth);
 
 std::optional<Ply> search(Board &board, int depth);
 

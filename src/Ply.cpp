@@ -25,7 +25,7 @@ std::string Ply::as_string() {
     return str.str();
 }
 
-Ply::Ply() : from(0x00), to(0x00){}
+Ply::Ply() : Ply("e1e1"){}
 
 bool operator<(Ply &p1, Ply &p2) {
     return p1.as_string() < p2.as_string();

@@ -5,7 +5,6 @@
 #include "Square.h"
 #include "Search.h"
 
-
 bool human_take_turn(Board &board, int color){
     std::vector<Ply> possible_moves = board.gen_pseudo_legal_moves(color);
 
@@ -34,8 +33,6 @@ bool human_take_turn(Board &board, int color){
 }
 
 bool engine_take_turn(Board &board, int color, int search_depth) {
-    //Search search(NEGAMAX_ALPHA//BETA_FAILHARD);
-
     clock_t tic = clock();
     std::optional<Ply> move = search(board, search_depth);
     clock_t toc = clock();

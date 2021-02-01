@@ -24,7 +24,7 @@ void uci_go(std::string input){
             int d = std::stoi(cmd);
 
             Ply p;
-            std::thread t1(thread_search, std::ref(board), board.color_to_move, d, std::ref(p));
+            std::thread t1(iterative_deepening, std::ref(board), std::ref(p), d);
             t1.join();
             std::cout << "bestmove " << p << std::endl;
         }

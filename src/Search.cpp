@@ -16,7 +16,7 @@ void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {
             move_val[i] = val > 0 ? val : 0;
 
         } else {
-            // history heuristic
+            // history_heuristic heuristic
             move_val[i] = Board::get_color(board.get_piece(moves[i].from)) == WHITE
                           ? ss.w_history_heuristic[moves[i].from][moves[i].to]
                           : ss.b_history_heuristic[moves[i].from][moves[i].to];
@@ -44,7 +44,7 @@ void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {
     }
 }
 
-void thread_search(Board& board, int color_to_move, int depth, Ply &ply){
+void thread_search(Board &board, int depth, Ply &ply) {
     std::optional<Ply> move = search(board, depth);
     ply = move.value();
 }
@@ -121,7 +121,7 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, i
             alpha = score;
 
             if (board.get_piece(move.to) == 0){
-                ss.history(board.color_to_move, move.from, move.to, depth*depth);
+                ss.history_heuristic(board.color_to_move, move.from, move.to, depth * depth);
             }
 
             pv.clear();
@@ -132,23 +132,21 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, i
     return alpha;
 }
 
-std::optional<Ply> iterative_deepening(Board &board) {
-    std::optional<Ply> best_move = std::nullopt;
-
+void iterative_deepening(Board &board, Ply &best_move, int max_depth) {
     SearchState ss{};
     std::vector<Ply> principal_variation;
 
-    for (int depth = 0; depth < 10; depth++){
+    for (int depth = 1; depth <= max_depth; depth++){
 
         int score = alpha_beta(board, ss, principal_variation, MIN, MAX, depth);
 
-        std::cout << "info score cp " << score << " depth " << depth << " principal_variation ";
+        std::cout << "info score cp " << score << " depth " << depth << " pv ";
         for (auto m : principal_variation) std::cout << m << " ";
         std::cout << std::endl;
-    }
 
-    best_move = principal_variation[0];
-    return best_move;
+        best_move = principal_variation[0];
+        //std::cout << "best_move=" << best_move << std::endl;
+    }
 }
 
 int quiesence(int alpha, int beta){

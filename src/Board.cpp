@@ -356,6 +356,22 @@ void Board::set_board(const std::string &fen) {
             x88[sq++] = pcs[c];
         }
     }
+
+    iss >> substr;
+    color_to_move = substr == "w" ? WHITE : BLACK;
+    //std::cout << "color_to_move=" << color_to_move << std::endl;
+
+    /*
+    iss >> substr;
+    std::cout << substr << std::endl;
+    iss >> substr;
+    std::cout << substr << std::endl;
+    iss >> substr;
+    std::cout << substr << std::endl;
+    iss >> substr;
+    std::cout << substr << std::endl;
+     */
+
 }
 
 
