@@ -21,3 +21,6 @@ rachael
 *.js
 *.o
 obj/
+doc/
+GAMES.md
+unittest

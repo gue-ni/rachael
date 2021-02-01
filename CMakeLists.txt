@@ -21,7 +21,7 @@ add_executable(rachael src/uci.cpp
         src/Search.cpp src/Search.h
         src/Evaluation.cpp src/Evaluation.h)
 
-add_executable(unittest test/unittest.cpp test/util.h
+add_executable(unittest src/unittest.cpp
         src/Board.cpp src/Board.h
         src/Square.cpp src/Square.h
         src/Ply.cpp src/Ply.h
@@ -29,7 +29,7 @@ add_executable(unittest test/unittest.cpp test/util.h
         src/Reversible.cpp src/Reversible.h
         src/Evaluation.cpp src/Evaluation.h)
 
-add_executable(benchmark test/benchmark.cpp test/util.h
+add_executable(benchmark test/benchmark.cpp
         src/Board.cpp src/Board.h
         src/Square.cpp src/Square.h
         src/Ply.cpp src/Ply.h

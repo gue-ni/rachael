@@ -8,6 +8,8 @@
 #define MIN -999
 #define MAX  999
 
+# define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()
+
 #include <optional>
 #include "Board.h"
 
@@ -28,6 +30,9 @@ struct SearchState {
     int w_history_heuristic[128][128];
     int b_history_heuristic[128][128];
 
+    uint64_t start_time;
+    int nodes = 0;
+
     inline void history_heuristic(int color, int from, int to, int val){
         if (color == WHITE){
             w_history_heuristic[from][to] = val;
@@ -37,12 +42,14 @@ struct SearchState {
     }
 };
 
-void iterative_deepening(Board &board, Ply &best_move, int max_depth, bool &stop);
+void iterative_deepening(Board &board, Ply &best_move,  SearchState &ss, int max_depth, bool &stop);
 
 std::optional<Ply> search(Board &board, int depth);
 
 int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth, bool &stop);
 
 int quiesence(int alpha, int beta);
+
+void test(int d, int b);
 
 #endif //CHESS_ENGINE_CPP_SEARCH_H

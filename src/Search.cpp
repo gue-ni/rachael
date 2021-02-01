@@ -1,9 +1,12 @@
 
 #include <iostream>
+#include <chrono>
 #include "Search.h"
 #include "Evaluation.h"
 
 void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {
+    if (moves.empty()) return;
+
     // https://www.chessprogramming.org/Move_Ordering
 
     std::vector<int> move_val(moves.size());
@@ -87,6 +90,8 @@ std::optional<Ply> search(Board &board, int depth) {
 }
 
 int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth, bool &stop) {
+    ss.nodes++;
+
     if (depth == 0) {
         pv.clear();
         return board.color_to_move * evaluation_1(board);
@@ -99,6 +104,7 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, i
 
     int score;
     for (Ply move : moves){
+        if (stop) return 0;
 
         if (abs(board.get_piece(move.to)) == 1){
             return MAX+depth;
@@ -125,27 +131,47 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, i
     return alpha;
 }
 
-void iterative_deepening(Board &board, Ply &best_move, int max_depth, bool &stop) {
-    SearchState ss{};
+void iterative_deepening(Board &board, Ply &best_move, SearchState &ss, int max_depth, bool &stop) {
+    //SearchState ss{};
     std::vector<Ply> principal_variation;
+	Ply current_best_move;
 
-    for (int depth = 1; depth <= max_depth && !stop; depth++){
+    for (int depth = 1; depth <= max_depth; depth++){
+		best_move = current_best_move;
 
         int score = alpha_beta(board, ss, principal_variation, MIN, MAX, depth, stop);
 
-        std::cout << "info score cp " << score << " depth " << depth << " pv ";
+        if (stop)
+            break;
+
+        std::cout << "info score cp " << score
+        << " depth " << depth
+        << " nodes " << ss.nodes
+        << " time " << NOW - ss.start_time
+        << " pv ";
         for (auto m : principal_variation) std::cout << m << " ";
         std::cout << std::endl;
 
-        best_move = principal_variation[0];
-
-        //if (depth == 4) stop = true;
+		if (!principal_variation.empty())
+	        current_best_move = principal_variation[0];
     }
-
+	best_move = current_best_move;
     std::cout << "bestmove " << best_move << std::endl;
 }
 
 int quiesence(int alpha, int beta){
     return 0;
+}
+
+void test(int d, int b){
+
+    if (d == 0){
+        return;
+    }
+
+    for (int i = 0; i < b; i++){
+        std::cout << "d=" << d << ", i=" << i << std::endl;
+        test(d-1, b);
+    }
 }
 
