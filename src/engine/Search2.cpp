@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include "Search2.h"
+#include "Evaluation.h"
 
 void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {
     // https://www.chessprogramming.org/Move_Ordering
@@ -47,16 +48,16 @@ void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {
 }
 
 void thread_search(Board& board, int color_to_move, int depth, Ply &ply){
-    std::optional<Ply> move = search(board, color_to_move, depth);
+    std::optional<Ply> move = search(board, depth);
     ply = move.value();
 }
 
-std::optional<Ply> search(Board &board, int color_to_move, int depth) {
+std::optional<Ply> search(Board &board, int depth) {
     int score       = 0;
     int best_score  = MIN;
 
     std::optional<Ply> best_move = std::nullopt;
-    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(board.color_to_move);
     if (!moves.empty()){
         best_move = moves.front();
     }
@@ -73,7 +74,7 @@ std::optional<Ply> search(Board &board, int color_to_move, int depth) {
         }
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, ss, l_pv, -color_to_move, MIN, MAX, depth);
+        score = -alpha_beta(board, ss, l_pv, MIN, MAX, depth);
         board.undo_move(r);
 
         if (score > best_score) {
@@ -92,17 +93,17 @@ std::optional<Ply> search(Board &board, int color_to_move, int depth) {
     return best_move;
 }
 
-int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int color_to_move, int alpha, int beta, int depth) {
+int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth) {
     if (depth == 0) {
         pv.clear();
-        return color_to_move * evaluation(board);
+        return board.color_to_move * evaluation(board);
     }
 
     int score;
 
     std::vector<Ply> l_pv;
 
-    std::vector<Ply> moves = board.gen_pseudo_legal_moves(color_to_move);
+    std::vector<Ply> moves = board.gen_pseudo_legal_moves(board.color_to_move);
     sort_moves(board, ss,moves);
 
     for (Ply move : moves){
@@ -112,7 +113,7 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int color_to
         }
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, ss, l_pv, -color_to_move, -beta, -alpha, depth-1);
+        score = -alpha_beta(board, ss, l_pv, -beta, -alpha, depth-1);
         board.undo_move(r);
 
         if (score >= beta){ // beta cutoff
@@ -123,7 +124,7 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int color_to
             alpha = score;
 
             if (board.get_piece(move.to) == 0){
-                ss.history(color_to_move, move.from, move.to, depth*depth);
+                ss.history(board.color_to_move, move.from, move.to, depth*depth);
             }
 
             pv.clear();
@@ -134,20 +135,7 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int color_to
     return alpha;
 }
 
-int evaluation(Board &board) {
-    int mobility =     (int) board.gen_pseudo_legal_moves(WHITE).size()
-                     - (int) board.gen_pseudo_legal_moves(BLACK).size();
-
-    //std::cout << "mobility: " << mobility << std::endl;
-
-    int material = board.material(WHITE) - board.material(BLACK);
-
-    //std::cout << "material: " << material << std::endl;
-
-    return mobility + material;
-}
-
-std::optional<Ply> iterative_deepening(Board &board, int color_to_move) {
+std::optional<Ply> iterative_deepening(Board &board) {
     std::optional<Ply> best_move = std::nullopt;
 
     SearchState ss{};
@@ -155,7 +143,7 @@ std::optional<Ply> iterative_deepening(Board &board, int color_to_move) {
 
     for (int depth = 0; depth < 10; depth++){
 
-        int score = alpha_beta(board, ss, principal_variation, color_to_move, MIN, MAX, depth);
+        int score = alpha_beta(board, ss, principal_variation, MIN, MAX, depth);
 
         std::cout << "info score cp " << score << " depth " << depth << " principal_variation ";
         for (auto m : principal_variation) std::cout << m << " ";

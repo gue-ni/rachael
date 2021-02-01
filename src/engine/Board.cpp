@@ -12,6 +12,7 @@
 Board::Board(bool draw_color) : draw_color(draw_color) {
     w_material = 0;
     b_material = 0;
+    color_to_move = WHITE;
     calculate_material();
 }
 
@@ -171,13 +172,6 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
     return strm;
 }
 
-/*
-Board::Board(const std::vector<int> &brd, bool draw_color): Board(draw_color) {
-    assert(brd.size() == 128);
-    for (unsigned int i = 0; i < brd.size(); i++) x88[i] = brd[i];
-}
-*/
-
 void Board::undo_move(Reversible ply) {
     color_to_move = -color_to_move;
     move_history.pop_back();
@@ -322,7 +316,6 @@ void Board::check_directions(std::vector<Ply> &moves, int from, int piece, const
 }
 
 std::vector<Ply> Board::gen_pseudo_legal_moves(int color) {
-
     std::vector<Ply> valid_moves;
 
     for (int sq : valid_squares){
@@ -334,6 +327,7 @@ std::vector<Ply> Board::gen_pseudo_legal_moves(int color) {
 }
 
 Board::Board(const std::string& fen, bool draw_color) : draw_color(draw_color) {
+    color_to_move = WHITE; // TODO
     set_board(fen);
 }
 

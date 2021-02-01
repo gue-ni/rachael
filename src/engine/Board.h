@@ -64,7 +64,7 @@ public:
     std::vector<Ply> move_history;
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
-    int color_to_move = WHITE;
+    int color_to_move;
 
     inline int  get_piece(int square) {
         return x88[square];

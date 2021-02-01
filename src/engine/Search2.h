@@ -24,17 +24,15 @@ struct SearchState {
     }
 };
 
-int evaluation(Board &board);
 
 void sort_moves(Board &board, std::vector<Ply> &moves);
 
 void thread_search(Board& board, int color_to_move, int depth, Ply &ply);
 
-std::optional<Ply> iterative_deepening(Board &board, int color_to_move);
+std::optional<Ply> iterative_deepening(Board &board);
 
-std::optional<Ply> search(Board &board, int color_to_move, int depth);
+std::optional<Ply> search(Board &board, int depth);
 
-int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv,
-               int color_to_move, int alpha, int beta, int depth);
+int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth);
 
 #endif //CHESS_ENGINE_CPP_SEARCH2_H
