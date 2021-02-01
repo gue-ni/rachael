@@ -9,24 +9,40 @@
 #define NAME "Rachael 1.0"
 
 std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+std::thread thrd;
+bool stop = false;
 Board board(DEFAULT_BOARD, true);
+
+void uci_stop(){
+    stop = true;
+    //std::cout << "stop thread " << stop << std::endl;
+    if (thrd.joinable()) {
+        thrd.join();
+    }
+}
 
 void uci_go(std::string input){
     std::string cmd;
     std::istringstream ss(input);
 
+    uci_stop();
+    stop = false;
+
     do {
         ss >> cmd;
+
         if (cmd == "infinite"){
+			Ply p;
+			int d = 99;
+            thrd = std::thread(iterative_deepening, std::ref(board), std::ref(p), d, std::ref(stop));
+            break;
 
         } else if (cmd == "depth"){
             ss >> cmd;
             int d = std::stoi(cmd);
-
             Ply p;
-            std::thread t1(iterative_deepening, std::ref(board), std::ref(p), d);
-            t1.join();
-            std::cout << "bestmove " << p << std::endl;
+            thrd = std::thread(iterative_deepening, std::ref(board), std::ref(p), d, std::ref(stop));
+            thrd.join();
         }
 
     } while (ss);
@@ -64,10 +80,6 @@ void uci_position(std::string input){
         }
     } while (ss);
     //std::cout << board << std::endl;
-}
-
-void uci_stop(){
-
 }
 
 bool startswith(std::string str, std::string prefix){

@@ -5,8 +5,8 @@
 #include "Evaluation.h"
 
 int evaluation_1(Board &board) {
-    int mobility =     (int) board.gen_pseudo_legal_moves(WHITE).size()
-                       - (int) board.gen_pseudo_legal_moves(BLACK).size();
+    int mobility =     (int) board.pseudo_legal_moves(WHITE).size()
+                       - (int) board.pseudo_legal_moves(BLACK).size();
 
     //std::cout << "mobility: " << mobility << std::endl;
 

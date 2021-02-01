@@ -6,7 +6,7 @@
 #include "Search.h"
 
 bool human_take_turn(Board &board, int color){
-    std::vector<Ply> possible_moves = board.gen_pseudo_legal_moves(color);
+    std::vector<Ply> possible_moves = board.pseudo_legal_moves(color);
 
     if (possible_moves.empty()){
         std::cout << (color == WHITE ? "white" : "black") << " checkmate" << std::endl;
@@ -67,14 +67,14 @@ int main(int argc, char **argv) {
         << " [-w white is human player]"
         << " [-b black is human player]"
         << " [-d search_depth]"
-        << " [-t number of turns]"
+        << " [-thrd number of turns]"
         << " [-c color output (0 or 1)]"
         << std::endl;
         exit(EXIT_FAILURE);
     }
 
     int opt;
-    while ((opt = getopt(argc, argv, "d:t:c:wb")) != -1){
+    while ((opt = getopt(argc, argv, "d:thrd:c:wb")) != -1){
         switch (opt){
             case 'd':
                 search_depth    = atoi(optarg);

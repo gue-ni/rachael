@@ -315,7 +315,7 @@ void Board::check_directions(std::vector<Ply> &moves, int from, int piece, const
 
 }
 
-std::vector<Ply> Board::gen_pseudo_legal_moves(int color) {
+std::vector<Ply> Board::pseudo_legal_moves(int color) {
     std::vector<Ply> valid_moves;
 
     for (int sq : valid_squares){

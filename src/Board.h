@@ -62,7 +62,7 @@ public:
 
     Board(const std::string& fen, bool draw_color);
 
-    std::vector<Ply> gen_pseudo_legal_moves(int color);
+    std::vector<Ply> pseudo_legal_moves(int color);
 
     Reversible make_move(Ply ply);
 

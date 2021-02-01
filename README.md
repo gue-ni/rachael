@@ -23,7 +23,7 @@ https://www.stmintz.com/ccc/index.php?id=141612
 white e2e3, found after 0.110870 seconds
 ```
 ```
-./engine -d 3 -t 4
+./engine -d 3 -thrd 4
 e2e3 e7e5 d1h5 d8f6 f1b5 a7a6 b5d3 g7g6
 ```
 

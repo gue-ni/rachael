@@ -37,13 +37,11 @@ struct SearchState {
     }
 };
 
-void thread_search(Board &board, int depth, Ply &ply);
-
-void iterative_deepening(Board &board, Ply &best_move, int max_depth);
+void iterative_deepening(Board &board, Ply &best_move, int max_depth, bool &stop);
 
 std::optional<Ply> search(Board &board, int depth);
 
-int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth);
+int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth, bool &stop);
 
 int quiesence(int alpha, int beta);
 

@@ -1,10 +1,12 @@
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #include "../src/Board.h"
 #include "../src/Search.h"
 #include "util.h"
 
+std::thread thrd;
 
 int main(){
 
@@ -14,7 +16,9 @@ int main(){
     clock_t tic, toc;
     Ply move;
     tic = clock();
-    iterative_deepening(board, move, 7);
+    bool stop = false;
+    thrd = std::thread(iterative_deepening, std::ref(board), std::ref(move), 7, std::ref(stop));
+    //thrd.join();
     toc = clock();
     std::cout << move << " " << dt(tic, toc) << std::endl;
 
