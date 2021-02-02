@@ -8,7 +8,7 @@
 #define MIN -999
 #define MAX  999
 
-# define NOW std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()
+# define NOW_MILLI std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count()
 
 #include <optional>
 #include "Board.h"
@@ -26,12 +26,15 @@
  * TODO implement hash table for good moves
  */
 
-struct SearchState {
-    int w_history_heuristic[128][128];
-    int b_history_heuristic[128][128];
+struct SearchInfo {
+    int w_history_heuristic[128][128]{};
+    int b_history_heuristic[128][128]{};
 
-    uint64_t start_time;
+    uint64_t start_time = 0;
+    uint64_t stop_time  = 0;
     int nodes = 0;
+    int depth = 99;
+    bool stop = false, time_limit = true;
 
     inline void history_heuristic(int color, int from, int to, int val){
         if (color == WHITE){
@@ -42,11 +45,11 @@ struct SearchState {
     }
 };
 
-void iterative_deepening(Board &board, Ply &best_move,  SearchState &ss, int max_depth, bool &stop);
+void iterative_deepening(Board &board, SearchInfo &info);
 
 std::optional<Ply> search(Board &board, int depth);
 
-int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth, bool &stop);
+int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int alpha, int beta, int depth);
 
 int quiesence(int alpha, int beta);
 

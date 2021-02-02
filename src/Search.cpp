@@ -1,10 +1,11 @@
 
 #include <iostream>
-#include <chrono>
+
 #include "Search.h"
 #include "Evaluation.h"
+#include "Util.h"
 
-void sort_moves(Board &board, SearchState &ss, std::vector<Ply> &moves) {
+void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
     if (moves.empty()) return;
 
     // https://www.chessprogramming.org/Move_Ordering
@@ -57,7 +58,7 @@ std::optional<Ply> search(Board &board, int depth) {
         best_move = moves.front();
     }
 
-    SearchState ss{};
+    SearchInfo ss{};
     std::vector<Ply> pv, l_pv;
 
     sort_moves(board, ss,moves);
@@ -69,8 +70,7 @@ std::optional<Ply> search(Board &board, int depth) {
         }
 
         Reversible r = board.make_move(move);
-        bool stop = false;
-        score = -alpha_beta(board, ss, l_pv, MIN, MAX, depth, stop);
+        score = -alpha_beta(board, ss, l_pv, MIN, MAX, depth);
         board.undo_move(r);
 
         if (score > best_score) {
@@ -89,8 +89,8 @@ std::optional<Ply> search(Board &board, int depth) {
     return best_move;
 }
 
-int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, int beta, int depth, bool &stop) {
-    ss.nodes++;
+int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int alpha, int beta, int depth) {
+    info.nodes++;
 
     if (depth == 0) {
         pv.clear();
@@ -100,23 +100,24 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, i
     std::vector<Ply> l_pv;
     std::vector<Ply> moves = board.pseudo_legal_moves(board.color_to_move);
 
-    sort_moves(board, ss,moves);
+    sort_moves(board, info, moves);
 
     int score;
     for (Ply move : moves){
-        if (stop) return 0;
+
+        if (info.stop || (info.time_limit && get_time() > info.stop_time)) return 0;
 
         if (abs(board.get_piece(move.to)) == 1){
             return MAX+depth;
         }
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, ss, l_pv, -beta, -alpha, depth-1, stop);
+        score = -alpha_beta(board, info, l_pv, -beta, -alpha, depth - 1);
         board.undo_move(r);
 
         if (score >= beta){ // beta cutoff
             if (board.get_piece(move.to) == 0){
-                ss.history_heuristic(board.color_to_move, move.from, move.to, depth * depth);
+                info.history_heuristic(board.color_to_move, move.from, move.to, depth * depth);
             }
             return beta;
         }
@@ -131,23 +132,24 @@ int alpha_beta(Board &board, SearchState &ss, std::vector<Ply> &pv, int alpha, i
     return alpha;
 }
 
-void iterative_deepening(Board &board, Ply &best_move, SearchState &ss, int max_depth, bool &stop) {
-    //SearchState ss{};
+void iterative_deepening(Board &board, SearchInfo &info) {
     std::vector<Ply> principal_variation;
 	Ply current_best_move;
+	Ply best_move;
 
-    for (int depth = 1; depth <= max_depth; depth++){
+    for (int depth = 1; depth <= info.depth; depth++){
 		best_move = current_best_move;
 
-        int score = alpha_beta(board, ss, principal_variation, MIN, MAX, depth, stop);
+        int score = alpha_beta(board, info, principal_variation, MIN, MAX, depth);
 
-        if (stop)
+        if (info.stop  || (info.time_limit && get_time() > info.stop_time))
             break;
 
+
         std::cout << "info score cp " << score
-        << " depth " << depth
-        << " nodes " << ss.nodes
-        << " time " << NOW - ss.start_time
+                  << " depth " << depth
+                  << " nodes " << info.nodes
+                  << " time " << get_time() - info.start_time
         << " pv ";
         for (auto m : principal_variation) std::cout << m << " ";
         std::cout << std::endl;

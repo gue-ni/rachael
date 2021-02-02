@@ -4,58 +4,60 @@
 #include <thread>
 #include "Board.h"
 #include "Search.h"
+#include "Util.h"
 
 #define AUTHOR "Jakob Maier"
 #define NAME "Rachael 1.0"
 
 std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 std::thread thrd;
-bool stop = false;
-SearchState searchState;
+SearchInfo info;
 Board board(DEFAULT_BOARD, true);
 
-uint64_t get_time(){
-    return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-
-}
-
 void uci_stop(){
-    stop = true;
+    info.stop = true;
     if (thrd.joinable()) {
         thrd.join();
     }
 }
 
-void uci_go(std::string input){
+void uci_go(const std::string& input){
     std::string cmd;
     std::istringstream ss(input);
 
     uci_stop();
-    stop = false;
 
-    do {
-        ss >> cmd;
+    uint64_t time = -1, inc = 0;
 
-        if (cmd == "infinite"){
-			Ply p;
-			int d = 99;
-			searchState.start_time = NOW;
-            thrd = std::thread(iterative_deepening, std::ref(board), std::ref(p), std::ref(searchState), d, std::ref(stop));
-            break;
+    info.depth = 99;
+    info.time_limit = false;
+    info.stop = false;
 
-        } else if (cmd == "depth"){
-            ss >> cmd;
-            int d = std::stoi(cmd);
-            Ply p;
-            searchState.start_time = NOW;
-            thrd = std::thread(iterative_deepening, std::ref(board), std::ref(p), std::ref(searchState), d, std::ref(stop));
-            thrd.join();
+    while (ss >> cmd){
+        if (cmd == "depth") {
+            ss >> info.depth;
+        } else if (cmd == "infinite"){
+        } else if (cmd == "movetime"){ ss >> time;
+        } else if (cmd == "btime" && board.color_to_move == BLACK){ ss >> time;
+        } else if (cmd == "wtime" && board.color_to_move == WHITE){ ss >> time;
+        } else if (cmd == "binc"  && board.color_to_move == BLACK){ ss >> inc;
+        } else if (cmd == "winc"  && board.color_to_move == WHITE){ ss >> inc;
         }
+    }
 
-    } while (ss);
+    info.start_time = get_time();
+    info.stop_time = info.start_time + time + inc;
+
+    if (time != (uint64_t)-1){
+        info.time_limit = true;
+    }
+
+    //printf("start_time=%lu, stop_time=%lu, time=%lu\n", info.start_time, info.stop_time, info.stop_time - info.start_time);
+
+    thrd = std::thread(iterative_deepening, std::ref(board), std::ref(info));
 }
 
-void uci_position(std::string input){
+void uci_position(const std::string& input){
     std::string cmd;
     std::istringstream ss(input);
 
@@ -89,7 +91,7 @@ void uci_position(std::string input){
     std::cout << board << std::endl;
 }
 
-bool startswith(std::string str, std::string prefix){
+bool startswith(const std::string& str, const std::string& prefix){
     return str.rfind(prefix, 0) == 0;
 }
 

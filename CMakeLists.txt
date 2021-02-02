@@ -11,15 +11,16 @@ add_executable(engine src/cli.cpp
         src/Square.cpp src/Square.h
         src/Ply.cpp src/Ply.h
         src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h)
+        src/Evaluation.cpp src/Evaluation.h src/Util.cpp)
 
 add_executable(rachael src/uci.cpp
         src/Board.cpp src/Board.h
         src/Square.cpp src/Square.h
         src/Ply.cpp src/Ply.h
+        src/Util.h
         src/Reversible.cpp src/Reversible.h
         src/Search.cpp src/Search.h
-        src/Evaluation.cpp src/Evaluation.h)
+        src/Evaluation.cpp src/Evaluation.h src/Util.cpp)
 
 add_executable(unittest src/unittest.cpp
         src/Board.cpp src/Board.h
@@ -27,7 +28,7 @@ add_executable(unittest src/unittest.cpp
         src/Ply.cpp src/Ply.h
         src/Search.cpp src/Search.h
         src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h)
+        src/Evaluation.cpp src/Evaluation.h src/Util.cpp)
 
 add_executable(benchmark test/benchmark.cpp
         src/Board.cpp src/Board.h
@@ -35,5 +36,5 @@ add_executable(benchmark test/benchmark.cpp
         src/Ply.cpp src/Ply.h
         src/Search.cpp src/Search.h
         src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h)
+        src/Evaluation.cpp src/Evaluation.h src/Util.cpp)
 
