@@ -32,6 +32,7 @@ void uci_go(const std::string& input){
     info.depth = 99;
     info.time_limit = false;
     info.stop = false;
+	info.nodes = 0;
 
     while (ss >> cmd){
         if (cmd == "depth") {
@@ -46,7 +47,7 @@ void uci_go(const std::string& input){
     }
 
     info.start_time = get_time();
-    info.stop_time = info.start_time + time + inc;
+    info.stop_time  = info.start_time + time + inc;
 
     if (time != (uint64_t)-1){
         info.time_limit = true;
@@ -88,7 +89,7 @@ void uci_position(const std::string& input){
             } while (ss);
         }
     } while (ss);
-    std::cout << board << std::endl;
+    //std::cout << board << std::endl;
 }
 
 bool startswith(const std::string& str, const std::string& prefix){

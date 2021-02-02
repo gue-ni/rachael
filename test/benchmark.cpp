@@ -1,7 +1,7 @@
 #include <iostream>
 #include "../src/Search.h"
 #include "../src/Board.h"
-#include "util.h"
+#include "../src/Util.h"
 
 
 int main(){

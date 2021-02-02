@@ -10,7 +10,7 @@ lichess/
 lichess_bot/
 
 make_zip.sh
-engine.zip
+rachael.zip
 ps.txt
 web/README.md
 web/test.cpp
@@ -23,4 +23,5 @@ rachael
 obj/
 doc/
 GAMES.md
+BUGS.md
 unittest

@@ -17,7 +17,7 @@ int main(){
     tic = clock();
     SearchInfo info;
     info.stop = false;
-    info.depth = 6;
+    info.depth = 7;
     info.time_limit = false;
     info.start_time = get_time();
     thrd = std::thread(iterative_deepening, std::ref(board), std::ref(info));

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(chess_engine_cpp)
+project(rachael)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-O3 -pthread -Wall")
@@ -36,5 +36,6 @@ add_executable(benchmark test/benchmark.cpp
         src/Ply.cpp src/Ply.h
         src/Search.cpp src/Search.h
         src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h src/Util.cpp)
+        src/Evaluation.cpp src/Evaluation.h
+        src/Util.cpp src/Util.h)
 

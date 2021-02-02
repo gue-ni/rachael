@@ -1,10 +1,13 @@
-CC:=g++
+
 SRC_DIR := ./src
 OBJ_DIR := ./obj
 #SRC_FILES := $(wildcard $(SRC_DIR)/*.cpp)
 #OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
-LFLAGS:=-O3 -Wall -pthread
-CFLAGS:=-std=c++17 -O3 -g -Wall
+
+CC:=g++
+FLAGS:=-O3 -Wall
+LFLAGS:=$(FLAGS) -pthread
+CFLAGS:=$(FLAGS) -g -std=c++17
 
 RACHAEL_OBJ:= obj/uci.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
 UNITTEST_OBJ:= obj/unittest.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
