@@ -77,11 +77,24 @@ void Board::calculate_material() {
     }
 }
 
+// TODO fix this
 bool Board::is_threatened(int square, int color) {
+
+    // Knight
+    for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
+        int p = abs(x88[move.to]);
+        if (is_enemy(move.to, color) && p == 4) {
+            //std::cout << "threatening move=" << move << std::endl;
+            return true;
+        }
+    }
+
+
     // Rook or Queen
     for (Ply move : check_directions(square, color, {N, S, E, W}, 8)){
         int p = abs(x88[move.to]);
         if (is_enemy(move.to, color) && (p == 5 || p == 2)){
+            //std::cout << "threatening move=" << move << std::endl;
             return true;
         }
     }
@@ -89,19 +102,19 @@ bool Board::is_threatened(int square, int color) {
     // Bishop or Queen
     for (Ply move : check_directions(square, color, {NE, SE, SW, NW}, 8)){
         int p = abs(x88[move.to]);
-        if (is_enemy(move.to, color) && (p == 3 || p == 2)) return true;
-    }
-
-    // Knight
-    for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
-        int p = abs(x88[move.to]);
-        if (is_enemy(move.to, color) && (p == 4 || p == 2)) return true;
+        if (is_enemy(move.to, color) && (p == 3 || p == 2)) {
+            //std::cout << "threatening move=" << move << std::endl;
+            return true;
+        }
     }
 
     // King
     for (Ply move : check_directions(square, color, {NE, SE, SW, NW, N, S, E, W}, 1)){
         int p = abs(x88[move.to]);
-        if (is_enemy(move.to, color) && p == 1) return true;
+        if (is_enemy(move.to, color) && p == 1) {
+            //std::cout << "threatening move=" << move << std::endl;
+            return true;
+        }
     }
 
     // Pawn
@@ -112,6 +125,7 @@ bool Board::is_threatened(int square, int color) {
         if (is_enemy(square+SE, color) && abs(x88[square+SE]) == 6) return true;
         if (is_enemy(square+SW, color) && abs(x88[square+SW]) == 6) return true;
     }
+
     return false;
 }
 

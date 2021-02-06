@@ -21,6 +21,11 @@
  *
  */
 
+struct PV {
+    int c = 0;
+    Ply moves[99];
+};
+
 struct SearchInfo {
 
     SearchInfo(){
@@ -51,11 +56,12 @@ struct SearchInfo {
 class Search {
 public:
     static Ply iterative_deepening(Board &board, SearchInfo &info, int color);
+    static Ply search(Board &board, SearchInfo &info, PV *pv, int color, int depth);
 
 private:
     static void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves);
     static int quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color);
-    static int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth);
+    static int alpha_beta(Board &board, SearchInfo &info, PV *pv, int color, int alpha, int beta, int depth);
     static void check_stop(SearchInfo &info);
 };
 

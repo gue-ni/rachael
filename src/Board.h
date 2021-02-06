@@ -114,16 +114,23 @@ public:
                                         0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,
                                         0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,
                                         0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77 };
+    int b_king = 0;
+
+    std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
+
+    void legal_moves_square(std::vector<Ply> &legal_moves, int square);
+
 private:
     const char pieces[7]            = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
     const int material_value[7]     = { 0,   20000, 900,   330,   320,   500,   100 };
+    //const int material_value[7]     = { 0,   200, 9,   3,   3,   5,   1 };
 
     int w_material = 0, b_material = 0;
     bool draw_color = true;
 
     bool w_castle_k, w_castle_q;
     bool b_castle_q, b_castle_k;
-    int w_king = 0, b_king = 0;
+    int w_king = 0;
 
     void reverse_move(Ply ply, int killed);
 
@@ -131,11 +138,7 @@ private:
 
     void calculate_material();
 
-    void legal_moves_square(std::vector<Ply> &legal_moves, int square);
-
     void check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs, int max_steps);
-
-    std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
 
     inline bool is_enemy(int square, int piece) {
         return x88[square] == EMPTY_SQUARE ? false : get_color(x88[square]) != get_color(piece);

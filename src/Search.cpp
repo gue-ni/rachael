@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <cstring>
 
 #include "Search.h"
 #include "Evaluation.h"
@@ -7,7 +8,6 @@
 
 void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
     if (moves.empty()) return;
-
     // https://www.chessprogramming.org/Move_Ordering
 
     std::vector<int> move_val(moves.size());
@@ -19,12 +19,12 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
             int val = 16 * abs(board.get_piece(moves[i].to)) - abs(board.get_piece(moves[i].from));
             move_val[i] = val > 0 ? val : 0;
 
-        } else {
+        } /*else {
             // history_heuristic heuristic
-            move_val[i] = Board::get_color(board.get_piece(moves[i].from)) == WHITE
-                          ? ss.w_history_heuristic[moves[i].from][moves[i].to]
-                          : ss.b_history_heuristic[moves[i].from][moves[i].to];
-        }
+            //move_val[i] = Board::get_color(board.get_piece(moves[i].from)) == WHITE
+            //              ? ss.w_history_heuristic[moves[i].from][moves[i].to]
+            //              : ss.b_history_heuristic[moves[i].from][moves[i].to];
+        }*/
     }
 
     for (unsigned int i = 0; i < moves.size()-1; i++){
@@ -90,81 +90,126 @@ void Search::check_stop(SearchInfo &info){
     }
 }
 
-int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth) {
-
+int Search::alpha_beta(Board &board, SearchInfo &info, PV *pv, int color, int alpha, int beta, int depth) {
     info.nodes++;
     assert(color == board.color_to_move); // just testing
 
     if (depth == 0) {
-        pv.clear();
+        pv->c = 0;
         return color * Evaluation::simplified_evaluation_function(board);
     }
 
-    std::vector<Ply> l_pv;
     std::vector<Ply> moves = board.pseudo_legal_moves(color);
-
     sort_moves(board, info, moves);
+    PV lpv;
+
 
     int score, legal_moves = 0;
+
     for (Ply move : moves){
         if (!board.is_legal_move(move)) continue;
+        lpv.c = 0;
 
         legal_moves++;
 
         if (info.nodes % 2048) check_stop(info);
-
-        if (info.stop) return 0;
+        
+		if (info.stop) return 0;
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, info, l_pv, -color, -beta, -alpha, depth-1);
+        score = -alpha_beta(board, info, &lpv, -color, -beta, -alpha, depth-1);
         board.undo_move(r);
 
+        if (score == MAX+1000)
+            std::cout << "stp" << std::endl;
+
         if (score >= beta){ // beta cutoff
-            if (board.get_piece(move.to) == 0){
-                info.history_heuristic(color, move.from, move.to, depth * depth);
-            }
+            /*if (board.get_piece(move.to) == 0){
+                info.history_heuristic(color, move.from, move.to, depth*depth);
+            }*/
             return beta;
         }
 
         if (score > alpha){
             alpha = score;
-            pv.clear();
-            pv.push_back(move);
-            pv.insert(pv.end(), l_pv.begin(), l_pv.end());
+
+            pv->moves[0] = move;
+            memcpy(pv->moves + 1, lpv.moves, lpv.c * sizeof(Ply));
+            pv->c = lpv.c + 1;
         }
     }
 
     if (legal_moves == 0){
         if (board.is_checked(color)){
-            return MIN+100;
+            return MIN+1000;
+        } else {
+            return 0; // stalemate
         }
     }
     return alpha;
 }
 
 Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
-    std::vector<Ply> principal_variation;
+    //std::vector<Ply> principal_variation;
+
 	Ply current_best_move, best_move;
 
-    for (int depth = 1; depth <= info.depth; depth++){
+    for (int depth = 2; depth <= info.depth; depth++){
 
-        int score = alpha_beta(board, info, principal_variation, color, MIN, MAX, depth);
+        PV pv;
+        int score = alpha_beta(board, info, &pv, color, MIN, MAX, depth);
+        //best_move = search(board, info, principal_variation, color, depth);
 
         if (info.stop) break;
 
         std::cout
-        << "info score cp " << score
+        << "info"
+        << " score cp " << score
         << " depth " << depth
         << " nodes " << info.nodes
         << " time " << get_time() - info.start_time
         << " pv ";
-        for (auto m : principal_variation) std::cout << m << " ";
+        //for (auto m : principal_variation) std::cout << m << " ";
+        for (int i = 0; i < pv.c; i++) std::cout << pv.moves[i] << " ";
         std::cout << std::endl;
 
-        assert(!principal_variation.empty());
-		if (!principal_variation.empty()) current_best_move = principal_variation[0];
+        //assert(!principal_variation.empty());
+		//if (!principal_variation.empty()) current_best_move = principal_variation[0];
+
+		if (pv.c > 0) current_best_move = pv.moves[0];
     }
 	best_move = current_best_move;
     std::cout << "bestmove " << best_move << std::endl;
+    return best_move;
+}
+
+Ply Search::search(Board &board, SearchInfo &info, PV *pv, int color, int depth) {
+    Ply best_move;
+    info.nodes++;
+
+    std::vector<Ply> moves = board.pseudo_legal_moves(color);
+    sort_moves(board, info, moves);
+
+    int best_score = MIN;
+    PV lpv;
+
+    for (Ply move : moves){
+
+        Reversible r = board.make_move(move);
+        int score = -alpha_beta(board, info, &lpv, -color, MIN, MAX, depth);
+        board.undo_move(r);
+
+        std::cout << move << " " << score << std::endl;
+
+        if (score > best_score){
+            best_score = score;
+            best_move = move;
+
+            pv->moves[0] = move;
+            memcpy(pv->moves + 1, lpv.moves, lpv.c * sizeof(Ply));
+            pv->c = lpv.c + 1;
+        }
+    }
+
     return best_move;
 }
