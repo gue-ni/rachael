@@ -5,7 +5,7 @@
 #include "Evaluation.h"
 #include "Util.h"
 
-void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
+void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
     if (moves.empty()) return;
 
     // https://www.chessprogramming.org/Move_Ordering
@@ -48,7 +48,8 @@ void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
     }
 }
 
-std::optional<Ply> search(Board &board, int depth) {
+/*
+std::optional<Ply> search(Board &board, int depth, int color) {
     int score       = 0;
     int best_score  = MIN;
 
@@ -70,7 +71,7 @@ std::optional<Ply> search(Board &board, int depth) {
         }
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, ss, l_pv, MIN, MAX, depth);
+        score = -alpha_beta(board, ss, l_pv, -color, MIN, MAX, depth);
         board.undo_move(r);
 
         if (score > best_score) {
@@ -88,36 +89,83 @@ std::optional<Ply> search(Board &board, int depth) {
 
     return best_move;
 }
+*/
 
-int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int alpha, int beta, int depth) {
-    info.nodes++;
+int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color){
+    int stand_pat = color * Evaluation::evaluation_1(board);
 
-    if (depth == 0) {
-        pv.clear();
-        return board.color_to_move * evaluation_1(board);
+    if (stand_pat >= beta){
+        return beta;
     }
 
-    std::vector<Ply> l_pv;
-    std::vector<Ply> moves = board.pseudo_legal_moves(board.color_to_move);
+    if (alpha < stand_pat){
+        alpha = stand_pat;
+    }
 
-    sort_moves(board, info, moves);
+    std::vector<Ply> moves = board.pseudo_legal_moves(color);
 
-    int score;
     for (Ply move : moves){
+        if (!board.is_legal_move(move))
+            continue;
 
-        if (info.stop || (info.time_limit && get_time() > info.stop_time)) return 0;
-
-        if (abs(board.get_piece(move.to)) == 1){
-            return MAX+depth;
+        if (info.stop || (info.time_limit && get_time() > info.stop_time)) {
+            return 0;
         }
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, info, l_pv, -beta, -alpha, depth - 1);
+        int score = -quiesence(board, info, -beta, -alpha, -color);
+        board.undo_move(r);
+
+        if (score >= beta){
+            return beta;
+        }
+
+        if (score > alpha){
+            alpha = score;
+        }
+    }
+    return alpha;
+}
+
+void Search::check_stop(SearchInfo &info){
+    if (info.time_limit && get_time() > info.stop_time){
+        info.stop = true;
+    }
+}
+
+int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth) {
+    info.nodes++;
+
+    assert(color == board.color_to_move);
+
+    if (depth == 0) {
+        pv.clear();
+        return color * Evaluation::evaluation_1(board);
+        //return quiesence(board, info, alpha, beta, color);
+    }
+
+    std::vector<Ply> l_pv;
+    std::vector<Ply> moves = board.pseudo_legal_moves(color);
+
+    sort_moves(board, info, moves);
+
+    int score, legal_moves = 0;
+    for (Ply move : moves){
+        if (!board.is_legal_move(move)) continue;
+
+        legal_moves++;
+
+        if (info.nodes % 2048) check_stop(info);
+
+        if (info.stop) return 0;
+
+        Reversible r = board.make_move(move);
+        score = -alpha_beta(board, info, l_pv, -color, -beta, -alpha, depth-1);
         board.undo_move(r);
 
         if (score >= beta){ // beta cutoff
             if (board.get_piece(move.to) == 0){
-                info.history_heuristic(board.color_to_move, move.from, move.to, depth * depth);
+                info.history_heuristic(color, move.from, move.to, depth * depth);
             }
             return beta;
         }
@@ -129,51 +177,40 @@ int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int alpha, 
             pv.insert(pv.end(), l_pv.begin(), l_pv.end());
         }
     }
+
+    if (legal_moves == 0){
+        if (board.is_checked(color)){
+            return MIN+100;
+        }
+    }
     return alpha;
 }
 
-void iterative_deepening(Board &board, SearchInfo &info) {
+void Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
     std::vector<Ply> principal_variation;
-	Ply current_best_move;
-	Ply best_move;
+	Ply current_best_move, best_move;
 
     for (int depth = 1; depth <= info.depth; depth++){
-		best_move = current_best_move;
 
-        int score = alpha_beta(board, info, principal_variation, MIN, MAX, depth);
+        int score = alpha_beta(board, info, principal_variation, color, MIN, MAX, depth);
 
-        if (info.stop  || (info.time_limit && get_time() > info.stop_time))
-            break;
+        if (info.stop) break;
 
-
-        std::cout << "info score cp " << score
-                  << " depth " << depth
-                  << " nodes " << info.nodes
-                  << " time " << get_time() - info.start_time
+        std::cout
+        << "info score cp " << score
+        << " depth " << depth
+        << " nodes " << info.nodes
+        << " time " << get_time() - info.start_time
         << " pv ";
         for (auto m : principal_variation) std::cout << m << " ";
         std::cout << std::endl;
 
-		if (!principal_variation.empty())
-	        current_best_move = principal_variation[0];
+		if (!principal_variation.empty()) current_best_move = principal_variation[0];
     }
 	best_move = current_best_move;
     std::cout << "bestmove " << best_move << std::endl;
 }
 
-int quiesence(int alpha, int beta){
-    return 0;
-}
 
-void test(int d, int b){
 
-    if (d == 0){
-        return;
-    }
-
-    for (int i = 0; i < b; i++){
-        std::cout << "d=" << d << ", i=" << i << std::endl;
-        test(d-1, b);
-    }
-}
 

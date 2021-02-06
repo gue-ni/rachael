@@ -55,7 +55,7 @@ void uci_go(const std::string& input){
 
     //printf("start_time=%lu, stop_time=%lu, time=%lu\n", info.start_time, info.stop_time, info.stop_time - info.start_time);
 
-    thrd = std::thread(iterative_deepening, std::ref(board), std::ref(info));
+    thrd = std::thread(Search::iterative_deepening, std::ref(board), std::ref(info), board.color_to_move);
 }
 
 void uci_position(const std::string& input){
@@ -71,19 +71,16 @@ void uci_position(const std::string& input){
                 ss >> cmd;
                 fen += (cmd + " ");
             }
-            //std::cout << "fen: " << fen << std::endl;
             board.set_board(fen);
 
         } else if (cmd == "startpos"){
             board.set_board(startpos);
 
         } else if (cmd == "moves"){
-            //board.set_board(startpos);
             do {
                 std::string move;
                 ss >> move;
                 if (!move.empty()){
-                    //std::cout << "make move " << move << std::endl;
                     board.make_move(Ply(move));
                 }
             } while (ss);

@@ -18,6 +18,10 @@ struct Square {
 
     friend std::ostream& operator<<(std::ostream&, const Square&);
     friend bool operator==(const Square& sq1, const Square& sq2);
+
+    static int sq8x8(int x88);
+    static int sq0x88(int sq8x8);
+    static bool off_the_board(int sq);
 };
 
 

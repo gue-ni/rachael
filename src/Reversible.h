@@ -12,15 +12,8 @@ class Reversible : public Ply {
 public:
     int killed_piece = 0;
 
-    // previous state
-    /*
-    bool w_king_moved       = false;
-    bool w_l_rook_moved     = false;
-    bool w_r_rook_moved     = false;
-    bool b_king_moved       = false;
-    bool b_l_rook_moved     = false;
-    bool b_r_rook_moved     = false;
-    */
+    bool w_castle_k = false, w_castle_q = false;
+    bool b_castle_q = false, b_castle_k = false;
 
     Reversible(Ply ply, int killed);
     explicit Reversible(Ply ply);

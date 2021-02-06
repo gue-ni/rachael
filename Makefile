@@ -5,29 +5,33 @@ OBJ_DIR := ./obj
 #OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 CC:=g++
-FLAGS:=-O3 -Wall
+FLAGS:=-O3 -Wall -pedantic
 LFLAGS:=$(FLAGS) -pthread
-CFLAGS:=$(FLAGS) -g -std=c++17
+CFLAGS:=$(FLAGS) -std=c++11
 
-RACHAEL_OBJ:= obj/uci.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
-UNITTEST_OBJ:= obj/unittest.o obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
+OBJ:=obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
+RACHAEL_OBJ:= obj/uci.o $(OBJ)
+UNITTEST_OBJ:= obj/unittest.o $(OBJ)
 
+.PHONY: clean all 
 
-.PHONY: clean all
+all: rachael unittest zip
 
-all: rachael unittest
+zip:
+	zip -q rachael.zip Makefile src/*
 
 rachael: $(RACHAEL_OBJ)
 	$(CC) $(LFLAGS) -o $@ $^
+	cp rachael lichess/lichess-bot/engines/
 
 unittest: $(UNITTEST_OBJ)
 	$(CC) $(LFLAGS) -o $@ $^
-
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(OBJ_DIR)
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 clean:
-	rm -f $(OBJ_DIR)/*.o rachael unittest
+	rm -f $(OBJ_DIR)/*.o rachael unittest rachael.zip
+
 

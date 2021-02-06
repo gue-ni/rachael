@@ -28,13 +28,16 @@
 #define WNW  14
 #define NNW  31
 
-#define EMPTY   0
+#define EMPTY_SQUARE   0
 #define KING    1
 #define QUEEN   2
 #define BISHOP  3
 #define KNIGHT  4
 #define ROOK    5
 #define PAWN    6
+
+#define CASTLING
+//#define PROMOTION
 
 #define RUY_LOPEZ \
 "r1bqk1nr/pppp1ppp/2n5/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
@@ -59,43 +62,40 @@
 class Board {
 public:
     explicit Board(bool draw_color);
-
     Board(const std::string& fen, bool draw_color);
+
+    int color_to_move;
+    int ply_count;
 
     std::vector<Ply> pseudo_legal_moves(int color);
 
     Reversible make_move(Ply ply);
-
-    void undo_move(Reversible ply);
+    void undo_move(Reversible reversible);
 
     int  material(int color);
 
     void set_board(const std::string &fen);
 
-    std::vector<Ply> move_history;
+    bool is_legal_move(Ply ply);
 
-    friend std::ostream& operator<<(std::ostream&, const Board&);
-
-    int color_to_move;
+    bool is_checked(int color);
 
     inline int  get_piece(int square) {
         return x88[square];
     }
 
     inline bool is_empty(int square){
-        return x88[square] == EMPTY;
+        return x88[square] == EMPTY_SQUARE;
     }
 
     static inline int get_color(int piece) {
-        assert(piece != EMPTY);
+        assert(piece != EMPTY_SQUARE);
         return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
     }
 
-protected:
-    friend class Search;
+    friend std::ostream& operator<<(std::ostream&, const Board&);
 
-    const char pieces[7]            = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
-    const int material_value[7]     = { 0,   200, 9,   5,   3,   3,   1 };
+    bool is_threatened(int square, int color);
 
     int x88[128]                    = { 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
@@ -105,7 +105,6 @@ protected:
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99 };
-
     std::vector<int> valid_squares = {  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
                                         0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
                                         0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,
@@ -114,11 +113,18 @@ protected:
                                         0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,
                                         0x60,0x61,0x62,0x63,0x64,0x65,0x66,0x67,
                                         0x70,0x71,0x72,0x73,0x74,0x75,0x76,0x77  };
+private:
+    const char pieces[7]            = {'.', 'K', 'Q', 'B', 'N', 'R', 'p'};
+    const int material_value[7]     = { 0,   200, 9,   5,   3,   3,   1 };
 
     int w_material = 0, b_material = 0;
     bool draw_color = true;
 
-    void reverse_move(Ply ply, int killed_piece);
+    bool w_castle_k, w_castle_q;
+    bool b_castle_q, b_castle_k;
+    int w_king = 0, b_king = 0;
+
+    void reverse_move(Ply ply, int killed);
 
     int  execute_move(Ply ply);
 
@@ -130,14 +136,12 @@ protected:
 
     std::vector<Ply> check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps);
 
-    bool is_threatened(int square, int color);
-
     inline bool is_enemy(int square, int piece) {
-        return x88[square] == EMPTY ? false : get_color(x88[square]) != get_color(piece);
+        return x88[square] == EMPTY_SQUARE ? false : get_color(x88[square]) != get_color(piece);
     }
 
     inline bool is_friendly(int square, int piece) {
-        return x88[square] == EMPTY ? false : get_color(x88[square]) == get_color(piece);
+        return x88[square] == EMPTY_SQUARE ? false : get_color(x88[square]) == get_color(piece);
     }
 
     inline void set_piece(int square, int piece) {
