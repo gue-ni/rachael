@@ -90,25 +90,25 @@ void Search::check_stop(SearchInfo &info){
     }
 }
 
-int Search::alpha_beta(Board &board, SearchInfo &info, PV *pv, int color, int alpha, int beta, int depth) {
+int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth) {
     info.nodes++;
     assert(color == board.color_to_move); // just testing
 
     if (depth == 0) {
-        pv->c = 0;
+        pv.clear();
         return color * Evaluation::simplified_evaluation_function(board);
     }
 
     std::vector<Ply> moves = board.pseudo_legal_moves(color);
     sort_moves(board, info, moves);
-    PV lpv;
+    std::vector<Ply> lpv;
 
 
     int score, legal_moves = 0;
 
     for (Ply move : moves){
         if (!board.is_legal_move(move)) continue;
-        lpv.c = 0;
+        lpv.clear();
 
         legal_moves++;
 
@@ -117,7 +117,7 @@ int Search::alpha_beta(Board &board, SearchInfo &info, PV *pv, int color, int al
 		if (info.stop) return 0;
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, info, &lpv, -color, -beta, -alpha, depth-1);
+        score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
         board.undo_move(r);
 
         if (score == MAX+1000)
@@ -133,9 +133,9 @@ int Search::alpha_beta(Board &board, SearchInfo &info, PV *pv, int color, int al
         if (score > alpha){
             alpha = score;
 
-            pv->moves[0] = move;
-            memcpy(pv->moves + 1, lpv.moves, lpv.c * sizeof(Ply));
-            pv->c = lpv.c + 1;
+            pv.clear();
+            pv.push_back(move);
+            pv.insert(pv.end(), lpv.begin(), lpv.end());
         }
     }
 
@@ -150,14 +150,12 @@ int Search::alpha_beta(Board &board, SearchInfo &info, PV *pv, int color, int al
 }
 
 Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
-    //std::vector<Ply> principal_variation;
-
 	Ply current_best_move, best_move;
 
     for (int depth = 2; depth <= info.depth; depth++){
+        std::vector<Ply> pv;
 
-        PV pv;
-        int score = alpha_beta(board, info, &pv, color, MIN, MAX, depth);
+        int score = alpha_beta(board, info, pv, color, MIN, MAX, depth);
         //best_move = search(board, info, principal_variation, color, depth);
 
         if (info.stop) break;
@@ -169,21 +167,17 @@ Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
         << " nodes " << info.nodes
         << " time " << get_time() - info.start_time
         << " pv ";
-        //for (auto m : principal_variation) std::cout << m << " ";
-        for (int i = 0; i < pv.c; i++) std::cout << pv.moves[i] << " ";
+        for (auto m : pv) std::cout << m << " ";
         std::cout << std::endl;
 
-        //assert(!principal_variation.empty());
-		//if (!principal_variation.empty()) current_best_move = principal_variation[0];
-
-		if (pv.c > 0) current_best_move = pv.moves[0];
+		if (!pv.empty()) current_best_move = pv[0];
     }
 	best_move = current_best_move;
     std::cout << "bestmove " << best_move << std::endl;
     return best_move;
 }
 
-Ply Search::search(Board &board, SearchInfo &info, PV *pv, int color, int depth) {
+Ply Search::search(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int depth) {
     Ply best_move;
     info.nodes++;
 
@@ -191,12 +185,12 @@ Ply Search::search(Board &board, SearchInfo &info, PV *pv, int color, int depth)
     sort_moves(board, info, moves);
 
     int best_score = MIN;
-    PV lpv;
+    std::vector<Ply> lpv;
 
     for (Ply move : moves){
 
         Reversible r = board.make_move(move);
-        int score = -alpha_beta(board, info, &lpv, -color, MIN, MAX, depth);
+        int score = -alpha_beta(board, info, lpv, -color, MIN, MAX, depth);
         board.undo_move(r);
 
         std::cout << move << " " << score << std::endl;
@@ -205,9 +199,9 @@ Ply Search::search(Board &board, SearchInfo &info, PV *pv, int color, int depth)
             best_score = score;
             best_move = move;
 
-            pv->moves[0] = move;
-            memcpy(pv->moves + 1, lpv.moves, lpv.c * sizeof(Ply));
-            pv->c = lpv.c + 1;
+            pv.clear();
+            pv.push_back(move);
+            pv.insert(pv.end(), lpv.begin(), lpv.end());
         }
     }
 
