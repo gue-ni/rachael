@@ -48,51 +48,8 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
     }
 }
 
-/*
-std::optional<Ply> search(Board &board, int depth, int color) {
-    int score       = 0;
-    int best_score  = MIN;
-
-    std::optional<Ply> best_move = std::nullopt;
-    std::vector<Ply> moves = board.pseudo_legal_moves(board.color_to_move);
-    if (!moves.empty()){
-        best_move = moves.front();
-    }
-
-    SearchInfo ss{};
-    std::vector<Ply> pv, l_pv;
-
-    sort_moves(board, ss,moves);
-
-    for (Ply move : moves) {
-
-        if (abs(board.get_piece(move.to)) == 1){ // can capture enemy king
-            return move;
-        }
-
-        Reversible r = board.make_move(move);
-        score = -alpha_beta(board, ss, l_pv, -color, MIN, MAX, depth);
-        board.undo_move(r);
-
-        if (score > best_score) {
-            best_score  = score;
-            best_move   = move;
-
-            pv.clear();
-            pv.push_back(move);
-            pv.insert(pv.end(), l_pv.begin(), l_pv.end());
-        }
-    }
-
-    for (auto p : l_pv) std::cout << p << " ";
-    std::cout << std::endl;
-
-    return best_move;
-}
-*/
-
 int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color){
-    int stand_pat = color * Evaluation::evaluation_function(board);
+    int stand_pat = color * Evaluation::basic_evaluation_function(board);
 
     if (stand_pat >= beta){
         return beta;
@@ -134,14 +91,13 @@ void Search::check_stop(SearchInfo &info){
 }
 
 int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth) {
-    info.nodes++;
 
-    assert(color == board.color_to_move);
+    info.nodes++;
+    assert(color == board.color_to_move); // just testing
 
     if (depth == 0) {
         pv.clear();
         return color * Evaluation::simplified_evaluation_function(board);
-        //return quiesence(board, info, alpha, beta, color);
     }
 
     std::vector<Ply> l_pv;
@@ -186,7 +142,7 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int
     return alpha;
 }
 
-void Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
+Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
     std::vector<Ply> principal_variation;
 	Ply current_best_move, best_move;
 
@@ -205,12 +161,10 @@ void Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
         for (auto m : principal_variation) std::cout << m << " ";
         std::cout << std::endl;
 
+        assert(!principal_variation.empty());
 		if (!principal_variation.empty()) current_best_move = principal_variation[0];
     }
 	best_move = current_best_move;
     std::cout << "bestmove " << best_move << std::endl;
+    return best_move;
 }
-
-
-
-

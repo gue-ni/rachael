@@ -5,8 +5,8 @@
 #ifndef CHESS_ENGINE_CPP_SEARCH_H
 #define CHESS_ENGINE_CPP_SEARCH_H
 
-#define MIN -999
-#define MAX  999
+#define MIN -99999
+#define MAX  99999
 
 #include <optional>
 #include "Board.h"
@@ -19,16 +19,13 @@
  * https://www.chessprogramming.org/Transposition_Table
  * https://stackoverflow.com/questions/9964496/alpha-beta-move-ordering
  *
- * TODO implment move ordering
- * 16*victimValue - attacherValue
- *
- * TODO implement hash table for good moves
  */
 
 struct SearchInfo {
 
     SearchInfo(){
         start_time = get_time();
+        stop_time = 0;
         depth = 99;
         nodes = 0;
         stop = false;
@@ -38,10 +35,9 @@ struct SearchInfo {
     int w_history_heuristic[128][128]{};
     int b_history_heuristic[128][128]{};
 
-    uint64_t start_time = 0;
-    uint64_t stop_time  = 0;
+    uint64_t start_time, stop_time;
     int nodes, depth;
-    bool stop = false, time_limit = true;
+    bool stop, time_limit;
 
     inline void history_heuristic(int color, int from, int to, int val){
         if (color == WHITE){
@@ -54,10 +50,7 @@ struct SearchInfo {
 
 class Search {
 public:
-    static void iterative_deepening(Board &board, SearchInfo &info, int color);
-    /*
-    std::optional<Ply> search(Board &board, int depth, int color);
-    */
+    static Ply iterative_deepening(Board &board, SearchInfo &info, int color);
 
 private:
     static void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves);

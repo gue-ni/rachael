@@ -5,11 +5,12 @@ OBJ_DIR := ./obj
 #OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 CC:=g++
-FLAGS:=-O3 -Wall -pedantic
+FLAGS:=-O3 -Wall -Wextra -pedantic
 LFLAGS:=$(FLAGS) -pthread
 CFLAGS:=$(FLAGS) -std=c++11
 
 OBJ:=obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
+
 RACHAEL_OBJ:= obj/uci.o $(OBJ)
 UNITTEST_OBJ:= obj/unittest.o $(OBJ)
 

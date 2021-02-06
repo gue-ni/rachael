@@ -70,17 +70,24 @@ const int king_table[64] = {
         20, 30, 10,  0,  0, 10, 30, 20
 };
 
-int Evaluation::evaluation_function(Board &board) {
-    int mobility =     (int) board.pseudo_legal_moves(WHITE).size()
-                       - (int) board.pseudo_legal_moves(BLACK).size();
+int Evaluation::basic_evaluation_function(Board &board) {
+    // TODO does not account for actually legal moves, only pseudo legal moves
+    int mobility = (int) board.pseudo_legal_moves(WHITE).size() - (int) board.pseudo_legal_moves(BLACK).size();
+
+    int material = board.material(WHITE) - board.material(BLACK);
 
     //std::cout << "mobility: " << mobility << std::endl;
-    int material = board.material(WHITE) - board.material(BLACK);
     //std::cout << "material: " << material << std::endl;
     return mobility + material;
 }
 
-int Evaluation::square_tables(Board &board){
+int Evaluation::simplified_evaluation_function(Board &board){
+    int squares = square_table(board);
+    int material = board.material(WHITE) - board.material(BLACK);
+    return squares + material;
+}
+
+int Evaluation::square_table(Board &board) {
     int value = 0;
 
     for (int square : board.valid_squares){
@@ -89,26 +96,36 @@ int Evaluation::square_tables(Board &board){
         if (piece == EMPTY_SQUARE) continue;
 
         int color = Board::get_color(piece);
-
+        piece = abs(piece);
         int sq64 = Square::sq8x8(square);
 
         if (color == WHITE) sq64 = sq64 ^ 56;
 
-        switch (abs(piece)){
-            case PAWN:      value += (color * pawns_table[sq64]);   break;
-            case KNIGHT:    value += (color * knight_table[sq64]);  break;
-            case ROOK:      value += (color * rook_table[sq64]);    break;
-            case BISHOP:    value += (color * bisphop_table[sq64]); break;
-            case QUEEN:     value += (color * queen_table[sq64]);   break;
-            case KING:      value += (color * king_table[sq64]);    break;
+        // position value
+        switch (piece){
+            case PAWN:
+                value += (color * pawns_table[sq64]);
+                break;
+            case KNIGHT:
+                value += (color * knight_table[sq64]);
+                break;
+            case ROOK:
+                value += (color * rook_table[sq64]);
+                break;
+            case BISHOP:
+                value += (color * bisphop_table[sq64]);
+                break;
+            case QUEEN:
+                value += (color * queen_table[sq64]);
+                break;
+            case KING:
+                value += (color * king_table[sq64]);
+                break;
+            default:
+                assert(false);
         }
     }
     return value;
 }
 
-int Evaluation::simplified_evaluation_function(Board &board){
-    https://www.chessprogramming.org/Simplified_Evaluation_Function
-    int position = square_tables(board);
-    int material = board.material(WHITE) - board.material(BLACK);
-    return position + material;
-}
+

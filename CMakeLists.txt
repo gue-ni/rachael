@@ -30,12 +30,5 @@ add_executable(unittest src/unittest.cpp
         src/Reversible.cpp src/Reversible.h
         src/Evaluation.cpp src/Evaluation.h src/Util.cpp)
 
-add_executable(benchmark test/benchmark.cpp
-        src/Board.cpp src/Board.h
-        src/Square.cpp src/Square.h
-        src/Ply.cpp src/Ply.h
-        src/Search.cpp src/Search.h
-        src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h
-        src/Util.cpp src/Util.h)
+
 

@@ -6,12 +6,11 @@
 
 class Evaluation {
 public:
-    static int evaluation_function(Board &board);
-
+    static int basic_evaluation_function(Board &board);
     static int simplified_evaluation_function(Board& board);
 
-    static int square_tables(Board& board);
-
+private:
+    static int square_table(Board& board);
 };
 
 #endif //CHESS_ENGINE_CPP_EVALUATION_H
