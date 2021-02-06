@@ -92,7 +92,7 @@ std::optional<Ply> search(Board &board, int depth, int color) {
 */
 
 int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color){
-    int stand_pat = color * Evaluation::evaluation_1(board);
+    int stand_pat = color * Evaluation::evaluation_function(board);
 
     if (stand_pat >= beta){
         return beta;
@@ -140,7 +140,7 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int
 
     if (depth == 0) {
         pv.clear();
-        return color * Evaluation::evaluation_1(board);
+        return color * Evaluation::simplified_evaluation_function(board);
         //return quiesence(board, info, alpha, beta, color);
     }
 

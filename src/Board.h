@@ -105,6 +105,7 @@ public:
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                                         0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99 };
+
     std::vector<int> valid_squares = {  0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
                                         0x10,0x11,0x12,0x13,0x14,0x15,0x16,0x17,
                                         0x20,0x21,0x22,0x23,0x24,0x25,0x26,0x27,
@@ -149,7 +150,7 @@ private:
     }
 
     static inline bool off_the_board(int square){
-        return square & (uint8_t)0x88;
+        return square & 0x88;
     }
 };
 

@@ -70,7 +70,7 @@ const int king_table[64] = {
         20, 30, 10,  0,  0, 10, 30, 20
 };
 
-int Evaluation::evaluation_1(Board &board) {
+int Evaluation::evaluation_function(Board &board) {
     int mobility =     (int) board.pseudo_legal_moves(WHITE).size()
                        - (int) board.pseudo_legal_moves(BLACK).size();
 
@@ -81,7 +81,6 @@ int Evaluation::evaluation_1(Board &board) {
 }
 
 int Evaluation::square_tables(Board &board){
-
     int value = 0;
 
     for (int square : board.valid_squares){
@@ -91,40 +90,24 @@ int Evaluation::square_tables(Board &board){
 
         int color = Board::get_color(piece);
 
-        int square64 = Square::sq8x8(square);
+        int sq64 = Square::sq8x8(square);
 
-        if (color == WHITE) square64 = square64 ^ 56;
+        if (color == WHITE) sq64 = sq64 ^ 56;
 
         switch (abs(piece)){
-            case PAWN:
-                value += (color * pawns_table[square64]);
-                break;
-
-            case KNIGHT:
-                value += (color * knight_table[square64]);
-                break;
-
-            case ROOK:
-                value += (color * rook_table[square64]);
-                break;
-
-            case BISHOP:
-                value += (color * bisphop_table[square64]);
-                break;
-
-            case QUEEN:
-                value += (color * queen_table[square64]);
-                break;
-
-            case KING:
-                value += (color * king_table[square64]);
-                break;
+            case PAWN:      value += (color * pawns_table[sq64]);   break;
+            case KNIGHT:    value += (color * knight_table[sq64]);  break;
+            case ROOK:      value += (color * rook_table[sq64]);    break;
+            case BISHOP:    value += (color * bisphop_table[sq64]); break;
+            case QUEEN:     value += (color * queen_table[sq64]);   break;
+            case KING:      value += (color * king_table[sq64]);    break;
         }
     }
     return value;
 }
 
-int Evaluation::evaluation_2(Board &board){
+int Evaluation::simplified_evaluation_function(Board &board){
+    https://www.chessprogramming.org/Simplified_Evaluation_Function
     int position = square_tables(board);
     int material = board.material(WHITE) - board.material(BLACK);
     return position + material;

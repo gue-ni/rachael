@@ -39,15 +39,5 @@ std::ostream& operator<<(std::ostream &strm, const Square &a) {
     return strm << a.file << a.rank;
 }
 
-int Square::sq8x8(int x88) {
-    return (x88 + (x88 & 7)) >> 1;
-}
 
-int Square::sq0x88(int sq8x8) {
-    return sq8x8 + (sq8x8 & ~7);
-}
-
-bool Square::off_the_board(int sq) {
-    return sq & 0x88;
-}
 

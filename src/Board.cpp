@@ -186,6 +186,8 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
     << ", k=" << board.b_castle_k << ", q=" << board.b_castle_q << std::endl;
     strm << padding << "     w_king="  << board.w_king
     << ", b_king=" << board.b_king << std::endl;
+    strm << padding << "color_to_move=" << board.color_to_move << std::endl;
+    
     return strm;
 }
 
