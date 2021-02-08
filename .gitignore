@@ -26,3 +26,5 @@ GAMES.md
 BUGS.md
 unittest
 browser/
+elo.py
+games.txt

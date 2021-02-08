@@ -24,14 +24,10 @@
 
 
 struct SearchInfo {
-
     SearchInfo(){
-        start_time = get_time();
-        stop_time = 0;
-        depth = 99;
-        nodes = 0;
-        stop = false;
-        time_limit = false;
+        start_time = get_time(), stop_time = 0;
+        depth = 99, nodes = 0;
+        stop = false, time_limit = false;
     }
 
     int w_history_heuristic[128][128]{};
@@ -59,7 +55,7 @@ private:
     static void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves);
     static int quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color);
     static int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth);
-    static void check_stop(SearchInfo &info);
+    static bool check_stop(SearchInfo &info);
 };
 
 

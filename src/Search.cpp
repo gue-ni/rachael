@@ -19,12 +19,12 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
             int val = 16 * abs(board.get_piece(moves[i].to)) - abs(board.get_piece(moves[i].from));
             move_val[i] = val > 0 ? val : 0;
 
-        } /*else {
+        } else {
             // history_heuristic heuristic
-            //move_val[i] = Board::get_color(board.get_piece(moves[i].from)) == WHITE
-            //              ? ss.w_history_heuristic[moves[i].from][moves[i].to]
-            //              : ss.b_history_heuristic[moves[i].from][moves[i].to];
-        }*/
+            move_val[i] = Board::get_color(board.get_piece(moves[i].from)) == WHITE
+                          ? ss.w_history_heuristic[moves[i].from][moves[i].to]
+                          : ss.b_history_heuristic[moves[i].from][moves[i].to];
+        }
     }
 
     for (unsigned int i = 0; i < moves.size()-1; i++){
@@ -49,45 +49,41 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
 }
 
 int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color){
-    int stand_pat = color * Evaluation::basic_evaluation_function(board);
+    int stand_pat = color * Evaluation::simplified_evaluation_function(board);
 
-    if (stand_pat >= beta){
+    if (stand_pat >= beta)
         return beta;
-    }
 
-    if (alpha < stand_pat){
+    if (alpha < stand_pat)
         alpha = stand_pat;
-    }
 
     std::vector<Ply> moves = board.pseudo_legal_moves(color);
 
     for (Ply move : moves){
-        if (!board.is_legal_move(move))
-            continue;
+        if (!board.is_legal_move(move) || board.is_empty(move.to)) continue;
 
-        if (info.stop || (info.time_limit && get_time() > info.stop_time)) {
-            return 0;
-        }
+        if (check_stop(info)) return 0;
 
         Reversible r = board.make_move(move);
         int score = -quiesence(board, info, -beta, -alpha, -color);
         board.undo_move(r);
 
-        if (score >= beta){
+        if (score >= beta)
             return beta;
-        }
 
-        if (score > alpha){
+        if (score > alpha)
             alpha = score;
-        }
     }
     return alpha;
 }
 
-void Search::check_stop(SearchInfo &info){
-    if (info.time_limit && get_time() > info.stop_time){
-        info.stop = true;
+bool Search::check_stop(SearchInfo &info){
+    if (info.nodes % 2048){
+        if (info.time_limit && get_time() > info.stop_time){
+            info.stop = true;
+        }
     }
+    return info.stop;
 }
 
 int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth) {
@@ -96,43 +92,35 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int
 
     if (depth == 0) {
         pv.clear();
-        return color * Evaluation::simplified_evaluation_function(board);
+        //return color * Evaluation::simplified_evaluation_function(board);
+        return quiesence(board, info, alpha, beta, color);
     }
 
     std::vector<Ply> moves = board.pseudo_legal_moves(color);
     sort_moves(board, info, moves);
     std::vector<Ply> lpv;
 
-
-    int score, legal_moves = 0;
+    int score = 0, legal_moves = 0;
 
     for (Ply move : moves){
         if (!board.is_legal_move(move)) continue;
-        lpv.clear();
 
+        lpv.clear();
         legal_moves++;
 
-        if (info.nodes % 2048) check_stop(info);
-        
-		if (info.stop) return 0;
+		if (check_stop(info)) return 0;
 
         Reversible r = board.make_move(move);
         score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
         board.undo_move(r);
 
-        if (score == MAX+1000)
-            std::cout << "stp" << std::endl;
-
         if (score >= beta){ // beta cutoff
-            /*if (board.get_piece(move.to) == 0){
-                info.history_heuristic(color, move.from, move.to, depth*depth);
-            }*/
+            if (board.get_piece(move.to) == 0) info.history_heuristic(color, move.from, move.to, depth*depth);
             return beta;
         }
 
         if (score > alpha){
             alpha = score;
-
             pv.clear();
             pv.push_back(move);
             pv.insert(pv.end(), lpv.begin(), lpv.end());
@@ -152,11 +140,10 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int
 Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
 	Ply current_best_move, best_move;
 
-    for (int depth = 2; depth <= info.depth; depth++){
+    for (int depth = 1; depth <= info.depth; depth++){
         std::vector<Ply> pv;
 
         int score = alpha_beta(board, info, pv, color, MIN, MAX, depth);
-        //best_move = search(board, info, principal_variation, color, depth);
 
         if (info.stop) break;
 
@@ -193,7 +180,7 @@ Ply Search::search(Board &board, SearchInfo &info, std::vector<Ply> &pv, int col
         int score = -alpha_beta(board, info, lpv, -color, MIN, MAX, depth);
         board.undo_move(r);
 
-        std::cout << move << " " << score << std::endl;
+        //std::cout << move << " " << score << std::endl;
 
         if (score > best_score){
             best_score = score;
