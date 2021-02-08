@@ -9,7 +9,7 @@ FLAGS:=-O3 -Wall -Wextra -pedantic
 LFLAGS:=$(FLAGS) -pthread
 CFLAGS:=$(FLAGS) -std=c++11
 
-OBJ:=obj/Board.o obj/Ply.o obj/Square.o obj/Search.o obj/Evaluation.o obj/Reversible.o obj/Util.o
+OBJ:=obj/Board.o obj/Ply.o obj/SquareClass.o obj/Search.o obj/Evaluation.o obj/Reversible.o
 
 RACHAEL_OBJ:= obj/uci.o $(OBJ)
 UNITTEST_OBJ:= obj/unittest.o $(OBJ)

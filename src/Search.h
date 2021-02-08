@@ -8,7 +8,6 @@
 #define MIN -99999
 #define MAX  99999
 
-#include <optional>
 #include "Board.h"
 #include "Util.h"
 
@@ -37,7 +36,7 @@ struct SearchInfo {
     int nodes, depth;
     bool stop, time_limit;
 
-    inline void history_heuristic(int color, int from, int to, int val){
+    inline void history_heuristic(Color color, int from, int to, int val){
         if (color == WHITE){
             w_history_heuristic[from][to] = val;
         } else {
@@ -48,13 +47,13 @@ struct SearchInfo {
 
 class Search {
 public:
-    static Ply iterative_deepening(Board &board, SearchInfo &info, int color);
-    static Ply search(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int depth);
+    static Ply iterative_deepening(Board &board, SearchInfo &info, Color color);
+    static Ply search(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int depth);
 
 private:
     static void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves);
-    static int quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color);
-    static int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth);
+    static int quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color color);
+    static int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int alpha, int beta, int depth);
     static bool check_stop(SearchInfo &info);
 };
 

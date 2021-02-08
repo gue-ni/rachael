@@ -2,7 +2,7 @@
 #include <getopt.h>
 
 #include "Board.h"
-#include "Square.h"
+#include "SquareClass.h"
 #include "Search.h"
 
 bool human_take_turn(Board &board, int color){

@@ -5,14 +5,15 @@
 
 #include <string>
 
-#include "Square.h"
+#include "SquareClass.h"
+#include "Util.h"
 
 struct Ply {
-    int from;
-    int to;
+    Square from;
+    Square to;
 
     Ply();
-    Ply(int f, int t);
+    Ply(Square f, Square t);
 
     explicit Ply(std::string move);
 

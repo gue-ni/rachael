@@ -20,11 +20,11 @@ Board::Board(const std::string& fen, bool draw_color) : draw_color(draw_color) {
     calculate_material();
 }
 
-int Board::material(int color) {
+int Board::material(Color color) {
     return color == WHITE ? w_material : b_material;
 }
 
-int Board::execute_move(Ply ply) {
+Piece Board::execute_move(Ply ply) {
 
     if (x88[ply.from] ==  WHITE*KING) w_king = ply.to;
     if (x88[ply.from] ==  BLACK*KING) b_king = ply.to;
@@ -43,7 +43,7 @@ int Board::execute_move(Ply ply) {
     return killed;
 }
 
-void Board::reverse_move(Ply ply, int killed) {
+void Board::reverse_move(Ply ply, Piece killed) {
 
     // keep track of king
     if (x88[ply.to] ==  1) w_king = ply.from;
@@ -78,7 +78,7 @@ void Board::calculate_material() {
 }
 
 // TODO fix this
-bool Board::is_threatened(int square, int color) {
+bool Board::is_threatened(Square square, Color color) {
 
     // Knight
     for (Ply move : check_directions(square, color, {NNE, ENE, ESE, SSE, SSW, WSW, WNW, NNW}, 1)){
@@ -129,7 +129,7 @@ bool Board::is_threatened(int square, int color) {
     return false;
 }
 
-std::vector<Ply> Board::check_directions(int from, int piece, const std::vector<int> &dirs, int max_steps) {
+std::vector<Ply> Board::check_directions(Square from, Piece piece, const std::vector<int> &dirs, int max_steps) {
     std::vector<Ply> moves;
     int steps, to;
     assert(piece != 0);
@@ -280,13 +280,13 @@ Reversible Board::make_move(Ply ply) {
 #endif
 
 #ifdef PROMOTION
-    if (x88[ply.from] == 6 && Square(ply.to).rank == 8){
+    if (x88[ply.from] == 6 && SquareClass(ply.to).rank == 8){
         rev.killed_piece = execute_move(ply);
         x88[ply.to] = 2;
         return rev;
     }
 
-    if (x88[ply.from] == -6 && Square(ply.to).rank == 1){
+    if (x88[ply.from] == -6 && SquareClass(ply.to).rank == 1){
         rev.killed_piece = execute_move(ply);
         x88[ply.to] = -2;
         return rev;
@@ -297,7 +297,7 @@ Reversible Board::make_move(Ply ply) {
     return rev;
 }
 
-void Board::legal_moves_square(std::vector<Ply> &legal_moves, int square) {
+void Board::legal_moves_square(std::vector<Ply> &legal_moves, Square square) {
     int piece = x88[square];
 
     if (piece == 0) return;
@@ -309,7 +309,7 @@ void Board::legal_moves_square(std::vector<Ply> &legal_moves, int square) {
             if (is_empty(square + N * color) && !off_the_board(square + N * color)){
                 legal_moves.emplace_back(square, square + N * color);
 
-                if (Square(square).rank == (color == WHITE ? 2 : 7)
+                if (SquareClass(square).rank == (color == WHITE ? 2 : 7)
                     && is_empty(square + (2 * N) * color)
                     && !off_the_board(square + (2 * N) * color)){
                     legal_moves.emplace_back(square, square + (2 * N) * color);
@@ -400,7 +400,7 @@ void Board::legal_moves_square(std::vector<Ply> &legal_moves, int square) {
     }
 }
 
-void Board::check_directions(std::vector<Ply> &moves, int from, int piece, const std::vector<int> &dirs, int max_steps) {
+void Board::check_directions(std::vector<Ply> &moves, Square from, Piece piece, const std::vector<int> &dirs, int max_steps) {
     int steps, to;
     assert(piece != 0);
 
@@ -427,7 +427,7 @@ void Board::check_directions(std::vector<Ply> &moves, int from, int piece, const
 
 }
 
-std::vector<Ply> Board::pseudo_legal_moves(int color) {
+std::vector<Ply> Board::pseudo_legal_moves(Color color) {
     std::vector<Ply> valid_moves;
 
     for (int sq : valid_squares){
@@ -492,7 +492,7 @@ bool Board::is_legal_move(Ply ply) {
     return val;
 }
 
-bool Board::is_checked(int color) {
+bool Board::is_checked(Color color) {
     return color == WHITE ? is_threatened(w_king, WHITE) : is_threatened(b_king, BLACK);
 }
 

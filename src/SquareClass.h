@@ -4,20 +4,20 @@
 
 #include <ostream>
 
-struct Square {
+struct SquareClass {
     int  rank;
     char file;
 
-    Square(int x, int y);
-    Square(char f, int r);
-    explicit Square(int x88);
-    explicit Square(std::string str);
+    SquareClass(int x, int y);
+    SquareClass(char f, int r);
+    explicit SquareClass(int x88);
+    explicit SquareClass(std::string str);
 
     int index();
     bool is_valid();
 
-    friend std::ostream& operator<<(std::ostream&, const Square&);
-    friend bool operator==(const Square& sq1, const Square& sq2);
+    friend std::ostream& operator<<(std::ostream&, const SquareClass&);
+    friend bool operator==(const SquareClass& sq1, const SquareClass& sq2);
 
     static inline int sq8x8(int x88) {
         return (x88 + (x88 & 7)) >> 1;

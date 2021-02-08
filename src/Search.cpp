@@ -48,7 +48,7 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
     }
 }
 
-int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, int color){
+int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color color){
     int stand_pat = color * Evaluation::simplified_evaluation_function(board);
 
     if (stand_pat >= beta)
@@ -86,7 +86,7 @@ bool Search::check_stop(SearchInfo &info){
     return info.stop;
 }
 
-int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int alpha, int beta, int depth) {
+int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int alpha, int beta, int depth) {
     info.nodes++;
     assert(color == board.color_to_move); // just testing
 
@@ -137,7 +137,7 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, int
     return alpha;
 }
 
-Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
+Ply Search::iterative_deepening(Board &board, SearchInfo &info, Color color) {
 	Ply current_best_move, best_move;
 
     for (int depth = 1; depth <= info.depth; depth++){
@@ -164,7 +164,7 @@ Ply Search::iterative_deepening(Board &board, SearchInfo &info, int color) {
     return best_move;
 }
 
-Ply Search::search(Board &board, SearchInfo &info, std::vector<Ply> &pv, int color, int depth) {
+Ply Search::search(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int depth) {
     Ply best_move;
     info.nodes++;
 

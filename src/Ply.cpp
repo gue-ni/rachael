@@ -4,15 +4,15 @@
 
 #include "Ply.h"
 
-Ply::Ply(std::string move) : from(Square(move[0], move[1]-48).index()),
-to(Square(move[2], move[3]-48).index()){
+Ply::Ply(std::string move) : from(SquareClass(move[0], move[1] - 48).index()),
+to(SquareClass(move[2], move[3] - 48).index()){
     assert(move.size() == 4);
 }
 
-Ply::Ply(int f, int t) : from(f), to(t) {}
+Ply::Ply(Square f, Square t) : from(f), to(t) {}
 
 std::ostream& operator<<(std::ostream &strm, const Ply &p) {
-    return strm << Square(p.from) << Square(p.to);
+    return strm << SquareClass(p.from) << SquareClass(p.to);
 }
 
 bool operator==(const Ply &one, const Ply& two){
@@ -21,7 +21,7 @@ bool operator==(const Ply &one, const Ply& two){
 
 std::string Ply::as_string() {
     std::ostringstream str;
-    str << Square(from) << Square(to);
+    str << SquareClass(from) << SquareClass(to);
     return str.str();
 }
 

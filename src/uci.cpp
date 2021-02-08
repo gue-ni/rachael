@@ -2,6 +2,7 @@
 #include <sstream>
 #include <optional>
 #include <thread>
+
 #include "Board.h"
 #include "Search.h"
 #include "Util.h"
