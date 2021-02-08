@@ -6,8 +6,8 @@
 
 Reversible::Reversible(Ply ply, Piece killed) : Ply(ply.from, ply.to), killed_piece(killed){}
 
-std::ostream &operator<<(std::ostream &strm, const Reversible &p) {
-    return strm << SquareClass(p.from) << SquareClass(p.to) << " killed=" << p.killed_piece;
+std::ostream &operator<<(std::ostream &strm, Reversible &p) {
+    return strm << p.as_string() << " killed=" << p.killed_piece;
 }
 
 Reversible::Reversible(Ply ply) : Ply(ply.from, ply.to), killed_piece(0){}

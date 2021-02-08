@@ -1,6 +1,4 @@
-//
-// Created by jakob on 2/1/21.
-//
+
 
 #include "Evaluation.h"
 
@@ -97,7 +95,7 @@ int Evaluation::square_table(Board &board) {
 
         int color = Board::get_color(piece);
         piece = abs(piece);
-        int sq64 = SquareClass::sq8x8(square);
+        int sq64 = convert_8x8(square);
 
         if (color == WHITE) sq64 = sq64 ^ 56;
 

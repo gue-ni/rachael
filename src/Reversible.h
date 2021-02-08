@@ -20,7 +20,7 @@ public:
     Reversible(Ply ply, Piece killed);
     explicit Reversible(Ply ply);
 
-    friend std::ostream& operator<<(std::ostream&, const Reversible&);
+    friend std::ostream& operator<<(std::ostream&, Reversible&);
 };
 
 

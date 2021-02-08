@@ -239,7 +239,7 @@ Reversible Board::make_move(Ply ply) {
     color_to_move = -color_to_move;
     ply_count++;
 
-    Reversible rev(ply, 0);
+    Reversible rev(ply, EMPTY_SQUARE);
 
 #ifdef CASTLING
     if (x88[ply.from]        ==  5 && ply.from == 0x07 && w_castle_k){
@@ -280,13 +280,13 @@ Reversible Board::make_move(Ply ply) {
 #endif
 
 #ifdef PROMOTION
-    if (x88[ply.from] == 6 && SquareClass(ply.to).rank == 8){
+    if (x88[ply.from] == 6 && get_rank07(ply.to) == 7){
         rev.killed_piece = execute_move(ply);
         x88[ply.to] = 2;
         return rev;
     }
 
-    if (x88[ply.from] == -6 && SquareClass(ply.to).rank == 1){
+    if (x88[ply.from] == -6 && get_rank07(ply.to) == 0){
         rev.killed_piece = execute_move(ply);
         x88[ply.to] = -2;
         return rev;
@@ -298,18 +298,18 @@ Reversible Board::make_move(Ply ply) {
 }
 
 void Board::legal_moves_square(std::vector<Ply> &legal_moves, Square square) {
-    int piece = x88[square];
+    Piece piece = x88[square];
 
-    if (piece == 0) return;
+    if (piece == EMPTY_SQUARE) return;
 
-    int color = get_color(piece);
+    Color color = get_color(piece);
 
     switch (abs(piece)){
         case PAWN:{ // pawn
             if (is_empty(square + N * color) && !off_the_board(square + N * color)){
                 legal_moves.emplace_back(square, square + N * color);
 
-                if (SquareClass(square).rank == (color == WHITE ? 2 : 7)
+                if (get_rank07(square) == (color == WHITE ? 1 : 6)
                     && is_empty(square + (2 * N) * color)
                     && !off_the_board(square + (2 * N) * color)){
                     legal_moves.emplace_back(square, square + (2 * N) * color);
@@ -452,7 +452,7 @@ void Board::set_board(const std::string &fen) {
             {'P',  6},{'R',  5},{'N',  4},{'B',  3},{'Q',  2},{'K',  1},
     };
 
-    int sq = 0x70;
+    Square sq = 0x70;
     for (char c : substr){
         if (isdigit(c)){
             sq += (c - 48);
