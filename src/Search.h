@@ -1,7 +1,3 @@
-//
-// Created by jakob on 1/30/21.
-//
-
 #ifndef CHESS_ENGINE_CPP_SEARCH_H
 #define CHESS_ENGINE_CPP_SEARCH_H
 
@@ -19,8 +15,6 @@
  * https://stackoverflow.com/questions/9964496/alpha-beta-move-ordering
  *
  */
-
-
 
 struct SearchInfo {
     SearchInfo(){

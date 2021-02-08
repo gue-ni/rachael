@@ -1,5 +1,3 @@
-
-
 #ifndef CHESS_ENGINE_CPP_UTIL_H
 #define CHESS_ENGINE_CPP_UTIL_H
 

@@ -10,13 +10,12 @@ LFLAGS:=$(FLAGS) -pthread
 CFLAGS:=$(FLAGS) -std=c++11
 
 OBJ:=obj/Board.o obj/Ply.o obj/SquareClass.o obj/Search.o obj/Evaluation.o obj/Reversible.o
-
-RACHAEL_OBJ:= obj/uci.o $(OBJ)
+RACHAEL_OBJ := obj/uci.o $(OBJ)
 UNITTEST_OBJ:= obj/unittest.o $(OBJ)
 
 .PHONY: clean all 
 
-all: rachael unittest zip
+all: rachael unittest 
 
 zip:
 	zip -q rachael.zip Makefile src/*

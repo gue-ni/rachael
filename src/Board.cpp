@@ -196,11 +196,11 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
         printf("\n");
     }
     strm << padding << "   a  b  c  d  e  f  g  h" << std::endl;
-    strm << padding << "     K=" << board.w_castle_k << ", Q=" << board.w_castle_q
-    << ", k=" << board.b_castle_k << ", q=" << board.b_castle_q << std::endl;
-    strm << padding << "     w_king="  << board.w_king
-    << ", b_king=" << board.b_king << std::endl;
-    strm << padding << "color_to_move=" << board.color_to_move << std::endl;
+    strm << padding << "     K=" << (int)board.w_castle_k << ", Q=" << (int)board.w_castle_q
+    << ", k=" << (int)board.b_castle_k << ", q=" << (int)board.b_castle_q << std::endl;
+    strm << padding << "     w_king="  << (int)board.w_king
+    << ", b_king=" << (int)board.b_king << std::endl;
+    strm << padding << "color_to_move=" << (int)board.color_to_move << std::endl;
 
     return strm;
 }
