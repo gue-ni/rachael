@@ -9,7 +9,7 @@
 Ply::Ply() : Ply(-1, -1){}
 
 Ply::Ply(const std::string& move) :
-from(convert_square(move.substr(0,2))), to(  convert_square(move.substr(2,2))){
+from(convert_square(move.substr(0,2))), to(  convert_square(move.substr(2,2))), promote_to(0) {
 
     if (move.size() == 5){
         switch (toupper(move[4])){
@@ -31,7 +31,7 @@ from(convert_square(move.substr(0,2))), to(  convert_square(move.substr(2,2))){
     }
 }
 
-Ply::Ply(Square f, Square t) : from(f), to(t) {}
+Ply::Ply(Square f, Square t) : from(f), to(t), promote_to(0) {}
 
 std::ostream& operator<<(std::ostream &strm, Ply &p) {
     return strm << p.as_string();

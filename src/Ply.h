@@ -7,8 +7,8 @@
 #include "Util.h"
 
 struct Ply {
-    Square from = -1, to = -1;
-    Piece promote_to = 0;
+    Square from, to;
+    Piece promote_to;
 
     Ply();
     Ply(Square f, Square t);

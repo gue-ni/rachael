@@ -26,11 +26,13 @@ int Board::material(Color color) {
 
 Piece Board::execute_move(Ply ply) {
 
+    Color color = get_color(x88[ply.from]);
+
     if (x88[ply.from] ==  WHITE*KING) w_king = ply.to;
     if (x88[ply.from] ==  BLACK*KING) b_king = ply.to;
 
     int killed = get_piece(ply.to);
-    set_piece(ply.to, get_piece(ply.from));
+    set_piece(ply.to, ply.promote_to == 0 ? get_piece(ply.from) : ply.promote_to*color);
     set_piece(ply.from, 0);
 
     if (killed != EMPTY_SQUARE){
