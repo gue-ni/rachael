@@ -29,7 +29,7 @@ void uci_go(const std::string& input){
 
     uint64_t time = -1, inc = 0;
 
-    info.depth = 99;
+    info.depth = 7;
     info.time_limit = false;
     info.stop = false;
 	info.nodes = 0;
