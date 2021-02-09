@@ -79,12 +79,12 @@ int Evaluation::simplified_evaluation_function(Board &board){
 int Evaluation::square_table(Board &board) {
     int value = 0;
 
-    for (Square square : board.valid_squares){
-        Piece piece = board.get_piece(square);
+    for (Square square : valid_squares){
+        Piece piece = board.x88[square];
 
         if (piece == EMPTY_SQUARE) continue;
 
-        Color color = Board::get_color_of_piece(piece);
+        Color color = get_color(piece);
         piece = abs(piece);
         int sq64 = convert_8x8(square);
 

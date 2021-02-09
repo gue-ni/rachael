@@ -15,12 +15,12 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Move> &moves) 
 
         if (!board.is_empty(moves[i].to)){
             // most valuable victim - least valuable aggressor
-            int val = 16 * abs(board.get_piece(moves[i].to)) - abs(board.get_piece(moves[i].from));
+            int val = 16 * abs(board.x88[moves[i].to]) - abs(board.x88[moves[i].from]);
             move_val[i] = val > 0 ? val : 0;
 
         } else {
             // history_heuristic heuristic
-            move_val[i] = Board::get_color_of_piece(board.get_piece(moves[i].from)) == WHITE
+            move_val[i] = get_color(board.x88[moves[i].from]) == WHITE
                           ? ss.w_history_heuristic[moves[i].from][moves[i].to]
                           : ss.b_history_heuristic[moves[i].from][moves[i].to];
         }
@@ -59,14 +59,15 @@ int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color
         alpha = stand_pat;
 
     std::vector<Move> moves = board.pseudo_legal_moves(color);
-
+    int score = 0;
     for (Move move : moves){
-        if (!board.is_legal_move(move) || board.is_empty(move.to)) continue;
+        if (board.is_empty(move.to)) continue;
 
         if (check_stop(info)) return 0;
 
         Reversible r = board.make_move(move);
-        int score = -quiesence(board, info, -beta, -alpha, -color);
+        if (!board.is_checked(color))
+            score = -quiesence(board, info, -beta, -alpha, -color);
         board.undo_move(r);
 
         if (score >= beta)
@@ -93,7 +94,7 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Move> &pv, Co
 
     if (depth == 0) {
         pv.clear();
-        //return color * Evaluation::simplified_evaluation_function(board);
+        //return get_color * Evaluation::simplified_evaluation_function(board);
         return quiesence(board, info, alpha, beta, color);
     }
 
@@ -119,7 +120,7 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Move> &pv, Co
         board.undo_move(r);
 
         if (score >= beta){ // beta cutoff
-            if (board.get_piece(move.to) == 0) info.history_heuristic(color, move.from, move.to, depth*depth);
+            if (board.x88[move.to] == EMPTY_SQUARE) info.history_heuristic(color, move.from, move.to, depth*depth);
             return beta;
         }
 
@@ -224,7 +225,7 @@ unsigned long long int Search::perft2(Board &board, SearchInfo &info, int depth)
 
     if (depth == 0) return 1ULL;
     Move moves[100];
-    int n = board.pseudo_legal_moves(moves, board.color_to_move);
+    int n = board.pseudo_legal(moves, board.color_to_move);
 
     for (int i = 0; i < n; i++){
         Reversible r = board.make_move(moves[i]);

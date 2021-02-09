@@ -9,8 +9,6 @@
 #include "Board.h"
 #include "Reversible.h"
 
-Board::Board(bool draw_color) : Board(DEFAULT_BOARD, draw_color) {}
-
 Board::Board(const std::string& fen, bool draw_color) : draw_color(draw_color) {
     w_castle_q = false;
     w_castle_k = false;
@@ -25,19 +23,18 @@ int Board::material(Color color) {
     return color == WHITE ? w_material : b_material;
 }
 
-Piece Board::execute_move(Move ply) {
+Piece Board::execute_move(Move move) {
+    Color color = get_color(x88[move.from]);
 
-    Color color = get_color_of_piece(x88[ply.from]);
+    if (x88[move.from] == WHITE * KING) w_king = move.to;
+    if (x88[move.from] == BLACK * KING) b_king = move.to;
 
-    if (x88[ply.from] ==  WHITE*KING) w_king = ply.to;
-    if (x88[ply.from] ==  BLACK*KING) b_king = ply.to;
-
-    int killed = get_piece(ply.to);
-    set_piece(ply.to, ply.promote_to == 0 ? get_piece(ply.from) : ply.promote_to*color);
-    set_piece(ply.from, 0);
+    int killed = x88[move.to];
+    x88[move.to] = move.promote_to == 0 ? x88[move.from] : move.promote_to * color;
+    x88[move.from] = 0;
 
     if (killed != EMPTY_SQUARE){
-        if (get_color_of_piece(killed) == WHITE){
+        if (get_color(killed) == WHITE){
             w_material -= material_value[abs(killed)];
         } else {
             b_material -= material_value[abs(killed)];
@@ -46,14 +43,13 @@ Piece Board::execute_move(Move ply) {
     return killed;
 }
 
-void Board::reverse_move(Move ply, Piece killed) {
-
+void Board::reverse_move(Move move, Piece killed) {
     // keep track of king
-    if (x88[ply.to] ==  1) w_king = ply.from;
-    if (x88[ply.to] == -1) b_king = ply.from;
+    if (x88[move.to] == 1) w_king = move.from;
+    if (x88[move.to] == -1) b_king = move.from;
 
-    set_piece(ply.from, get_piece(ply.to));
-    set_piece(ply.to, killed);
+    x88[move.from] = x88[move.to];
+    x88[move.to] = killed;
 
     if (killed != EMPTY_SQUARE){
         if (killed > 0){
@@ -171,10 +167,10 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
 
             uint8_t sq = (7 - y) * 8 + x;
             int piece = board.x88[sq + (sq & ~(uint8_t)7)];
-            int piece_symbol = board.pieces[abs(piece)];
+            int piece_symbol = pieces[abs(piece)];
 
             if (piece_symbol != '.'){
-                if (board.get_color_of_piece(piece) == WHITE){
+                if (get_color(piece) == WHITE){
                     if (board.draw_color){
                         strm << WHITE_TTY;
                     } else {
@@ -244,74 +240,74 @@ void Board::undo_move(Reversible rev) {
 #endif
 #ifdef PROMOTION
     if (rev.promote_to != 0){
-        Color color = get_color_of_piece(get_piece(rev.to));
+        Color color = get_color(x88[rev.to]);
         reverse_move(Move(rev.from, rev.to), rev.killed_piece);
-        set_piece(rev.from, PAWN * color);
+        x88[rev.from] =  PAWN * color;
         return;
     }
 #endif
     reverse_move(Move(rev.from, rev.to), rev.killed_piece);
 }
 
-Reversible Board::make_move(Move ply) {
+Reversible Board::make_move(Move move) {
     color_to_move = -color_to_move;
     plies++;
-    Reversible rev(ply, EMPTY_SQUARE);
+    Reversible rev(move, EMPTY_SQUARE);
 
 #ifdef FIFTY_MOVES
     rev.fifty_moves = fifty_moves;
-    if (!is_empty(ply.to) || abs(get_piece(ply.from)) == PAWN){
+    if (!is_empty(move.to) || abs(x88[move.from]) == PAWN){
         fifty_moves = 0;
     } else {
         fifty_moves++;
     }
 #endif
 #ifdef CASTLING
-    if (x88[ply.from] == 5 && ply.from == 0x07 && w_castle_k){
+    if (x88[move.from] == 5 && move.from == 0x07 && w_castle_k){
         w_castle_k      = false;
         rev.w_castle_k  = true;
 
-    } else if (x88[ply.from] == 5 && ply.from == 0x00 && w_castle_q){
+    } else if (x88[move.from] == 5 && move.from == 0x00 && w_castle_q){
         w_castle_q      = false;
         rev.w_castle_q  = true;
 
-    } else if (x88[ply.from] == 1 && ply.from == 0x04 && w_castle_q && w_castle_k){
+    } else if (x88[move.from] == 1 && move.from == 0x04 && w_castle_q && w_castle_k){
         w_castle_q      = false;
         w_castle_k      = false;
         rev.w_castle_k  = true;
         rev.w_castle_q  = true;
 
-    } else if (x88[ply.from] == -5 && ply.from == 0x77 && b_castle_k){
+    } else if (x88[move.from] == -5 && move.from == 0x77 && b_castle_k){
         b_castle_k      = false;
         rev.b_castle_k  = true;
 
-    } else if (x88[ply.from] == -5 && ply.from == 0x70 && b_castle_q){
+    } else if (x88[move.from] == -5 && move.from == 0x70 && b_castle_q){
         b_castle_q      = false;
         rev.b_castle_q  = true;
 
-    } else if (x88[ply.from] == -1 && ply.from == 0x74 && b_castle_q && b_castle_k){
+    } else if (x88[move.from] == -1 && move.from == 0x74 && b_castle_q && b_castle_k){
         b_castle_q      = false;
         b_castle_k      = false;
         rev.b_castle_k  = true;
         rev.b_castle_q  = true;
     }
 
-    if (x88[ply.from] == 1) {
-        if (ply.as_string() == "e1g1") {
+    if (x88[move.from] == 1) {
+        if (move.as_string() == "e1g1") {
             execute_move(Move("e1g1"));
             execute_move(Move("h1f1"));
             return rev;
-        } else if (ply.as_string() == "e1c1") {
+        } else if (move.as_string() == "e1c1") {
             execute_move(Move("e1c1"));
             execute_move(Move("a1d1"));
             return rev;
         }
-    } else if (x88[ply.from] == -1){
-        if (ply.as_string() == "e8c8") {
+    } else if (x88[move.from] == -1){
+        if (move.as_string() == "e8c8") {
             execute_move(Move("e8c8"));
             execute_move(Move("a8d8"));
             return rev;
-        } else if (ply.as_string() == "e8g8") {
+        } else if (move.as_string() == "e8g8") {
             execute_move(Move("e8g8"));
             execute_move(Move("h8f8"));
             return rev;
@@ -319,20 +315,20 @@ Reversible Board::make_move(Move ply) {
     }
 #endif
 #ifdef PROMOTION
-    if (x88[ply.from] == 6 && get_rank07(ply.to) == 7){
-        rev.killed_piece = execute_move(ply);
-        x88[ply.to] = QUEEN;
+    if (x88[move.from] == 6 && get_rank07(move.to) == 7){
+        rev.killed_piece = execute_move(move);
+        x88[move.to] = QUEEN;
         rev.promote_to = QUEEN;
         return rev;
-    } else if (x88[ply.from] == -6 && get_rank07(ply.to) == 0){
-        rev.killed_piece = execute_move(ply);
-        x88[ply.to] = -QUEEN;
+    } else if (x88[move.from] == -6 && get_rank07(move.to) == 0){
+        rev.killed_piece = execute_move(move);
+        x88[move.to] = -QUEEN;
         rev.promote_to = QUEEN;
         return rev;
     }
 #endif
 
-    rev.killed_piece = execute_move(ply);
+    rev.killed_piece = execute_move(move);
     return rev;
 }
 
@@ -341,7 +337,7 @@ void Board::legal_moves_square(std::vector<Move> &legal_moves, Square square) {
 
     if (piece == EMPTY_SQUARE) return;
 
-    Color color = get_color_of_piece(piece);
+    Color color = get_color(piece);
 
     switch (abs(piece)){
         case PAWN:{ // pawn
@@ -426,7 +422,7 @@ void Board::legal_moves_square(std::vector<Move> &legal_moves, Square square) {
                     if (!b_king_moved && !b_l_rook_moved
                         && !is_threatened(0x71, color)
                         && !is_threatened(0x72, color)
-                        && !is_threatened(0x73, color)
+                        && !is_threatened(0x73, get_color)
                         && !is_threatened(square, color)
                         && x88[0x71] == EMPTY && x88[0x72] == EMPTY && x88[0x73] == EMPTY){
                         legal_moves.emplace_back("e8c8");
@@ -470,7 +466,7 @@ std::vector<Move> Board::pseudo_legal_moves(Color color) {
     std::vector<Move> valid_moves;
 
     for (int sq : valid_squares){
-        if (!is_empty(sq) && get_color_of_piece(x88[sq]) == color){
+        if (!is_empty(sq) && get_color(x88[sq]) == color){
             legal_moves_square(valid_moves, sq);
         }
     }
@@ -523,62 +519,56 @@ void Board::set_board(const std::string &fen) {
     iss >> plies;
 }
 
-bool Board::is_legal_move(Move ply) {
-    int color = get_color_of_piece(x88[ply.from]);
-    Reversible r = make_move(ply);
-    bool val = !is_checked(color);
-    undo_move(r);
-    return val;
-}
-
 bool Board::is_checked(Color color) {
     return color == WHITE ? is_threatened(w_king, WHITE) : is_threatened(b_king, BLACK);
 }
 
-int Board::pseudo_legal_moves(Move *moves, Color color) {
+int Board::pseudo_legal(Move *moves, Color color) {
     int n = 0;
     for (Square sq : valid_squares){
-        if (x88[sq] != EMPTY_SQUARE && get_color_of_piece(x88[sq]) == color){
-            n = pseudo_legal_moves_square(moves, n, sq);
+        if (x88[sq] != EMPTY_SQUARE && get_color(x88[sq]) == color){
+            n = pseudo_legal_for_square(moves, n, sq);
         }
     }
-    return n;
-}
+    return n;}
 
-int Board::pseudo_legal_moves_square(Move *moves, int n, Square square) {
-    if (x88[square] == EMPTY_SQUARE) return n;
+int Board::pseudo_legal_for_square(Move *moves, int n, Square from) {
+    if (x88[from] == EMPTY_SQUARE) return n;
 
-    Piece piece = x88[square];
-    Color color = get_color_of_piece(piece);
+    Piece piece = x88[from];
+    Color color = get_color(piece);
+    Square to;
 
     switch (abs(piece)){
         case PAWN:{
-            if (is_empty(square + N * color) && !off_the_board(square + N * color)){
-                moves[n++] = Move(square, square + N*color);
-
-                if (get_rank07(square) == (color == WHITE ? 1 : 6) && is_empty(square + (2*N) * color)
-                && !off_the_board(square + (2 * N) * color)){
-                    moves[n++] = Move(square, square + (2 * N)*color);
+            to = from + N*color;
+            if (!off_the_board(to) && is_empty(to)){
+                moves[n++] = Move(from, to);
+                to = from + 2*N*color;
+                if (!off_the_board(to) && get_rank07(from) == (color == WHITE ? 1 : 6) && is_empty(to)){
+                    moves[n++] = Move(from, to);
                 }
             }
 
-            if (is_enemy(square + NE*color, piece) && !off_the_board(square + NE * color)){
-                moves[n++] = Move(square, square + NE*color);
+            for (auto t : {from + NE * color, from + NW * color}){
+                if (!off_the_board(t) && is_enemy(t, piece)) moves[n++] = Move(from, t);
             }
+            break;
+        }
 
-            if (is_enemy(square + NW*color, piece) && !off_the_board(square + NW * color)){
-                moves[n++] = Move(square, square + NW*color);
-            }
+        case ROOK:{
+            n = check_dir(moves, n, from, 8, { N, S, E, W});
             break;
         }
     }
     return n;
 }
 
-int Board::check_directions(Move *moves, int n, Square from, const std::vector<int> &dirs, const int max_steps,
-                            Piece piece) {
-    int steps, to;
-    assert(piece != 0);
+int Board::check_dir(Move *moves, int n, Square from, int max_steps, const std::vector<int> &dirs) {
+    int steps;
+    Square to;
+    Piece piece = x88[from];
+    assert(piece != EMPTY_SQUARE);
 
     for (int dir : dirs){
         steps = 0;
@@ -602,4 +592,8 @@ int Board::check_directions(Move *moves, int n, Square from, const std::vector<i
     }
     return n;
 }
+
+Board::Board() : Board(DEFAULT_BOARD, true){}
+
+
 
