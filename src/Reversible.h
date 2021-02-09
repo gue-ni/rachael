@@ -1,7 +1,3 @@
-//
-// Created by jakob on 1/28/21.
-//
-
 #ifndef CHESS_ENGINE_CPP_REVERSIBLE_H
 #define CHESS_ENGINE_CPP_REVERSIBLE_H
 
@@ -13,6 +9,7 @@ class Reversible : public Ply {
 public:
 
     Piece killed_piece = 0;
+    int fifty_moves;
 
     bool w_castle_k = false, w_castle_q = false;
     bool b_castle_q = false, b_castle_k = false;

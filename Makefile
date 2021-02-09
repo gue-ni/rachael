@@ -15,14 +15,14 @@ UNITTEST_OBJ:= obj/unittest.o $(OBJ)
 
 .PHONY: clean all 
 
-all: rachael unittest 
+all: rachael  
 
 zip:
 	zip -q rachael.zip Makefile src/*
 
 rachael: $(RACHAEL_OBJ)
 	$(CC) $(LFLAGS) -o $@ $^
-	cp rachael lichess/lichess-bot/engines/
+	cp rachael lichess-bot/engines/
 
 unittest: $(UNITTEST_OBJ)
 	$(CC) $(LFLAGS) -o $@ $^
@@ -32,6 +32,8 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CC) $(CFLAGS) $^ -c -o $@
 
 clean:
-	rm -f $(OBJ_DIR)/*.o rachael unittest rachael.zip
+	rm -f $(OBJ_DIR)/*.o 
+	rm -f rachael unittest 
+	rm -f rachael.zip
 
 

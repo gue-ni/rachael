@@ -1,8 +1,8 @@
 #include <iostream>
 #include <getopt.h>
 
-#include "Board.h"
-#include "Search.h"
+#include "../src/Board.h"
+#include "../src/Search.h"
 
 bool human_take_turn(Board &board, int color){
     std::vector<Ply> possible_moves = board.pseudo_legal_moves(color);

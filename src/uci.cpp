@@ -1,5 +1,4 @@
 #include <iostream>
-#include <sstream>
 #include <optional>
 #include <thread>
 
@@ -13,7 +12,7 @@
 std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 std::thread thrd;
 SearchInfo info;
-Board board(DEFAULT_BOARD, true);
+Board board(DEFAULT_BOARD, false);
 
 void uci_stop(){
     info.stop = true;
@@ -48,15 +47,13 @@ void uci_go(const std::string& input){
     }
 
     info.start_time = get_time();
-    info.stop_time  = info.start_time + ((time + inc) / 25); // estimating 25 moves left
+    info.stop_time  = info.start_time + ((time + inc) / 15); // estimating 25 moves left
 
     if (time != (uint64_t)-1){
         info.time_limit = true;
     }
-
     //printf("start_time=%lu, stop_time=%lu, time=%lu\n", info.start_time, info.stop_time, info.stop_time - info.start_time);
-
-    thrd = std::thread(Search::iterative_deepening, std::ref(board), std::ref(info), board.color_to_move);
+    thrd = std::thread(Search::iterative_deepening_search, std::ref(board), std::ref(info), board.color_to_move);
 }
 
 void uci_position(const std::string& input){
@@ -87,7 +84,7 @@ void uci_position(const std::string& input){
             } while (ss);
         }
     } while (ss);
-    //std::cout << board << std::endl;
+    std::cout << board << std::endl;
 }
 
 bool startswith(const std::string& str, const std::string& prefix){
@@ -118,8 +115,8 @@ int main(){
             std::cout << "readyok" << std::endl;
 
         } else if(startswith(input, "uci")) {
-            std::cout << "id name " << NAME << std::endl;
-            std::cout << "id author " << AUTHOR << std::endl;
+            std::cout << "id name "     << NAME << std::endl;
+            std::cout << "id author "   << AUTHOR << std::endl;
             std::cout << "uciok" << std::endl;
 
         } else {

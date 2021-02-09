@@ -12,16 +12,15 @@ struct Ply {
 
     Ply();
     Ply(Square f, Square t);
-
+    Ply(Square f, Square t, Piece promote);
     explicit Ply(const std::string& move);
+    Ply(const std::string &move, Piece promote);
 
     std::string as_string();
 
     friend std::ostream& operator<<(std::ostream&, Ply&);
-
     friend bool operator==(const Ply& one, const Ply& two);
     friend bool operator<(Ply& p1, Ply& p2);
 };
-
 
 #endif //CHESS_ENGINE_CPP_PLY_H

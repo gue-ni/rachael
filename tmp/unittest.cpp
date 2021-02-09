@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "Board.h"
-#include "Util.h"
-#include "Search.h"
-#include "Evaluation.h"
+#include "../src/Board.h"
+#include "../src/Util.h"
+#include "../src/Search.h"
+#include "../src/Evaluation.h"
 
 void test_pseudo_legal_moves(Board &board, int color){
     std::vector<Ply> moves = board.pseudo_legal_moves(color);
@@ -25,15 +25,17 @@ void test_legal_moves(Board &board, int color){
 
 int main(){
 
-    //Board board("1rb1k3/p7/3b1Q2/3Np3/3P4/8/PPPBBPPR/R3K3 w Q - 1 23", true);
-    //Board board("4k3/8/5Q2/3N4/8/8/8/3K4 w - - 1 24", true);
-    Board board(DEFAULT_BOARD, true);
+
+
+    Board board("8/1P2k3/8/8/8/8/8/7K w - - 0 1", true);
+    //Board board(DEFAULT_BOARD, true);
     std::cout << board << std::endl;
 
-    Ply p;
-    p = Ply("e2e4r");
-    std::cout << p << std::endl;
-    std::cout << (int)p.promote_to << std::endl;
+
+    /*std::vector<Ply> moves = board.pseudo_legal_moves(WHITE);
+    for (auto m : moves) std::cout << m << " ";
+    std::cout << std::endl;*/
+
 
 
     return 0;

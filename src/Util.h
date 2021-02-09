@@ -28,6 +28,17 @@
 #define WNW  14
 #define NNW  31
 
+#define RUY_LOPEZ \
+"r1bqk1nr/pppp1ppp/2n5/1Bb1p3/4P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 4 4"
+#define DEFAULT_BOARD \
+"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+#define FRENCH_DEFENSE_BURN_VARIATION \
+"rnbqkb1r/ppp2ppp/4pn2/3p2B1/3PP3/2N5/PPP2PPP/R2QKBNR b KQkq - 0 5"
+#define SICILIAN_DEFENSE \
+"rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"
+#define SICILIAN_DEFENSE_NAJDORF_VARIATION \
+"rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"
+
 #define EMPTY_SQUARE    0
 #define KING            1
 #define QUEEN           2
@@ -40,9 +51,7 @@ typedef int8_t Color;
 typedef int8_t Piece;
 typedef int8_t Square;
 
-inline double dt(clock_t tic, clock_t toc){
-    return  (double)(toc - tic) / CLOCKS_PER_SEC;
-}
+inline double dt(clock_t tic, clock_t toc){ return  (double)(toc - tic) / CLOCKS_PER_SEC; }
 
 inline uint64_t get_time(){
     return std::chrono::duration_cast<std::chrono::milliseconds>
@@ -54,33 +63,20 @@ inline Square convert_square(std::string sq){
     return 16 * (sq[1] - 49) + (sq[0] - 97);
 }
 
-inline int get_rank07(Square x88){
-    return x88 >> 4;
-}
+inline int get_rank07(Square x88){ return x88 >> 4; }
 
-inline int get_file07(Square x88){
-    return x88 & 7;
-}
+inline int get_file07(Square x88){ return x88 & 7; }
+
+inline int convert_8x8(Square sq0x88){ return (sq0x88 + (sq0x88 & 7)) >> 1;}
+
+inline Square convert_x88(int sq8x8){ return sq8x8 + (sq8x8 & ~7); }
+
+inline bool off_the_board(Square sq){ return sq & 0x88; }
+
 inline std::string convert_string(Square sq){
-    //int8_t file07 = sq & 7;
-    //int8_t rank07 = sq >> 4;
-    //std::cout << "file=" << (int)file07 << ", rank=" << (int)rank07 << std::endl;
     std::ostringstream str;
     str << (char)(get_file07(sq) + 97) << (char)(get_rank07(sq) + 49);
     return str.str();
 }
-
-inline int convert_8x8(Square sq0x88) {
-    return (sq0x88 + (sq0x88 & 7)) >> 1;
-}
-
-inline Square convert_x88(int sq8x8) {
-    return sq8x8 + (sq8x8 & ~7);
-}
-
-inline bool off_the_board(Square sq) {
-    return sq & 0x88;
-}
-
 
 #endif //CHESS_ENGINE_CPP_UTIL_H

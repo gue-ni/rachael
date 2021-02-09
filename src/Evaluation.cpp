@@ -1,5 +1,3 @@
-
-
 #include "Evaluation.h"
 
 const int pawns_table[64] = {
@@ -12,7 +10,6 @@ const int pawns_table[64] = {
         5, 10, 10,-20,-20, 10, 10,  5,
         0,  0,  0,  0,  0,  0,  0,  0
 };
-
 const int knight_table[64] = {
         -50,-40,-30,-30,-30,-30,-40,-50,
         -40,-20,  0,  0,  0,  0,-20,-40,
@@ -23,8 +20,7 @@ const int knight_table[64] = {
         -40,-20,  0,  5,  5,  0,-20,-40,
         -50,-40,-30,-30,-30,-30,-40,-50
 };
-
-const int bisphop_table[64] = {
+const int bishop_table[64] = {
         -20,-10,-10,-10,-10,-10,-10,-20,
         -10,  0,  0,  0,  0,  0,  0,-10,
         -10,  0,  5, 10, 10,  5,  0,-10,
@@ -34,7 +30,6 @@ const int bisphop_table[64] = {
         -10,  5,  0,  0,  0,  0,  5,-10,
         -20,-10,-10,-10,-10,-10,-10,-20
 };
-
 const int rook_table[64] = {
         0,  0,  0,  0,  0,  0,  0,  0,
         5, 10, 10, 10, 10, 10, 10,  5,
@@ -45,7 +40,6 @@ const int rook_table[64] = {
         -5,  0,  0,  0,  0,  0,  0, -5,
         0,  0,  0,  5,  5,  0,  0,  0
 };
-
 const int queen_table[64] = {
         -20,-10,-10, -5, -5,-10,-10,-20,
         -10,  0,  0,  0,  0,  0,  0,-10,
@@ -56,7 +50,6 @@ const int queen_table[64] = {
         -10,  0,  5,  0,  0,  0,  0,-10,
         -20,-10,-10, -5, -5,-10,-10,-20
 };
-
 const int king_table[64] = {
         -30,-40,-40,-50,-50,-40,-40,-30,
         -30,-40,-40,-50,-50,-40,-40,-30,
@@ -71,9 +64,7 @@ const int king_table[64] = {
 int Evaluation::basic_evaluation_function(Board &board) {
     // TODO does not account for actually legal moves, only pseudo legal moves
     int mobility = (int) board.pseudo_legal_moves(WHITE).size() - (int) board.pseudo_legal_moves(BLACK).size();
-
     int material = board.material(WHITE) - board.material(BLACK);
-
     //std::cout << "mobility: " << mobility << std::endl;
     //std::cout << "material: " << material << std::endl;
     return mobility + material;
@@ -88,16 +79,16 @@ int Evaluation::simplified_evaluation_function(Board &board){
 int Evaluation::square_table(Board &board) {
     int value = 0;
 
-    for (int square : board.valid_squares){
-        int piece = board.get_piece(square);
+    for (Square square : board.valid_squares){
+        Piece piece = board.get_piece(square);
 
         if (piece == EMPTY_SQUARE) continue;
 
-        int color = Board::get_color(piece);
+        Color color = Board::get_color_of_piece(piece);
         piece = abs(piece);
         int sq64 = convert_8x8(square);
 
-        if (color == WHITE) sq64 = sq64 ^ 56;
+        if (color == WHITE) sq64 = sq64 ^ 56; // mirror
 
         // position value
         switch (piece){
@@ -111,7 +102,7 @@ int Evaluation::square_table(Board &board) {
                 value += (color * rook_table[sq64]);
                 break;
             case BISHOP:
-                value += (color * bisphop_table[sq64]);
+                value += (color * bishop_table[sq64]);
                 break;
             case QUEEN:
                 value += (color * queen_table[sq64]);
@@ -125,5 +116,4 @@ int Evaluation::square_table(Board &board) {
     }
     return value;
 }
-
 

@@ -28,3 +28,5 @@ unittest
 browser/
 elo.py
 games.txt
+lichess-bot/
+lib/

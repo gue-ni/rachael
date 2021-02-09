@@ -37,11 +37,20 @@ struct SearchInfo {
             b_history_heuristic[from][to] = val;
         }
     }
+
+    inline void clear(){
+        for (int i = 0; i < 128; i++){
+            for (int j = 0; j < 128; j++){
+                w_history_heuristic[i][j] = 0;
+                b_history_heuristic[i][j] = 0;
+            }
+        }
+    }
 };
 
 class Search {
 public:
-    static Ply iterative_deepening(Board &board, SearchInfo &info, Color color);
+    static Ply iterative_deepening_search(Board &board, SearchInfo &info, Color color);
     static Ply search(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int depth);
 
 private:

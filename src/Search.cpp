@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <cstring>
 
@@ -21,7 +20,7 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
 
         } else {
             // history_heuristic heuristic
-            move_val[i] = Board::get_color(board.get_piece(moves[i].from)) == WHITE
+            move_val[i] = Board::get_color_of_piece(board.get_piece(moves[i].from)) == WHITE
                           ? ss.w_history_heuristic[moves[i].from][moves[i].to]
                           : ss.b_history_heuristic[moves[i].from][moves[i].to];
         }
@@ -96,9 +95,11 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Col
         return quiesence(board, info, alpha, beta, color);
     }
 
-    std::vector<Ply> moves = board.pseudo_legal_moves(color);
+    if (board.fifty_moves == 50) return 0;
+
+    std::vector<Ply> moves, lpv;
+    moves = board.pseudo_legal_moves(color);
     sort_moves(board, info, moves);
-    std::vector<Ply> lpv;
 
     int score = 0, legal_moves = 0;
 
@@ -129,15 +130,15 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Col
 
     if (legal_moves == 0){
         if (board.is_checked(color)){
-            return MIN+1000;
+            return MIN+1000;    // checkmate
         } else {
-            return 0; // stalemate
+            return 0;           // stalemate
         }
     }
     return alpha;
 }
 
-Ply Search::iterative_deepening(Board &board, SearchInfo &info, Color color) {
+Ply Search::iterative_deepening_search(Board &board, SearchInfo &info, Color color) {
 	Ply current_best_move, best_move;
 
     for (int depth = 1; depth <= info.depth; depth++){

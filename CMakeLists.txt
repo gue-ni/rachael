@@ -5,29 +5,35 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-pthread -Wall")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall")
 
-add_executable(engine src/cli.cpp
-        src/Board.cpp src/Board.h
-        src/Search.cpp src/Search.h
-        src/Ply.cpp src/Ply.h
-        src/Util.h
-        src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h)
+include_directories(src)
 
-add_executable(rachael src/uci.cpp
-        src/Board.cpp src/Board.h
-        src/Ply.cpp src/Ply.h
-        src/Util.h
-        src/Reversible.cpp src/Reversible.h
-        src/Search.cpp src/Search.h
-        src/Evaluation.cpp src/Evaluation.h)
+add_subdirectory(src)
+add_subdirectory(test)
+add_subdirectory(lib/googletest)
 
-add_executable(unittest src/unittest.cpp
-        src/Board.cpp src/Board.h
-        src/Ply.cpp src/Ply.h
-        src/Util.h
-        src/Search.cpp src/Search.h
-        src/Reversible.cpp src/Reversible.h
-        src/Evaluation.cpp src/Evaluation.h)
+#add_executable(engine src/cli.cpp
+#        src/Board.cpp src/Board.h
+#        src/Search.cpp src/Search.h
+#        src/Ply.cpp src/Ply.h
+#        src/Util.h
+#        src/Reversible.cpp src/Reversible.h
+#        src/Evaluation.cpp src/Evaluation.h test/Formula.cpp test/Formula.h)
+
+#add_executable(rachael src/uci.cpp
+#        src/Board.cpp src/Board.h
+#        src/Ply.cpp src/Ply.h
+#        src/Util.h
+#        src/Reversible.cpp src/Reversible.h
+#        src/Search.cpp src/Search.h
+#        src/Evaluation.cpp src/Evaluation.h)
+
+#add_executable(unittest src/unittest.cpp
+#        src/Board.cpp src/Board.h
+#        src/Ply.cpp src/Ply.h
+#        src/Util.h
+#        src/Search.cpp src/Search.h
+#        src/Reversible.cpp src/Reversible.h
+#        src/Evaluation.cpp src/Evaluation.h)
 
 
 

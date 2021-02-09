@@ -16,6 +16,7 @@ Board::Board(const std::string& fen, bool draw_color) : draw_color(draw_color) {
     w_castle_k = false;
     b_castle_q = false;
     b_castle_k = false;
+    fifty_moves = 0;
     set_board(fen);
     calculate_material();
 }
@@ -26,7 +27,7 @@ int Board::material(Color color) {
 
 Piece Board::execute_move(Ply ply) {
 
-    Color color = get_color(x88[ply.from]);
+    Color color = get_color_of_piece(x88[ply.from]);
 
     if (x88[ply.from] ==  WHITE*KING) w_king = ply.to;
     if (x88[ply.from] ==  BLACK*KING) b_king = ply.to;
@@ -36,7 +37,7 @@ Piece Board::execute_move(Ply ply) {
     set_piece(ply.from, 0);
 
     if (killed != EMPTY_SQUARE){
-        if (get_color(killed) == WHITE){
+        if (get_color_of_piece(killed) == WHITE){
             w_material -= material_value[abs(killed)];
         } else {
             b_material -= material_value[abs(killed)];
@@ -79,7 +80,6 @@ void Board::calculate_material() {
     }
 }
 
-// TODO fix this
 bool Board::is_threatened(Square square, Color color) {
 
     // Knight
@@ -131,7 +131,7 @@ bool Board::is_threatened(Square square, Color color) {
     return false;
 }
 
-std::vector<Ply> Board::check_directions(Square from, Piece piece, const std::vector<int> &dirs, int max_steps) {
+std::vector<Ply> Board::check_directions(Square from, Piece piece, const std::vector<int> &dirs, const int max_steps) {
     std::vector<Ply> moves;
     int steps, to;
     assert(piece != 0);
@@ -161,7 +161,7 @@ std::vector<Ply> Board::check_directions(Square from, Piece piece, const std::ve
 
 std::ostream& operator<<(std::ostream &strm, const Board &board) {
     std::string padding = " ";
-    strm << padding << "Moves " << board.ply_count << ":\n";
+    strm << padding << "Plies " << board.plies << ":\n";
     strm << padding << "\n    a  b  c  d  e  f  g  h" << std::endl;
 
     for (uint8_t y = 0; y < 8; y++){
@@ -174,7 +174,7 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
             int piece_symbol = board.pieces[abs(piece)];
 
             if (piece_symbol != '.'){
-                if (board.get_color(piece) == WHITE){
+                if (board.get_color_of_piece(piece) == WHITE){
                     if (board.draw_color){
                         strm << WHITE_TTY;
                     } else {
@@ -202,95 +202,132 @@ std::ostream& operator<<(std::ostream &strm, const Board &board) {
     << ", k=" << (int)board.b_castle_k << ", q=" << (int)board.b_castle_q << std::endl;
     strm << padding << "     w_king="  << (int)board.w_king
     << ", b_king=" << (int)board.b_king << std::endl;
-    strm << padding << "color_to_move=" << (int)board.color_to_move << std::endl;
+    strm << padding << "color_to_move=" << (int)board.color_to_move << ", fifty_moves=" << board.fifty_moves << std::endl;
 
     return strm;
 }
 
-void Board::undo_move(Reversible reversible) {
+void Board::undo_move(Reversible rev) {
     color_to_move = -color_to_move;
-    ply_count--;
+    plies--;
 
+#ifdef FIFTY_MOVES
+    fifty_moves = rev.fifty_moves;
+#endif
 #ifdef CASTLING
-    if (reversible.w_castle_q) w_castle_q = true;
-    if (reversible.w_castle_k) w_castle_k = true;
-    if (reversible.b_castle_q) b_castle_q = true;
-    if (reversible.b_castle_k) b_castle_k = true;
+    if (rev.w_castle_q) w_castle_q = true;
+    if (rev.w_castle_k) w_castle_k = true;
+    if (rev.b_castle_q) b_castle_q = true;
+    if (rev.b_castle_k) b_castle_k = true;
 
-    if (x88[reversible.to] == 1) {
-        if (reversible.as_string() == "e1g1") {
-            reverse_move(Ply("e1g1"), 0);reverse_move(Ply("h1f1"), 0);return;
-        } else if (reversible.as_string() == "e1c1") {
-            reverse_move(Ply("e1c1"), 0);reverse_move(Ply("a1d1"), 0);return;
+    if (x88[rev.to] == 1) {
+        if (rev.as_string() == "e1g1") {
+            reverse_move(Ply("e1g1"), 0);
+            reverse_move(Ply("h1f1"), 0);
+            return;
+        } else if (rev.as_string() == "e1c1") {
+            reverse_move(Ply("e1c1"), 0);
+            reverse_move(Ply("a1d1"), 0);
+            return;
         }
-    }
-
-    if (x88[reversible.to] == -1){
-        if (reversible.as_string() == "e8c8") {
-            reverse_move(Ply("e8c8"), 0);reverse_move(Ply("a8d8"), 0);return;
-        } else if (reversible.as_string() == "e8g8") {
-            reverse_move(Ply("e8g8"), 0);reverse_move(Ply("h8f8"), 0);return;
+    } else if (x88[rev.to] == -1){
+        if (rev.as_string() == "e8c8") {
+            reverse_move(Ply("e8c8"), 0);
+            reverse_move(Ply("a8d8"), 0);
+            return;
+        } else if (rev.as_string() == "e8g8") {
+            reverse_move(Ply("e8g8"), 0);
+            reverse_move(Ply("h8f8"), 0);
+            return;
         }
     }
 #endif
-
-    reverse_move(Ply(reversible.from, reversible.to), reversible.killed_piece);
+#ifdef PROMOTION
+    if (rev.promote_to != 0){
+        Color color = get_color_of_piece(get_piece(rev.to));
+        reverse_move(Ply(rev.from, rev.to), rev.killed_piece);
+        set_piece(rev.from, PAWN * color);
+        return;
+    }
+#endif
+    reverse_move(Ply(rev.from, rev.to), rev.killed_piece);
 }
 
 Reversible Board::make_move(Ply ply) {
     color_to_move = -color_to_move;
-    ply_count++;
-
+    plies++;
     Reversible rev(ply, EMPTY_SQUARE);
 
+#ifdef FIFTY_MOVES
+    rev.fifty_moves = fifty_moves;
+    if (!is_empty(ply.to) || abs(get_piece(ply.from)) == PAWN){
+        fifty_moves = 0;
+    } else {
+        fifty_moves++;
+    }
+#endif
 #ifdef CASTLING
-    if (x88[ply.from]        ==  5 && ply.from == 0x07 && w_castle_k){
-        w_castle_k = false; rev.w_castle_k = true;
-    } else if (x88[ply.from] ==  5 && ply.from == 0x00 && w_castle_q){
-        w_castle_q = false; rev.w_castle_q = true;
-    } else if (x88[ply.from] ==  1 && ply.from == 0x04 && w_castle_q && w_castle_k){
-        w_castle_q = false; w_castle_k = false;
-        rev.w_castle_k = true; rev.w_castle_q = true;
+    if (x88[ply.from] == 5 && ply.from == 0x07 && w_castle_k){
+        w_castle_k      = false;
+        rev.w_castle_k  = true;
+
+    } else if (x88[ply.from] == 5 && ply.from == 0x00 && w_castle_q){
+        w_castle_q      = false;
+        rev.w_castle_q  = true;
+
+    } else if (x88[ply.from] == 1 && ply.from == 0x04 && w_castle_q && w_castle_k){
+        w_castle_q      = false;
+        w_castle_k      = false;
+        rev.w_castle_k  = true;
+        rev.w_castle_q  = true;
 
     } else if (x88[ply.from] == -5 && ply.from == 0x77 && b_castle_k){
-        b_castle_k = false; rev.b_castle_k = true;
+        b_castle_k      = false;
+        rev.b_castle_k  = true;
+
     } else if (x88[ply.from] == -5 && ply.from == 0x70 && b_castle_q){
-        b_castle_q = false; rev.b_castle_q = true;
+        b_castle_q      = false;
+        rev.b_castle_q  = true;
+
     } else if (x88[ply.from] == -1 && ply.from == 0x74 && b_castle_q && b_castle_k){
-        b_castle_q = false; b_castle_k = false;
-        rev.b_castle_k = true; rev.b_castle_q = true;
+        b_castle_q      = false;
+        b_castle_k      = false;
+        rev.b_castle_k  = true;
+        rev.b_castle_q  = true;
     }
 
-    if (x88[ply.from] ==  1) {
+    if (x88[ply.from] == 1) {
         if (ply.as_string() == "e1g1") {
-            execute_move(Ply("e1g1"));execute_move(Ply("h1f1"));
+            execute_move(Ply("e1g1"));
+            execute_move(Ply("h1f1"));
             return rev;
         } else if (ply.as_string() == "e1c1") {
-            execute_move(Ply("e1c1"));execute_move(Ply("a1d1"));
+            execute_move(Ply("e1c1"));
+            execute_move(Ply("a1d1"));
             return rev;
         }
-    }
-    if (x88[ply.from] == -1){
+    } else if (x88[ply.from] == -1){
         if (ply.as_string() == "e8c8") {
-            execute_move(Ply("e8c8"));execute_move(Ply("a8d8"));
+            execute_move(Ply("e8c8"));
+            execute_move(Ply("a8d8"));
             return rev;
         } else if (ply.as_string() == "e8g8") {
-            execute_move(Ply("e8g8"));execute_move(Ply("h8f8"));
+            execute_move(Ply("e8g8"));
+            execute_move(Ply("h8f8"));
             return rev;
         }
     }
 #endif
-
 #ifdef PROMOTION
     if (x88[ply.from] == 6 && get_rank07(ply.to) == 7){
         rev.killed_piece = execute_move(ply);
-        x88[ply.to] = 2;
+        x88[ply.to] = QUEEN;
+        rev.promote_to = QUEEN;
         return rev;
-    }
-
-    if (x88[ply.from] == -6 && get_rank07(ply.to) == 0){
+    } else if (x88[ply.from] == -6 && get_rank07(ply.to) == 0){
         rev.killed_piece = execute_move(ply);
-        x88[ply.to] = -2;
+        x88[ply.to] = -QUEEN;
+        rev.promote_to = QUEEN;
         return rev;
     }
 #endif
@@ -304,7 +341,7 @@ void Board::legal_moves_square(std::vector<Ply> &legal_moves, Square square) {
 
     if (piece == EMPTY_SQUARE) return;
 
-    Color color = get_color(piece);
+    Color color = get_color_of_piece(piece);
 
     switch (abs(piece)){
         case PAWN:{ // pawn
@@ -402,7 +439,7 @@ void Board::legal_moves_square(std::vector<Ply> &legal_moves, Square square) {
     }
 }
 
-void Board::check_directions(std::vector<Ply> &moves, Square from, Piece piece, const std::vector<int> &dirs, int max_steps) {
+void Board::check_directions(std::vector<Ply> &moves, Square from, Piece piece, const std::vector<int> &dirs, const int max_steps) {
     int steps, to;
     assert(piece != 0);
 
@@ -433,7 +470,7 @@ std::vector<Ply> Board::pseudo_legal_moves(Color color) {
     std::vector<Ply> valid_moves;
 
     for (int sq : valid_squares){
-        if (!is_empty(sq) && get_color(x88[sq]) == color){
+        if (!is_empty(sq) && get_color_of_piece(x88[sq]) == color){
             legal_moves_square(valid_moves, sq);
         }
     }
@@ -482,12 +519,12 @@ void Board::set_board(const std::string &fen) {
     }
 
     iss >> substr;
-    iss >> substr;
-    iss >> ply_count;
+    iss >> fifty_moves;
+    iss >> plies;
 }
 
 bool Board::is_legal_move(Ply ply) {
-    int color = get_color(x88[ply.from]);
+    int color = get_color_of_piece(x88[ply.from]);
     Reversible r = make_move(ply);
     bool val = !is_checked(color);
     undo_move(r);
@@ -497,12 +534,4 @@ bool Board::is_legal_move(Ply ply) {
 bool Board::is_checked(Color color) {
     return color == WHITE ? is_threatened(w_king, WHITE) : is_threatened(b_king, BLACK);
 }
-
-
-
-
-
-
-
-
 
