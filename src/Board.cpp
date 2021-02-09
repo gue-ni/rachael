@@ -535,3 +535,71 @@ bool Board::is_checked(Color color) {
     return color == WHITE ? is_threatened(w_king, WHITE) : is_threatened(b_king, BLACK);
 }
 
+int Board::pseudo_legal_moves(Move *moves, Color color) {
+    int n = 0;
+    for (Square sq : valid_squares){
+        if (x88[sq] != EMPTY_SQUARE && get_color_of_piece(x88[sq]) == color){
+            n = pseudo_legal_moves_square(moves, n, sq);
+        }
+    }
+    return n;
+}
+
+int Board::pseudo_legal_moves_square(Move *moves, int n, Square square) {
+    if (x88[square] == EMPTY_SQUARE) return n;
+
+    Piece piece = x88[square];
+    Color color = get_color_of_piece(piece);
+
+    switch (abs(piece)){
+        case PAWN:{
+            if (is_empty(square + N * color) && !off_the_board(square + N * color)){
+                moves[n++] = Move(square, square + N*color);
+
+                if (get_rank07(square) == (color == WHITE ? 1 : 6) && is_empty(square + (2*N) * color)
+                && !off_the_board(square + (2 * N) * color)){
+                    moves[n++] = Move(square, square + (2 * N)*color);
+                }
+            }
+
+            if (is_enemy(square + NE*color, piece) && !off_the_board(square + NE * color)){
+                moves[n++] = Move(square, square + NE*color);
+            }
+
+            if (is_enemy(square + NW*color, piece) && !off_the_board(square + NW * color)){
+                moves[n++] = Move(square, square + NW*color);
+            }
+            break;
+        }
+    }
+    return n;
+}
+
+int Board::check_directions(Move *moves, int n, Square from, const std::vector<int> &dirs, const int max_steps,
+                            Piece piece) {
+    int steps, to;
+    assert(piece != 0);
+
+    for (int dir : dirs){
+        steps = 0;
+        to = from;
+
+        while(steps < max_steps) {
+            to += dir;
+
+            if (off_the_board(to) || is_friendly(to, piece)) break;
+
+            if (is_enemy(to, piece)) {
+                moves[n++] = Move(from,to);
+                break;
+            }
+
+            if (is_empty(to)) {
+                moves[n++] = Move(from,to);
+                steps++;
+            }
+        }
+    }
+    return n;
+}
+

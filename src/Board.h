@@ -28,6 +28,11 @@ public:
     Color color_to_move;
     int plies, fifty_moves;
 
+    int pseudo_legal_moves(Move *moves, Color color);
+    int pseudo_legal_moves_square(Move *moves, int n, Square square);
+    int check_directions(Move *moves, int n, Square from, const std::vector<int> &dirs, const int max_steps,
+                         Piece piece);
+
     std::vector<Move> pseudo_legal_moves(Color color);
     Reversible make_move(Move ply);
     void undo_move(Reversible rev);
@@ -37,7 +42,7 @@ public:
     bool is_checked(Color color);
     friend std::ostream& operator<<(std::ostream&, const Board&);
     bool is_threatened(Square square, Color color);
-    std::vector<Move> check_directions(Square from, Piece piece, const std::vector<int> &dirs, const int max_steps);
+    std::vector<Move> check_directions(Square from, Piece piece, const std::vector<int> &dirs, int max_steps);
     void legal_moves_square(std::vector<Move> &legal_moves, Square square);
 
 
@@ -101,9 +106,11 @@ private:
         x88[square] = piece;
     }
 
+    /*
     static inline bool off_the_board(Square square){
         return square & 0x88;
     }
+     */
 };
 
 #endif //CHESS_ENGINE_CPP_BOARD_H

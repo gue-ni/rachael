@@ -47,7 +47,7 @@ void uci_go(const std::string& input){
             int depth = 5;
             ss >> depth;
             info.start_time = get_time();
-            unsigned long long nodes = Search::perft(board, info, depth);
+            unsigned long long nodes = Search::perft2(board, info, depth);
             std::cout << "perft"
             << " nodes " << nodes
             << " time "<< get_time() - info.start_time

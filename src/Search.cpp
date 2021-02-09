@@ -216,3 +216,20 @@ unsigned long long int Search::perft(Board &board, SearchInfo &info, int depth) 
     }
     return nodes;
 }
+
+unsigned long long int Search::perft2(Board &board, SearchInfo &info, int depth) {
+    info.nodes++;
+
+    unsigned long long nodes = 0;
+
+    if (depth == 0) return 1ULL;
+    Move moves[100];
+    int n = board.pseudo_legal_moves(moves, board.color_to_move);
+
+    for (int i = 0; i < n; i++){
+        Reversible r = board.make_move(moves[i]);
+        if (!board.is_checked(board.color_to_move))
+            nodes += perft(board, info, depth-1);
+        board.undo_move(r);
+    }
+    return nodes;}

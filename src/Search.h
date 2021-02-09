@@ -53,6 +53,8 @@ public:
     static Move iterative_deepening_search(Board &board, SearchInfo &info, Color color);
     static Move search(Board &board, SearchInfo &info, std::vector<Move> &pv, Color color, int depth);
     static unsigned long long int perft(Board &board, SearchInfo &info, int depth);
+    static unsigned long long int perft2(Board &board, SearchInfo &info, int depth);
+
 
 private:
     static void sort_moves(Board &board, SearchInfo &ss, std::vector<Move> &moves);

@@ -38,6 +38,9 @@
 "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2"
 #define SICILIAN_DEFENSE_NAJDORF_VARIATION \
 "rnbqkb1r/1p2pppp/p2p1n2/8/3NP3/2N5/PPP2PPP/R1BQKB1R w KQkq - 0 6"
+#define PAWNS_ONLY \
+"8/pp1pp3/7p/8/2p2p2/2P1P3/PP1P1PPP/8 w - - 0 1"
+
 
 #define EMPTY_SQUARE    0
 #define KING            1
