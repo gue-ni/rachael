@@ -50,13 +50,14 @@ struct SearchInfo {
 
 class Search {
 public:
-    static Ply iterative_deepening_search(Board &board, SearchInfo &info, Color color);
-    static Ply search(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int depth);
+    static Move iterative_deepening_search(Board &board, SearchInfo &info, Color color);
+    static Move search(Board &board, SearchInfo &info, std::vector<Move> &pv, Color color, int depth);
+    static unsigned long long int perft(Board &board, SearchInfo &info, int depth);
 
 private:
-    static void sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves);
+    static void sort_moves(Board &board, SearchInfo &ss, std::vector<Move> &moves);
     static int quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color color);
-    static int alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int alpha, int beta, int depth);
+    static int alpha_beta(Board &board, SearchInfo &info, std::vector<Move> &pv, Color color, int alpha, int beta, int depth);
     static bool check_stop(SearchInfo &info);
 };
 

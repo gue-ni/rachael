@@ -43,14 +43,25 @@ void uci_go(const std::string& input){
         } else if (cmd == "wtime" && board.color_to_move == WHITE){ ss >> time;
         } else if (cmd == "binc"  && board.color_to_move == BLACK){ ss >> inc;
         } else if (cmd == "winc"  && board.color_to_move == WHITE){ ss >> inc;
+        } else if (cmd == "perft"){
+            int depth = 5;
+            ss >> depth;
+            info.start_time = get_time();
+            unsigned long long nodes = Search::perft(board, info, depth);
+            std::cout << "perft"
+            << " nodes " << nodes
+            << " time "<< get_time() - info.start_time
+            << " info.nodes " << info.nodes << std::endl;
+            return;
         }
     }
 
     info.start_time = get_time();
-    info.stop_time  = info.start_time + ((time + inc) / 15); // estimating 25 moves left
+    info.stop_time  = info.start_time + ((time + inc) / 15); // estimating 15 moves left
 
     if (time != (uint64_t)-1){
         info.time_limit = true;
+		std::cout << "calculating for " << info.stop_time - info.start_time << " milliseconds" << std::endl;
     }
     //printf("start_time=%lu, stop_time=%lu, time=%lu\n", info.start_time, info.stop_time, info.stop_time - info.start_time);
     thrd = std::thread(Search::iterative_deepening_search, std::ref(board), std::ref(info), board.color_to_move);
@@ -79,7 +90,7 @@ void uci_position(const std::string& input){
                 std::string move;
                 ss >> move;
                 if (!move.empty()){
-                    board.make_move(Ply(move));
+                    board.make_move(Move(move));
                 }
             } while (ss);
         }

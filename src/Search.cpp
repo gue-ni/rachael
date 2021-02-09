@@ -5,7 +5,7 @@
 #include "Evaluation.h"
 #include "Util.h"
 
-void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
+void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Move> &moves) {
     if (moves.empty()) return;
     // https://www.chessprogramming.org/Move_Ordering
 
@@ -40,7 +40,7 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
             move_val[i] = move_val[max];
             move_val[max] = tmp;
 
-            Ply tmp_ply = moves[i];
+            Move tmp_ply = moves[i];
             moves[i] = moves[max];
             moves[max] = tmp_ply;
         }
@@ -50,15 +50,17 @@ void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Ply> &moves) {
 int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color color){
     int stand_pat = color * Evaluation::simplified_evaluation_function(board);
 
+	info.nodes++;
+
     if (stand_pat >= beta)
         return beta;
 
     if (alpha < stand_pat)
         alpha = stand_pat;
 
-    std::vector<Ply> moves = board.pseudo_legal_moves(color);
+    std::vector<Move> moves = board.pseudo_legal_moves(color);
 
-    for (Ply move : moves){
+    for (Move move : moves){
         if (!board.is_legal_move(move) || board.is_empty(move.to)) continue;
 
         if (check_stop(info)) return 0;
@@ -85,7 +87,7 @@ bool Search::check_stop(SearchInfo &info){
     return info.stop;
 }
 
-int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int alpha, int beta, int depth) {
+int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Move> &pv, Color color, int alpha, int beta, int depth) {
     info.nodes++;
     assert(color == board.color_to_move); // just testing
 
@@ -97,14 +99,14 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Col
 
     if (board.fifty_moves == 50) return 0;
 
-    std::vector<Ply> moves, lpv;
+    std::vector<Move> moves, lpv;
     moves = board.pseudo_legal_moves(color);
     sort_moves(board, info, moves);
 
     int score = 0, legal_moves = 0;
 
-    for (Ply move : moves){
-        if (!board.is_legal_move(move)) continue;
+    for (Move move : moves){
+        //if (!board.is_legal_move(move)) continue;
 
         lpv.clear();
         legal_moves++;
@@ -112,7 +114,8 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Col
 		if (check_stop(info)) return 0;
 
         Reversible r = board.make_move(move);
-        score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
+        if (!board.is_checked(color))
+            score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
         board.undo_move(r);
 
         if (score >= beta){ // beta cutoff
@@ -138,11 +141,11 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Ply> &pv, Col
     return alpha;
 }
 
-Ply Search::iterative_deepening_search(Board &board, SearchInfo &info, Color color) {
-	Ply current_best_move, best_move;
+Move Search::iterative_deepening_search(Board &board, SearchInfo &info, Color color) {
+	Move current_best_move, best_move;
 
     for (int depth = 1; depth <= info.depth; depth++){
-        std::vector<Ply> pv;
+        std::vector<Move> pv;
 
         int score = alpha_beta(board, info, pv, color, MIN, MAX, depth);
 
@@ -165,17 +168,17 @@ Ply Search::iterative_deepening_search(Board &board, SearchInfo &info, Color col
     return best_move;
 }
 
-Ply Search::search(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color color, int depth) {
-    Ply best_move;
+Move Search::search(Board &board, SearchInfo &info, std::vector<Move> &pv, Color color, int depth) {
+    Move best_move;
     info.nodes++;
 
-    std::vector<Ply> moves = board.pseudo_legal_moves(color);
+    std::vector<Move> moves = board.pseudo_legal_moves(color);
     sort_moves(board, info, moves);
 
     int best_score = MIN;
-    std::vector<Ply> lpv;
+    std::vector<Move> lpv;
 
-    for (Ply move : moves){
+    for (Move move : moves){
 
         Reversible r = board.make_move(move);
         int score = -alpha_beta(board, info, lpv, -color, MIN, MAX, depth);
@@ -194,4 +197,22 @@ Ply Search::search(Board &board, SearchInfo &info, std::vector<Ply> &pv, Color c
     }
 
     return best_move;
+}
+
+unsigned long long int Search::perft(Board &board, SearchInfo &info, int depth) {
+    info.nodes++;
+
+    unsigned long long nodes = 0;
+
+    if (depth == 0) return 1ULL;
+
+    std::vector<Move> moves = board.pseudo_legal_moves(board.color_to_move);
+
+    for (Move move : moves){
+        Reversible r = board.make_move(move);
+        if (!board.is_checked(board.color_to_move))
+            nodes += perft(board, info, depth-1);
+        board.undo_move(r);
+    }
+    return nodes;
 }

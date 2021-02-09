@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "Util.h"
-#include "Ply.h"
+#include "Move.h"
 #include "Reversible.h"
 
 #define BLACK_TTY   "\033[0;31m"
@@ -28,17 +28,17 @@ public:
     Color color_to_move;
     int plies, fifty_moves;
 
-    std::vector<Ply> pseudo_legal_moves(Color color);
-    Reversible make_move(Ply ply);
+    std::vector<Move> pseudo_legal_moves(Color color);
+    Reversible make_move(Move ply);
     void undo_move(Reversible rev);
     int  material(Color color);
     void set_board(const std::string &fen);
-    bool is_legal_move(Ply ply);
+    bool is_legal_move(Move ply);
     bool is_checked(Color color);
     friend std::ostream& operator<<(std::ostream&, const Board&);
     bool is_threatened(Square square, Color color);
-    std::vector<Ply> check_directions(Square from, Piece piece, const std::vector<int> &dirs, const int max_steps);
-    void legal_moves_square(std::vector<Ply> &legal_moves, Square square);
+    std::vector<Move> check_directions(Square from, Piece piece, const std::vector<int> &dirs, const int max_steps);
+    void legal_moves_square(std::vector<Move> &legal_moves, Square square);
 
 
     inline Piece get_piece(Square square) {
@@ -84,10 +84,10 @@ private:
     bool b_castle_q, b_castle_k;
     Square w_king = 0, b_king = 0;
 
-    void reverse_move(Ply ply, Piece killed);
-    Piece execute_move(Ply ply);
+    void reverse_move(Move ply, Piece killed);
+    Piece execute_move(Move ply);
     void calculate_material();
-    void check_directions(std::vector<Ply> &moves, Square from, Piece piece, const std::vector<int> &dirs, const int max_steps);
+    void check_directions(std::vector<Move> &moves, Square from, Piece piece, const std::vector<int> &dirs, const int max_steps);
 
     inline bool is_enemy(Square square, Piece piece) {
         return x88[square] == EMPTY_SQUARE ? false : get_color_of_piece(x88[square]) != get_color_of_piece(piece);
