@@ -5,7 +5,7 @@ OBJ_DIR := ./obj
 #OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 
 CC:=g++
-FLAGS:=-O3 -Wall -Wextra -pedantic
+FLAGS:=-O3 -Wall -Wextra -pedantic -g
 LFLAGS:=$(FLAGS) -pthread
 CFLAGS:=$(FLAGS) -std=c++11
 

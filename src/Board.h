@@ -21,12 +21,14 @@
 class Board {
 public:
     /* STATE */
-    Color color_to_move;
-    int plies, fifty_moves;
+    Color color_to_move{};
+    int plies{}, fifty_moves;
     Piece x88[128] = { 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99 };
+
+    std::vector<Move> move_history;
 
 
     Board();
@@ -43,14 +45,16 @@ public:
     int pseudo_legal(Move *moves, Color color);
     int pseudo_legal_for_square(Move *moves, int n, Square from);
     int check_dir(Move *moves, int n, Square from, int max_steps, const std::vector<int> &dirs);
+    bool is_attacked(Square origin, Color color);
 
-
+    /*
     std::vector<Move> check_directions(Square from, Piece piece, const std::vector<int> &dirs, int max_steps);
     std::vector<Move> pseudo_legal_moves(Color color);
     void legal_moves_square(std::vector<Move> &legal_moves, Square square);
+    */
 
     bool is_checked(Color color);
-    bool is_threatened(Square square, Color color);
+    //bool is_threatened(Square square, Color color);
 
     inline bool is_empty(Square square){
         return x88[square] == EMPTY_SQUARE;
@@ -64,7 +68,6 @@ public:
         return x88[square] == EMPTY_SQUARE ? false : get_color(x88[square]) == get_color(piece);
     }
 
-private:
 
     int w_material = 0, b_material = 0;
     bool draw_color, w_castle_k, w_castle_q, b_castle_q, b_castle_k;
@@ -74,7 +77,9 @@ private:
     Piece execute_move(Move move);
 
     void calculate_material();
+    /*
     void check_directions(std::vector<Move> &moves, Square from, Piece piece, const std::vector<int> &dirs, int max_steps);
+    */
 };
 
 #endif //CHESS_ENGINE_CPP_BOARD_H

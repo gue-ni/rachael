@@ -6,7 +6,7 @@
 class Evaluation {
 public:
     static int basic_evaluation_function(Board &board);
-    static int simplified_evaluation_function(Board& board);
+    static int simplified_evaluation_function(Board &board);
 
 private:
     static int square_table(Board& board);

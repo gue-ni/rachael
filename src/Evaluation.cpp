@@ -63,7 +63,8 @@ const int king_table[64] = {
 
 int Evaluation::basic_evaluation_function(Board &board) {
     // TODO does not account for actually legal moves, only pseudo legal moves
-    int mobility = (int) board.pseudo_legal_moves(WHITE).size() - (int) board.pseudo_legal_moves(BLACK).size();
+    Move moves[256];
+    int mobility = board.pseudo_legal(moves, WHITE) -  board.pseudo_legal(moves, BLACK);
     int material = board.material(WHITE) - board.material(BLACK);
     //std::cout << "mobility: " << mobility << std::endl;
     //std::cout << "material: " << material << std::endl;
@@ -71,6 +72,14 @@ int Evaluation::basic_evaluation_function(Board &board) {
 }
 
 int Evaluation::simplified_evaluation_function(Board &board){
+    if (board.move_history.size() > 6){
+        unsigned int i = board.move_history.size()-1;
+        if (board.move_history[i] == board.move_history[i-2] && board.move_history[i-2] == board.move_history[i-4])
+            return 0;
+    }
+
+    if (board.fifty_moves >= 50) return 0;
+
     int squares = square_table(board);
     int material = board.material(WHITE) - board.material(BLACK);
     return squares + material;

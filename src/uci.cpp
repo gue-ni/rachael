@@ -47,7 +47,7 @@ void uci_go(const std::string& input){
             int depth = 5;
             ss >> depth;
             info.start_time = get_time();
-            unsigned long long nodes = Search::perft2(board, info, depth);
+            unsigned long long nodes = Search::perft(board, info, depth);
             std::cout << "perft"
             << " nodes " << nodes
             << " time "<< get_time() - info.start_time
@@ -90,12 +90,13 @@ void uci_position(const std::string& input){
                 std::string move;
                 ss >> move;
                 if (!move.empty()){
+					//std::cout << "making move " << move << std::endl;
                     board.make_move(Move(move));
                 }
             } while (ss);
         }
     } while (ss);
-    std::cout << board << std::endl;
+    //std::cout << board << std::endl;
 }
 
 bool startswith(const std::string& str, const std::string& prefix){
