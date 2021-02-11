@@ -528,25 +528,64 @@ State Board::make_move_alt(Move move) {
 
     if (p == KING){
         castling ^= (W_CASTLE_QUEENSIDE | W_CASTLE_KINGSIDE);
-    } else if(p == ROOK && move.from == H1){
+    } else if(p == ROOK && move.from == H1 && castling & W_CASTLE_KINGSIDE){
         castling ^= W_CASTLE_KINGSIDE;
-    } else if(p == ROOK && move.from == A1){
+    } else if(p == ROOK && move.from == A1 && castling & W_CASTLE_QUEENSIDE){
         castling ^= W_CASTLE_QUEENSIDE;
     }
 
-    if (p == -KING){
+    if (p == -KING && castling & (B_CASTLE_KINGSIDE || castling & B_CASTLE_QUEENSIDE)){
         castling ^= (B_CASTLE_QUEENSIDE | B_CASTLE_KINGSIDE);
-    } else if(p == -ROOK && move.from == H8){
+    } else if(p == -ROOK && move.from == H8 && castling & B_CASTLE_KINGSIDE){
         castling ^= B_CASTLE_KINGSIDE;
-    } else if(p == -ROOK && move.from == A8){
+    } else if(p == -ROOK && move.from == A8 && castling & B_CASTLE_QUEENSIDE){
         castling ^= B_CASTLE_QUEENSIDE;
+    }
+
+    if (x88[move.from] == 1) {
+        if (move.as_string() == "e1g1") {
+            if (!(x88[H1] == ROOK && x88[E1] == KING)){
+                std::cout << (*this) << std::endl;
+                assert(x88[0x07] == ROOK && x88[E1] == KING);
+            }
+            execute_move(Move("e1g1"));
+            execute_move(Move("h1f1"));
+            return state;
+        } else if (move.as_string() == "e1c1") {
+            if (!(x88[A1] == ROOK && x88[E1] == KING)){
+                std::cout << (*this) << std::endl;
+                assert(x88[A1] == ROOK && x88[E1] == KING);
+            }
+            execute_move(Move("e1c1"));
+            execute_move(Move("a1d1"));
+            return state;
+        }
+    } else if (x88[move.from] == -1){
+        if (move.as_string() == "e8c8") {
+            if (!(x88[0x77] == -ROOK && x88[0x74] == -KING)){
+                std::cout << (*this) << std::endl;
+                assert(x88[0x77] == -ROOK && x88[0x74] == -KING);
+            }
+
+            execute_move(Move("e8c8"));
+            execute_move(Move("a8d8"));
+            return state;
+        } else if (move.as_string() == "e8g8") {
+            if (!(x88[0x70] == -ROOK && x88[0x74] == -KING)){
+                std::cout << (*this) << std::endl;
+                assert(x88[0x70] == -ROOK && x88[0x74] == -KING);
+            }
+            execute_move(Move("e8g8"));
+            execute_move(Move("h8f8"));
+            return state;
+        }
     }
 
     state.killed = execute_move(move);
     return state;
 }
 
-void Board::undo_move_alt(State &state, Move move) {
+void Board::undo_move_alt(State &state, Move rev) {
     castling = state.castling_rights;
     fifty_moves = state.fifty_moves;
 
@@ -554,7 +593,28 @@ void Board::undo_move_alt(State &state, Move move) {
     plies--;
     move_history.pop_back();
 
-    reverse_move(move, state.killed);
+    if (x88[rev.to] == KING) {
+        if (rev.as_string() == "e1g1") {
+            reverse_move(Move("e1g1"), 0);
+            reverse_move(Move("h1f1"), 0);
+            return;
+        } else if (rev.as_string() == "e1c1") {
+            reverse_move(Move("e1c1"), 0);
+            reverse_move(Move("a1d1"), 0);
+            return;
+        }
+    } else if (x88[rev.to] == -KING){
+        if (rev.as_string() == "e8c8") {
+            reverse_move(Move("e8c8"), 0);
+            reverse_move(Move("a8d8"), 0);
+            return;
+        } else if (rev.as_string() == "e8g8") {
+            reverse_move(Move("e8g8"), 0);
+            reverse_move(Move("h8f8"), 0);
+            return;
+        }
+    }
+    reverse_move(rev, state.killed);
 }
 
 

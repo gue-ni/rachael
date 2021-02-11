@@ -97,7 +97,7 @@ void uci_position(const std::string& input){
             } while (ss);
         }
     } while (ss);
-    //std::cout << board << std::endl;
+    std::cout << board << std::endl;
 }
 
 bool startswith(const std::string& str, const std::string& prefix){

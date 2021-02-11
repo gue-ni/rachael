@@ -47,7 +47,7 @@ public:
     void undo_move(Reversible rev);
 
     State make_move_alt(Move move);
-    void undo_move_alt(State &state, Move move);
+    void undo_move_alt(State &state, Move rev);
 
     bool is_checked(Color color);
     int pseudo_legal(Move *moves, Color color);

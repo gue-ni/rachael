@@ -25,10 +25,10 @@ int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color
 
         if (check_stop(info)) return 0;
 
-        Reversible r = board.make_move(moves[i]);
+        State r = board.make_move_alt(moves[i]);
         if (!board.is_checked(color))
             score = -quiesence(board, info, -beta, -alpha, -color);
-        board.undo_move(r);
+        board.undo_move_alt(r,moves[i]);
 
         if (score >= beta)
             return beta;
@@ -74,12 +74,12 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Move> &pv, Co
         lpv.clear();
 		if (check_stop(info)) return 0;
 
-        Reversible r = board.make_move(moves[i]);
+        State r = board.make_move_alt(moves[i]);
         if (!board.is_checked(color)) {
             legal_moves++;
             score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
         }
-        board.undo_move(r);
+        board.undo_move_alt(r, moves[i]);
 
         if (score >= beta){ // beta cutoff
             if (board.x88[moves[i].to] == EMPTY_SQUARE)
