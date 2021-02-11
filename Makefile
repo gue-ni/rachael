@@ -15,7 +15,7 @@ UNITTEST_OBJ:= obj/unittest.o $(OBJ)
 
 .PHONY: clean all 
 
-all: rachael  
+all: rachael  unittest
 
 zip:
 	zip -q rachael.zip Makefile src/*

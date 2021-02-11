@@ -5,48 +5,6 @@
 #include "Evaluation.h"
 #include "Util.h"
 
-void Search::sort_moves(Board &board, SearchInfo &ss, std::vector<Move> &moves) {
-    if (moves.empty()) return;
-    // https://www.chessprogramming.org/Move_Ordering
-
-    std::vector<int> move_val(moves.size());
-
-    for (unsigned int i = 0; i < moves.size(); i++){
-
-        if (!board.is_empty(moves[i].to)){
-            // most valuable victim - least valuable aggressor
-            int val = 16 * abs(board.x88[moves[i].to]) - abs(board.x88[moves[i].from]);
-            move_val[i] = val > 0 ? val : 0;
-
-        } else {
-            // history_heuristic heuristic
-            move_val[i] = get_color(board.x88[moves[i].from]) == WHITE
-                          ? ss.w_history_heuristic[moves[i].from][moves[i].to]
-                          : ss.b_history_heuristic[moves[i].from][moves[i].to];
-        }
-    }
-
-    for (unsigned int i = 0; i < moves.size()-1; i++){
-        unsigned int max = i;
-
-        for (unsigned int j = i+1; j < moves.size(); j++){
-            if (move_val[j] > move_val[max]){
-                max = j;
-            }
-        }
-
-        if (max != i){
-            int tmp = move_val[i];
-            move_val[i] = move_val[max];
-            move_val[max] = tmp;
-
-            Move tmp_ply = moves[i];
-            moves[i] = moves[max];
-            moves[max] = tmp_ply;
-        }
-    }
-}
-
 int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color color){
     int stand_pat = color * Evaluation::simplified_evaluation_function(board);
 
@@ -206,23 +164,24 @@ Move Search::search(Board &board, SearchInfo &info, std::vector<Move> &pv, Color
     return best_move;
 }
 
-
-
-unsigned long long int Search::perft(Board &board, SearchInfo &info, int depth) {
-    info.nodes++;
+unsigned long long int Search::perft(Board &board, SearchInfo &info, int depth, Color color) {
     unsigned long long nodes = 0;
+    info.nodes++;
 
-    if (depth == 0) return 1ULL;
+    if (depth == 0) {
+        return 1ULL;
+    }
+
     Move moves[256];
-    int n = board.pseudo_legal(moves, board.color_to_move);
+    int n = board.pseudo_legal(moves, color);
 
     for (int i = 0; i < n; i++){
         Reversible r = board.make_move(moves[i]);
-        if (!board.is_checked(-board.color_to_move))
-            nodes += perft(board, info, depth - 1);
+        if (!board.is_checked(color)) nodes += perft(board, info, depth-1, -color);
         board.undo_move(r);
     }
-    return nodes;}
+    return nodes;
+}
 
 void Search::sort_moves(Board &board, SearchInfo &ss, Move *moves, int n) {
     if (n == 0) return;
