@@ -30,6 +30,8 @@ public:
     Color color_to_move;
     int plies, fifty_moves;
     std::vector<Move> move_history;
+    uint8_t castling = 0x00;
+
 
     Piece x88[128] = { 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
@@ -70,14 +72,15 @@ public:
 
     int pseudo_legal_for_square(Move *moves, int n, Square from);
 
+    Square b_king = 0;
+    Square w_king = 0;
+
+    void calculate_material();
+
 private:
     int w_material = 0, b_material = 0;
     bool draw_color;
     bool w_castle_k, w_castle_q, b_castle_q, b_castle_k;
-    uint8_t castling = 0x00;
-    Square w_king = 0, b_king = 0;
-
-    void calculate_material();
 
     void  reverse_move(Move move, Piece killed);
     Piece execute_move(Move move);

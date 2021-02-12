@@ -123,6 +123,8 @@ extern const Square valid_squares[64];
 extern const char pieces[7];
 extern const int material_value[7];
 
+class Move;
+
 inline double dt(clock_t tic, clock_t toc){ return  (double)(toc - tic) / CLOCKS_PER_SEC; }
 
 inline uint64_t get_time(){
@@ -155,5 +157,7 @@ inline Color get_color(Piece piece) {
     assert(piece != EMPTY_SQUARE);
     return ((piece > 0) ? 1 : ((piece < 0) ? -1 : 0));
 }
+
+
 
 #endif //CHESS_ENGINE_CPP_UTIL_H

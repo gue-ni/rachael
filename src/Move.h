@@ -21,6 +21,13 @@ struct Move {
     friend std::ostream& operator<<(std::ostream&, Move&);
     friend bool operator==(const Move& one, const Move& two);
     friend bool operator<(Move& p1, Move& p2);
+
+    inline static void print_moves(std::vector<Move> &moves){
+        for (auto m : moves){
+            std::cout << m << " ";
+        }
+        std::cout << std::endl;
+    }
 };
 
 #endif //CHESS_ENGINE_CPP_PLY_H

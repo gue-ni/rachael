@@ -120,6 +120,7 @@ int Evaluation::square_table(Board &board) {
                 value += (color * king_table[sq64]);
                 break;
             default:
+                std::cout << "evaluation: " << piece << std::endl;
                 assert(false);
         }
     }

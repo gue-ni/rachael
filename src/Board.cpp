@@ -18,7 +18,6 @@ Board::Board(const std::string& fen, bool draw_color) : draw_color(draw_color) {
     fifty_moves = 0;
     plies = 0;
     set_board(fen);
-    calculate_material();
 }
 
 int Board::material(Color color) {
@@ -330,6 +329,7 @@ void Board::set_board(const std::string &fen) {
 
     iss >> substr;
 
+    castling = 0x00;
     if (substr != "-"){
         for (char c : substr){
             if (c == 'K') castling |= W_CASTLE_KINGSIDE;
@@ -342,6 +342,8 @@ void Board::set_board(const std::string &fen) {
     iss >> substr;
     iss >> fifty_moves;
     iss >> plies;
+
+    calculate_material();
 }
 
 bool Board::is_checked(Color color) {
@@ -426,8 +428,8 @@ int Board::pseudo_legal_for_square(Move *moves, int n, Square from) {
                     && !is_attacked(from, color)
                     && x88[0x75] == EMPTY_SQUARE
                     && x88[0x76] == EMPTY_SQUARE
-                    && x88[0x77] == -ROOK){
-                    moves[n++] = Move(0x74, 0x76);
+                    && x88[H8] == -ROOK){
+                    moves[n++] = Move(E8, G8);
                 }
                 if (castling & B_CASTLE_QUEENSIDE
                     && !is_attacked(0x71, color)
@@ -524,7 +526,7 @@ State Board::make_move_alt(Move move) {
     move_history.push_back(move);
 
     Piece p = x88[move.from];
-    Color c = get_color(p);
+    //Color c = get_color(p);
 
     if (p == KING){
         castling ^= (W_CASTLE_QUEENSIDE | W_CASTLE_KINGSIDE);
@@ -571,9 +573,10 @@ State Board::make_move_alt(Move move) {
             execute_move(Move("a8d8"));
             return state;
         } else if (move.as_string() == "e8g8") {
-            if (!(x88[0x70] == -ROOK && x88[0x74] == -KING)){
+            if (!(x88[A8] == -ROOK && x88[E8] == -KING)){
                 std::cout << (*this) << std::endl;
-                assert(x88[0x70] == -ROOK && x88[0x74] == -KING);
+                Move::print_moves(move_history);
+                assert(x88[A8] == -ROOK && x88[E8] == -KING);
             }
             execute_move(Move("e8g8"));
             execute_move(Move("h8f8"));
