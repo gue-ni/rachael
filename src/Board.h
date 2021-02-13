@@ -7,7 +7,6 @@
 
 #include "Util.h"
 #include "Move.h"
-#include "Reversible.h"
 #include "State.h"
 
 #define BLACK_TTY   "\033[0;31m"
@@ -28,11 +27,10 @@
 class Board {
 public:
     Color color_to_move;
-    int plies, fifty_moves;
+    int plies, fifty_moves, material;
     std::vector<Move> move_history;
     uint8_t castling = 0x00;
-
-
+    Square b_king = 0, w_king = 0;
     Piece x88[128] = { 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
@@ -42,11 +40,7 @@ public:
     Board(const std::string& fen, bool draw_color);
     friend std::ostream& operator<<(std::ostream&, const Board&);
 
-    int  material(Color color);
     void set_board(const std::string &fen);
-
-    Reversible make_move(Move move);
-    void undo_move(Reversible rev);
 
     State make_move_alt(Move move);
     void undo_move_alt(State &state, Move rev);
@@ -68,22 +62,21 @@ public:
 
     bool is_attacked(Square origin, Color color);
 
+    bool is_legal_move(Move move, Color color);
+
     int check_dir(Move *moves, int n, Square from, int max_steps, const std::vector<int> &dirs);
 
     int pseudo_legal_for_square(Move *moves, int n, Square from);
 
-    Square b_king = 0;
-    Square w_king = 0;
 
-    void calculate_material();
+    Piece execute_move(Move move);
+    void  reverse_move(Move move, Piece killed);
+
 
 private:
-    int w_material = 0, b_material = 0;
     bool draw_color;
-    bool w_castle_k, w_castle_q, b_castle_q, b_castle_k;
+    void calculate_material();
 
-    void  reverse_move(Move move, Piece killed);
-    Piece execute_move(Move move);
 };
 
 #endif //CHESS_ENGINE_CPP_BOARD_H

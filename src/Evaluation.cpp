@@ -65,7 +65,7 @@ int Evaluation::basic_evaluation_function(Board &board) {
     // TODO does not account for actually legal moves, only pseudo legal moves
     Move moves[256];
     int mobility = board.pseudo_legal(moves, WHITE) -  board.pseudo_legal(moves, BLACK);
-    int material = board.material(WHITE) - board.material(BLACK);
+    int material = board.material;
     //std::cout << "mobility: " << mobility << std::endl;
     //std::cout << "material: " << material << std::endl;
     return mobility + material;
@@ -77,12 +77,8 @@ int Evaluation::simplified_evaluation_function(Board &board){
         if (board.move_history[i] == board.move_history[i-2] && board.move_history[i-2] == board.move_history[i-4])
             return 0;
     }
-
     if (board.fifty_moves >= 50) return 0;
-
-    int squares = square_table(board);
-    int material = board.material(WHITE) - board.material(BLACK);
-    return squares + material;
+    return square_table(board) + board.material;
 }
 
 int Evaluation::square_table(Board &board) {
@@ -95,7 +91,7 @@ int Evaluation::square_table(Board &board) {
 
         Color color = get_color(piece);
         piece = abs(piece);
-        int sq64 = convert_8x8(square);
+        Square sq64 = convert_8x8(square);
 
         if (color == WHITE) sq64 = sq64 ^ 56; // mirror
 

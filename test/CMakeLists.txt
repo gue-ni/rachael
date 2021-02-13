@@ -2,7 +2,7 @@ set(BINARY ${CMAKE_PROJECT_NAME}_tst)
 
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES false *.h *.cpp)
 
-set(SOURCES Board-test.cpp Move-test.cpp main.cpp)
+set(SOURCES Board-test.cpp Move-test.cpp  Movegen-test.cpp main.cpp)
 
 add_executable(${BINARY} ${TEST_SOURCES})
 

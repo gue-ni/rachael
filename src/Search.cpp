@@ -21,14 +21,13 @@ int Search::quiesence(Board &board, SearchInfo &info, int alpha, int beta, Color
 
     int score = 0;
     for (int i = 0; i < n; i++){
-        if (board.is_empty(moves[i].to)) continue;
+        if (board.is_empty(moves[i].to) || !board.is_legal_move(moves[i], color)) continue;
 
         if (check_stop(info)) return 0;
 
-        State r = board.make_move_alt(moves[i]);
-        if (!board.is_checked(color))
-            score = -quiesence(board, info, -beta, -alpha, -color);
-        board.undo_move_alt(r,moves[i]);
+        State state = board.make_move_alt(moves[i]);
+        score = -quiesence(board, info, -beta, -alpha, -color);
+        board.undo_move_alt(state, moves[i]);
 
         if (score >= beta)
             return beta;
@@ -64,22 +63,20 @@ int Search::alpha_beta(Board &board, SearchInfo &info, std::vector<Move> &pv, Co
     int n = board.pseudo_legal(moves, color);
     sort_moves(board, info, moves, n);
 
-    //std::vector<Move> moves;
-    //moves = board.pseudo_legal_moves(color);
-    //sort_moves(board, info, moves);
-
-    int score = 0, legal_moves = 0;
+    int score, legal_moves = 0;
 
     for (int i = 0; i < n; i++){
-        lpv.clear();
+        if (!board.is_legal_move(moves[i], color)) continue;
+
 		if (check_stop(info)) return 0;
 
-        State r = board.make_move_alt(moves[i]);
-        if (!board.is_checked(color)) {
-            legal_moves++;
-            score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
-        }
-        board.undo_move_alt(r, moves[i]);
+        legal_moves++;
+
+        lpv.clear();
+
+        State state = board.make_move_alt(moves[i]);
+        score = -alpha_beta(board, info, lpv, -color, -beta, -alpha, depth-1);
+        board.undo_move_alt(state, moves[i]);
 
         if (score >= beta){ // beta cutoff
             if (board.x88[moves[i].to] == EMPTY_SQUARE)
@@ -145,9 +142,9 @@ Move Search::search(Board &board, SearchInfo &info, std::vector<Move> &pv, Color
 
     for (int i = 0; i < n; i++){
 
-        Reversible r = board.make_move(moves[i]);
+        State r = board.make_move_alt(moves[i]);
         int score = -alpha_beta(board, info, lpv, -color, MIN, MAX, depth);
-        board.undo_move(r);
+        board.undo_move_alt(r, moves[i]);
 
         //std::cout << move << " " << score << std::endl;
 
@@ -176,9 +173,9 @@ unsigned long long int Search::perft(Board &board, SearchInfo &info, int depth, 
     int n = board.pseudo_legal(moves, color);
 
     for (int i = 0; i < n; i++){
-        Reversible r = board.make_move(moves[i]);
+        State r = board.make_move_alt(moves[i]);
         if (!board.is_checked(color)) nodes += perft(board, info, depth-1, -color);
-        board.undo_move(r);
+        board.undo_move_alt(r, moves[i]);
     }
     return nodes;
 }

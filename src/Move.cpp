@@ -37,8 +37,8 @@ std::ostream& operator<<(std::ostream &strm, Move &p) {
     return strm << p.as_string();
 }
 
-bool operator==(const Move &one, const Move& two){
-    return one.to == two.to && one.from == two.from;
+bool operator==(const Move &m1, const Move& m2){
+    return m1.to == m2.to && m1.from == m2.from;
 }
 
 std::string Move::as_string() {
