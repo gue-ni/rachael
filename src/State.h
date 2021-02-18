@@ -10,7 +10,8 @@ struct State {
     uint8_t castling_rights = 0x00;
     int fifty_moves = 0;
     Piece killed = 0;
-    Move move;
+    Square en_passant;
+    Color en_passant_color;
 };
 
 

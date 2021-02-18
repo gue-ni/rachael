@@ -45,6 +45,9 @@ std::string Move::as_string() {
     if (from == -1 || to == -1) return "0000";
     std::ostringstream str;
     str << convert_string(from) << convert_string(to);
+    if (promote_to != 0){
+        str << (char)tolower(pieces[promote_to]);
+    }
     return str.str();
 }
 

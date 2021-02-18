@@ -114,6 +114,7 @@
 #define KNIGHT          4
 #define ROOK            5
 #define PAWN            6
+#define INVALID_SQUARE  99
 
 typedef int8_t Color;
 typedef int8_t Piece;

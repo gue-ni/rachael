@@ -92,7 +92,7 @@ void uci_position(const std::string& input){
                 ss >> move;
                 if (!move.empty()){
 					//std::cout << "making move " << move << std::endl;
-                    board.make_move_alt(Move(move));
+                    board.make_move(Move(move));
                 }
             } while (ss);
         }

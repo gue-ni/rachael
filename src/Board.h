@@ -22,6 +22,7 @@
 // implemented rules
 #define CASTLING
 #define PROMOTION
+#define EN_PASSANT
 #define FIFTY_MOVES
 
 class Board {
@@ -30,7 +31,8 @@ public:
     int plies, fifty_moves, material;
     std::vector<Move> move_history;
     uint8_t castling = 0x00;
-    Square b_king = 0, w_king = 0;
+    Square b_king = INVALID_SQUARE, w_king = INVALID_SQUARE, en_passant = INVALID_SQUARE;
+    Color en_passant_color;
     Piece x88[128] = { 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
                        0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99, 0,0,0,0,0,0,0,0,99,99,99,99,99,99,99,99,
@@ -42,8 +44,10 @@ public:
 
     void set_board(const std::string &fen);
 
-    State make_move_alt(Move move);
-    void undo_move_alt(State &state, Move rev);
+    State make_move(Move move);
+    void  undo_move(State &state, Move move);
+    Piece execute_move(Move move);
+    void  reverse_move(Move move, Piece killed);
 
     bool is_checked(Color color);
     int pseudo_legal(Move *moves, Color color);
@@ -69,8 +73,6 @@ public:
     int pseudo_legal_for_square(Move *moves, int n, Square from);
 
 
-    Piece execute_move(Move move);
-    void  reverse_move(Move move, Piece killed);
 
 
 private:

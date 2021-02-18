@@ -187,7 +187,7 @@ TEST(boardTest, boardTest_make_move_alt_Test){
     EXPECT_EQ((bool)(board.castling & B_CASTLE_QUEENSIDE), true);
     EXPECT_EQ((bool)(board.castling & B_CASTLE_KINGSIDE), true);
     m = Move(A8, B8);
-    board.make_move_alt(m);
+    board.make_move(m);
     std::cout << board << std::endl;
     EXPECT_EQ((bool)(board.castling & B_CASTLE_QUEENSIDE), false);
     EXPECT_EQ((bool)(board.castling & B_CASTLE_KINGSIDE), true);
@@ -195,7 +195,7 @@ TEST(boardTest, boardTest_make_move_alt_Test){
     board.set_board("rn1qkbnr/pp2pppp/2p5/5b2/3PN3/8/PPP2PPP/R1BQKBNR w KQkq - 1 5");
     //wm = board.material(WHITE);
     m = Move(F5, E4);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ(board.x88[F5], EMPTY_SQUARE);
     EXPECT_EQ(board.x88[E4], BLACK*BISHOP);
     //EXPECT_EQ(board.material(WHITE), wm-320);
@@ -204,7 +204,7 @@ TEST(boardTest, boardTest_make_move_alt_Test){
     //wm = board.material(WHITE);
     //bm = board.material(BLACK);
     m = Move(E2, E4);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ(board.x88[E4], PAWN);
     EXPECT_EQ(board.x88[E2], EMPTY_SQUARE);
     //EXPECT_EQ(wm, board.material(WHITE));
@@ -214,7 +214,7 @@ TEST(boardTest, boardTest_make_move_alt_Test){
     //wm = board.material(WHITE);
     //bm = board.material(BLACK);
     m = Move(E5, D4);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ(board.x88[D4], BLACK*PAWN);
     EXPECT_EQ(board.x88[E5], EMPTY_SQUARE);
     //EXPECT_EQ(wm-100, board.material(WHITE));
@@ -222,35 +222,35 @@ TEST(boardTest, boardTest_make_move_alt_Test){
 
     board.set_board("rnbqkb1r/ppp2ppp/5n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 3");
     m = Move(H1, G1);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), true);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_KINGSIDE), false);
 
     board.set_board("rnbqkb1r/ppp2ppp/5n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 3");
     m = Move(E1, E2);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), false);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_KINGSIDE), false);
     m = Move(E2, E1);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), false);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_KINGSIDE), false);
 
 
     board.set_board("rnbqkb1r/ppp2ppp/5n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 3");
     m = Move(H1, G1);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), true);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_KINGSIDE), false);
     m = Move(G1, F1);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), true);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_KINGSIDE), false);
 
     // white castle kingside
     board.set_board("rnbqkb1r/ppp2ppp/5n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 3");
     m = Move(E1, G1);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ(board.x88[G1], KING);
     EXPECT_EQ(board.x88[F1], ROOK);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), false);
@@ -259,7 +259,7 @@ TEST(boardTest, boardTest_make_move_alt_Test){
     // black castle queenside
     board.set_board("r3kb1r/ppp2ppp/2n1bn2/3qp3/4P3/1PP2N2/P2P1PPP/RNBQK2R w KQkq - 2 3");
     m = Move(E8, C8);
-    board.make_move_alt(m);
+    board.make_move(m);
     EXPECT_EQ(board.x88[C8], BLACK*KING);
     EXPECT_EQ(board.x88[D8], BLACK*ROOK);
     EXPECT_EQ((bool)(board.castling & B_CASTLE_QUEENSIDE), false);
@@ -282,8 +282,8 @@ TEST(boardTest, boardTest_undo_move_alt_Test){
     //wm = board.material(WHITE);
     //bm = board.material(BLACK);
     m = Move(E2, E4);
-    s = board.make_move_alt(m);
-    board.undo_move_alt(s, m);
+    s = board.make_move(m);
+    board.undo_move(s, m);
     EXPECT_EQ(board.x88[E2], PAWN);
     EXPECT_EQ(board.x88[E4], EMPTY_SQUARE);
 
@@ -292,8 +292,8 @@ TEST(boardTest, boardTest_undo_move_alt_Test){
     //wm = board.material(WHITE);
     //bm = board.material(BLACK);
     m = Move(C6, D4);
-    s = board.make_move_alt(m);
-    board.undo_move_alt(s, m);
+    s = board.make_move(m);
+    board.undo_move(s, m);
     EXPECT_EQ(board.x88[C6], BLACK*KNIGHT);
     EXPECT_EQ(board.x88[D4], PAWN);
     //EXPECT_EQ(wm, board.material(WHITE));
@@ -302,12 +302,12 @@ TEST(boardTest, boardTest_undo_move_alt_Test){
 // white castle kingside
     board.set_board("rnbqkb1r/ppp2ppp/5n2/3pp3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 3");
     m = Move(E1, G1);
-    s = board.make_move_alt(m);
+    s = board.make_move(m);
     EXPECT_EQ(board.x88[G1], KING);
     EXPECT_EQ(board.x88[F1], ROOK);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), false);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_KINGSIDE), false);
-    board.undo_move_alt(s, m);
+    board.undo_move(s, m);
     EXPECT_EQ(board.x88[E1], KING);
     EXPECT_EQ(board.x88[H1], ROOK);
     EXPECT_EQ((bool)(board.castling & W_CASTLE_QUEENSIDE), true);
