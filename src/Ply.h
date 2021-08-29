@@ -1,4 +1,3 @@
-
 #ifndef CHESS_ENGINE_CPP_PLY_H
 #define CHESS_ENGINE_CPP_PLY_H
 

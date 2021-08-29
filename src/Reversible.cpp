@@ -1,7 +1,3 @@
-//
-// Created by jakob on 1/28/21.
-//
-
 #include "Reversible.h"
 
 Reversible::Reversible(Ply ply, Piece killed) : Ply(ply.from, ply.to), killed_piece(killed){}

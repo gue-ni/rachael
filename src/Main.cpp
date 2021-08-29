@@ -7,13 +7,13 @@
 #include "Search.h"
 #include "Util.h"
 
-#define AUTHOR "Jakob Maier"
 #define NAME "Rachael 1.0"
+#define AUTHOR "Jakob Maier"
 
-std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-std::thread thrd;
 SearchInfo info;
+std::thread thrd;
 Board board(DEFAULT_BOARD, true);
+std::string startpos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 void uci_stop(){
     info.stop = true;
@@ -23,10 +23,10 @@ void uci_stop(){
 }
 
 void uci_go(const std::string& input){
+    uci_stop();
+
     std::string cmd;
     std::istringstream ss(input);
-
-    uci_stop();
 
     uint64_t time = -1, inc = 0;
 
@@ -54,7 +54,7 @@ void uci_go(const std::string& input){
         info.time_limit = true;
     }
 
-    //printf("start_time=%lu, stop_time=%lu, time=%lu\n", info.start_time, info.stop_time, info.stop_time - info.start_time);
+    printf("start_time=%lu, stop_time=%lu, time=%lu\n", info.start_time, info.stop_time, info.stop_time - info.start_time);
 
     thrd = std::thread(Search::iterative_deepening, std::ref(board), std::ref(info), board.color_to_move);
 }

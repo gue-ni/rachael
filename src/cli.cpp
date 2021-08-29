@@ -1,5 +1,5 @@
 #include <iostream>
-#include <getopt.h>
+//#include <getopt.h>
 
 #include "Board.h"
 #include "SquareClass.h"
@@ -34,7 +34,7 @@ bool human_take_turn(Board &board, int color){
 
 bool engine_take_turn(Board &board, int color, int search_depth) {
     clock_t tic = clock();
-    std::optional<Ply> move = search(board, search_depth);
+    std::optional<Ply> move = Search::search(board, search_depth);
     clock_t toc = clock();
     double dt = (double)(toc - tic) / CLOCKS_PER_SEC;
 
@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
+    /*
     int opt;
     while ((opt = getopt(argc, argv, "d:thrd:c:wb")) != -1){
         switch (opt){
@@ -96,6 +97,7 @@ int main(int argc, char **argv) {
                 exit(EXIT_FAILURE);
         }
     }
+    */
 
     Board board(DEFAULT_BOARD, color_output);
 
@@ -135,8 +137,7 @@ int main(int argc, char **argv) {
     << ", black_material=" << board.material(BLACK)
     << std::endl;
 
-
-    for (auto &m : board.move_history) std::cout << m << " ";
-    std::cout << std::endl;
+    //for (auto &m : board.move_history) std::cout << m << " ";
+    //std::cout << std::endl;
     return 0;
 }

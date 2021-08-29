@@ -1,10 +1,5 @@
-//
-// Created by jakob on 1/28/21.
-//
-
 #ifndef CHESS_ENGINE_CPP_REVERSIBLE_H
 #define CHESS_ENGINE_CPP_REVERSIBLE_H
-
 
 #include "Ply.h"
 #include "Util.h"

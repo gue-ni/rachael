@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <thread>
 #include <map>
-#include <zconf.h>
 
 #include "Board.h"
 #include "Reversible.h"
